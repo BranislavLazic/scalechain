@@ -3,7 +3,7 @@ package io.scalechain.blockchain.net.handler
 import java.io.File
 
 import io.netty.channel.embedded.EmbeddedChannel
-import io.scalechain.blockchain.chain.{Blockchain, TransactionSampleData}
+import io.scalechain.blockchain.chain.{ Blockchain, TransactionSampleData }
 import io.scalechain.blockchain.chain.TransactionSampleData
 
 import io.scalechain.blockchain.chain.processor.TransactionProcessor
@@ -12,13 +12,14 @@ import io.scalechain.blockchain.storage.index.KeyValueDatabase
 import io.scalechain.blockchain.transaction.ChainEnvironment
 import org.scalatest._
 import HashSupported._
+import org.scalatest.matchers.should.Matchers
 
-class TxMessageHandlerSpec extends MessageHandlerTestTrait with ShouldMatchers {
+class TxMessageHandlerSpec extends MessageHandlerTestTrait with Matchers {
   this: Suite =>
 
   val testPath = new File("./target/unittests-TransactionMessageHandlerSpec/")
 
-  implicit var keyValueDB : KeyValueDatabase = null
+  implicit var keyValueDB: KeyValueDatabase = null
 
   override def beforeEach() {
     // set-up code
@@ -28,8 +29,8 @@ class TxMessageHandlerSpec extends MessageHandlerTestTrait with ShouldMatchers {
 
     keyValueDB = db
     val env = ChainEnvironment.get
-    assert(Blockchain.theBlockchain!=null)
-    chain.putBlock( env.GenesisBlockHash, env.GenesisBlock )
+    assert(Blockchain.theBlockchain != null)
+    chain.putBlock(env.GenesisBlockHash, env.GenesisBlock)
   }
 
   override def afterEach() {
@@ -47,9 +48,9 @@ class TxMessageHandlerSpec extends MessageHandlerTestTrait with ShouldMatchers {
     import data.Block._
     import data.Tx._
 
-    chain.putBlock( BLK01.header.hash, BLK01 )
-    chain.putBlock( BLK02.header.hash, BLK02 )
-    chain.putBlock( BLK03.header.hash, BLK03 )
+    chain.putBlock(BLK01.header.hash, BLK01)
+    chain.putBlock(BLK02.header.hash, BLK02)
+    chain.putBlock(BLK03.header.hash, BLK03)
 
     TxMessageHandler.handle(context, TX04_01.transaction)
     TxMessageHandler.handle(context, TX04_02.transaction)
@@ -75,7 +76,7 @@ class TxMessageHandlerSpec extends MessageHandlerTestTrait with ShouldMatchers {
     )
 
     // Put the TX04_04. Now TX04_05_01 ~ TX04_05_05 should be mined.
-    TxMessageHandler.handle( context, TX04_04.transaction)
+    TxMessageHandler.handle(context, TX04_04.transaction)
 
     val block2 = mineBlock(chain)
     chain.putBlock(block2.header.hash, block2)

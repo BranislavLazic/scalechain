@@ -4,12 +4,12 @@ import java.io.File
 
 import io.netty.channel.embedded.EmbeddedChannel
 import org.scalatest._
+import org.scalatest.matchers.should.Matchers
 
-class VerackMessageHandlerSpec extends MessageHandlerTestTrait with ShouldMatchers {
+class VerackMessageHandlerSpec extends MessageHandlerTestTrait with Matchers {
   this: Suite =>
 
   val testPath = new File("./target/unittests-VerackMessageHandlerSpec/")
 
-  "handle" should "" in {
-  }
+  "handle" should "" in {}
 }

@@ -17,7 +17,7 @@ lazy val `scalechain-chain` =
 lazy val `scalechain-cli` =
   project
     .in(file("./scalechain-cli"))
-    .dependsOn(`scalechain-util`, `scalechain-net`, `scalechain-transaction`, `scalechain-wallet`)
+    .dependsOn(`scalechain-util`, `scalechain-net`, `scalechain-transaction`, `scalechain-wallet`, `scalechain-api`)
 
 lazy val `scalechain-consensus` =
   project.in(file("./scalechain-consensus"))
@@ -80,22 +80,20 @@ lazy val `scalechain-wallet` =
     .dependsOn(`scalechain-util`, `scalechain-chain`, `scalechain-storage`, `scalechain-transaction`)
 
 ThisBuild / libraryDependencies ++= Seq(
-  "io.netty"                    % "netty-all"       % "4.1.6.Final",
-  "io.spray"                    % "spray-json_2.11" % "1.3.2",
-  "ch.qos.logback"              % "logback-classic" % "1.1.7",
-  "com.typesafe.scala-logging" %% "scala-logging"   % "3.9.3",
-  "org.scalatest"              %% "scalatest"       % "3.2.9",
-//    "org.scalatest" %% "scalatest" % "2.2.6",
-// latest :
-  "org.scalacheck" %% "scalacheck" % "1.15.4",
-  // For unit tests, we need apache commons-io to remove a directory that has data files created while testing.
-  "commons-io"              % "commons-io"              % "2.5",
-  "org.eclipse.collections" % "eclipse-collections"     % "8.0.0",
-  "org.eclipse.collections" % "eclipse-collections-api" % "8.0.0",
-  "com.thesamet.scalapb"   %% "scalapb-runtime"         % scalapb.compiler.Version.scalapbVersion % "protobuf"
+  "io.netty"                    % "netty-all"               % "4.1.6.Final",
+  "io.spray"                   %% "spray-json"              % "1.3.6",
+  "ch.qos.logback"              % "logback-classic"         % "1.1.7",
+  "com.typesafe.scala-logging" %% "scala-logging"           % "3.9.3",
+  "org.scalatest"              %% "scalatest"               % "3.2.9",
+  "org.scalacheck"             %% "scalacheck"              % "1.15.4",
+  "commons-io"                  % "commons-io"              % "2.5",
+  "org.eclipse.collections"     % "eclipse-collections"     % "8.0.0",
+  "org.eclipse.collections"     % "eclipse-collections-api" % "8.0.0",
+  "com.thesamet.scalapb"       %% "scalapb-runtime"         % scalapb.compiler.Version.scalapbVersion % "protobuf"
 )
 
 Test / fork := true
+Test / parallelExecution := true
 Test / logLevel := Level.Warn
 
 Compile / PB.targets := Seq(

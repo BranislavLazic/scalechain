@@ -13,7 +13,6 @@ import io.scalechain.blockchain.api.RequestHandler
 import io.scalechain.blockchain.net.p2p.NodeThrottle
 import io.scalechain.util.{ ExceptionUtil, StackUtil }
 import org.slf4j.LoggerFactory
-import collection.convert.wrapAll._
 import java.util
 
 object ApiServerHandler {

@@ -6,11 +6,12 @@ import io.scalechain.blockchain.api.domain.StringResult
 import io.scalechain.blockchain.cli.APITestSuite
 import org.scalatest._
 import spray.json.JsString
+import org.scalatest.flatspec.AnyFlatSpec
 
 /**
   * Created by kangmo on 11/2/15.
   */
-class HelpSpec extends FlatSpec with BeforeAndAfterEach with APITestSuite {
+class HelpSpec extends AnyFlatSpec with BeforeAndAfterEach with APITestSuite {
   this: Suite =>
 
   override def beforeEach() {
@@ -29,7 +30,7 @@ class HelpSpec extends FlatSpec with BeforeAndAfterEach with APITestSuite {
 
   "Help" should "list commands if no argument is provided." in {
     val response = invoke(Help)
-    val result = response.right.get.get.asInstanceOf[StringResult]
+    val result   = response.right.get.get.asInstanceOf[StringResult]
     result.value.contains("== Blockchain ==") shouldBe true
   }
 
@@ -38,7 +39,7 @@ class HelpSpec extends FlatSpec with BeforeAndAfterEach with APITestSuite {
     for (command <- Services.serviceByCommand.keys) {
       println(s"Testing if help for command, $command works well.")
       val response = invoke(Help, List(JsString(command)))
-      val result = response.right.get.get.asInstanceOf[StringResult]
+      val result   = response.right.get.get.asInstanceOf[StringResult]
       result.value.contains(command) shouldBe true
     }
   }

@@ -4,13 +4,12 @@ import java.io.File
 
 import io.netty.channel.embedded.EmbeddedChannel
 import org.scalatest._
+import org.scalatest.matchers.should.Matchers
 
-
-class InvMessageHandlerSpec extends MessageHandlerTestTrait with ShouldMatchers {
+class InvMessageHandlerSpec extends MessageHandlerTestTrait with Matchers {
   this: Suite =>
 
   val testPath = new File("./target/unittests-InvMessageHandlerSpec/")
 
-  "handle" should "" in {
-  }
+  "handle" should "" in {}
 }

@@ -2,11 +2,13 @@ package io.scalechain.blockchain.net
 
 import io.scalechain.util.PeerAddress
 import org.scalatest._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.flatspec.AnyFlatSpec
 
 /**
   * Created by kangmo on 11/2/15.
   */
-class PeerIndexCalculatorSpec extends FlatSpec with BeforeAndAfterEach with ShouldMatchers {
+class PeerIndexCalculatorSpec extends AnyFlatSpec with BeforeAndAfterEach with Matchers {
   this: Suite =>
 
   override def beforeEach() {
@@ -42,7 +44,7 @@ class PeerIndexCalculatorSpec extends FlatSpec with BeforeAndAfterEach with Shou
       PeerAddress("127.0.0.1", 1002)
     )
 
-    PeerIndexCalculator.getPeerIndexInternal(999,  0, peers) shouldBe None
+    PeerIndexCalculator.getPeerIndexInternal(999, 0, peers) shouldBe None
     PeerIndexCalculator.getPeerIndexInternal(1003, 0, peers) shouldBe None
   }
 
@@ -57,8 +59,6 @@ class PeerIndexCalculatorSpec extends FlatSpec with BeforeAndAfterEach with Shou
     PeerIndexCalculator.getPeerIndexInternal(1001, 0, peers) shouldBe Some(1)
     PeerIndexCalculator.getPeerIndexInternal(1002, 0, peers) shouldBe Some(2)
   }
-
-
 
   /**
     * Assumption :
@@ -86,7 +86,7 @@ class PeerIndexCalculatorSpec extends FlatSpec with BeforeAndAfterEach with Shou
     PeerIndexCalculator.getPeerIndex(7646) shouldBe Some(3)
     PeerIndexCalculator.getPeerIndex(7647) shouldBe Some(4)
     PeerIndexCalculator.getPeerIndex(7648) shouldBe None
-    */
+     */
   }
 
 }

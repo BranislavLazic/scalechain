@@ -5,16 +5,18 @@ package io.scalechain.blockchain.cli
   */
 
 import io.scalechain.blockchain.proto.Hash
-import io.scalechain.util.{PeerAddress, HexUtil}
+import io.scalechain.util.{ HexUtil, PeerAddress }
 import HexUtil._
 
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
   * Source code copied from : https://github.com/ACINQ/bitcoin-lib/blob/master/src/test/scala/fr/acinq/bitcoin/Base58Spec.scala
   * License : Apache v2.
   */
-class CoinMinerSpec extends FlatSpec with BeforeAndAfterEach with ShouldMatchers {
+class CoinMinerSpec extends AnyFlatSpec with BeforeAndAfterEach with Matchers {
   this: Suite =>
   import Hash._
 
@@ -44,7 +46,6 @@ class CoinMinerSpec extends FlatSpec with BeforeAndAfterEach with ShouldMatchers
     isLessThan(Hash("F0000"), Hash("E0000")) shouldBe false
     isLessThan(Hash("E0000"), Hash("F0000")) shouldBe true
 
-
     isLessThan(Hash("FFFFF"), Hash("FFFFF")) shouldBe false
     isLessThan(Hash("FFFFF"), Hash("FFFFE")) shouldBe false
     isLessThan(Hash("FFFFE"), Hash("FFFFF")) shouldBe true
@@ -52,4 +53,3 @@ class CoinMinerSpec extends FlatSpec with BeforeAndAfterEach with ShouldMatchers
     isLessThan(Hash("EFFFF"), Hash("FFFFF")) shouldBe true
   }
 }
-

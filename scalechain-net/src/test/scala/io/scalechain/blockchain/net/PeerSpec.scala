@@ -1,11 +1,13 @@
 package io.scalechain.blockchain.net
 
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
   * Created by kangmo on 11/2/15.
   */
-class PeerSpec extends FlatSpec with BeforeAndAfterEach with ShouldMatchers {
+class PeerSpec extends AnyFlatSpec with BeforeAndAfterEach with Matchers {
   this: Suite =>
 
   override def beforeEach() {
@@ -22,6 +24,5 @@ class PeerSpec extends FlatSpec with BeforeAndAfterEach with ShouldMatchers {
     //
   }
 
-  "method" should "" in {
-  }
+  "method" should "" in {}
 }

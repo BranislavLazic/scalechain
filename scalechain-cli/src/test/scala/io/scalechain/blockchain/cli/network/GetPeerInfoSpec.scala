@@ -1,8 +1,9 @@
 package io.scalechain.blockchain.cli.network
 
-import io.scalechain.blockchain.api.command.network.{GetPeerInfoResult, GetPeerInfo}
+import io.scalechain.blockchain.api.command.network.{ GetPeerInfo, GetPeerInfoResult }
 import io.scalechain.blockchain.cli.APITestSuite
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
 
 /**
   * Created by kangmo on 11/2/15.
@@ -10,7 +11,7 @@ import org.scalatest._
 
 // The test does not pass yet. Will make it pass soon.
 @Ignore
-class GetPeerInfoSpec extends FlatSpec with BeforeAndAfterEach with APITestSuite {
+class GetPeerInfoSpec extends AnyFlatSpec with BeforeAndAfterEach with APITestSuite {
   this: Suite =>
 
   override def beforeEach() {
@@ -31,7 +32,7 @@ class GetPeerInfoSpec extends FlatSpec with BeforeAndAfterEach with APITestSuite
 
   "GetPeerInfo" should "should get the bitcoind as a peer." in {
     val response = invoke(GetPeerInfo)
-    val result = response.right.get.get.asInstanceOf[GetPeerInfoResult]
+    val result   = response.right.get.get.asInstanceOf[GetPeerInfoResult]
 
     // We should have only one peer.
     result.peerInfos.size shouldBe 1

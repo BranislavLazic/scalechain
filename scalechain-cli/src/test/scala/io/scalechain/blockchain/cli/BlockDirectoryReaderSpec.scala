@@ -1,13 +1,15 @@
 package io.scalechain.blockchain.cli
 
-import io.scalechain.blockchain.{ErrorCode, ProtocolCodecException}
+import io.scalechain.blockchain.{ ErrorCode, ProtocolCodecException }
 import io.scalechain.blockchain.proto.Block
 import org.scalatest._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.flatspec.AnyFlatSpec
 
 /**
- * Created by kangmo on 11/2/15.
- */
-class BlockDirectoryReaderSpec extends FlatSpec with BeforeAndAfterEach with ShouldMatchers {
+  * Created by kangmo on 11/2/15.
+  */
+class BlockDirectoryReaderSpec extends AnyFlatSpec with BeforeAndAfterEach with Matchers {
   this: Suite =>
 
   override def beforeEach() {
@@ -25,40 +27,34 @@ class BlockDirectoryReaderSpec extends FlatSpec with BeforeAndAfterEach with Sho
 
   "readFrom" should "read all blocks in a file" in {
     val READ_BLOCKS_UP_TO = 500
-    val blocks = new Array[Block](READ_BLOCKS_UP_TO)
-    var blocksRead = 0
+    val blocks            = new Array[Block](READ_BLOCKS_UP_TO)
+    var blocksRead        = 0
 
     class BlockListener extends BlockReadListener {
-      def onBlock(block : Block ): Unit = {
+      def onBlock(block: Block): Unit =
         //println("onBlock("+blocksRead+") : " + block.header)
-
         if (blocksRead < READ_BLOCKS_UP_TO) {
           blocks(blocksRead) = block
-          blocksRead +=1;
+          blocksRead += 1;
         }
-      }
     }
 
     val blockListener = new BlockListener()
-    val reader = new BlockDirectoryReader(blockListener)
+    val reader        = new BlockDirectoryReader(blockListener)
 
-    try {
-      reader.readFrom("scalechain-script/src/test/resources/blocks")
-    } catch {
-      case e : ProtocolCodecException => {
+    try reader.readFrom("scalechain-script/src/test/resources/blocks")
+    catch {
+      case e: ProtocolCodecException =>
         if (e.code == ErrorCode.RemainingNotEmptyAfterDecoding) {
           // Because the data file in the path is created by cutting blk00000.dat to 128K, this error can happen.
           // Do nothing.
-        } else {
+        } else
           throw e
-        }
-      }
     }
 
     var count = 0
-    for (b : Block <- blocks) {
+    for (b: Block <- blocks)
       count += 1
-    }
     println("Total Blocks : " + count)
     assert(blocksRead == READ_BLOCKS_UP_TO)
   }

@@ -25,66 +25,114 @@ object CommandExecutor {
   def main(args: Array[String]) = {
     val parser = new scopt.OptionParser[Parameters]("scalechain-cli") {
       head("scalechain-cli", "1.0")
-      opt[String]('h', "host") action { (x, c) =>
-        c.copy(rpcParameters = c.rpcParameters.copy(host = x))
-      }.text("host of the ScaleChain Json-RPC service.")
-      opt[Int]('p', "port") action { (x, c) =>
-        c.copy(rpcParameters = c.rpcParameters.copy(port = x))
-      }.text("port of the ScaleChain Json-RPC service.")
-      opt[String]('u', "user") action { (x, c) =>
-        c.copy(rpcParameters = c.rpcParameters.copy(user = x))
-      }.text("The user name for RPC authentication")
-      opt[String]('p', "password") action { (x, c) =>
-        c.copy(rpcParameters = c.rpcParameters.copy(password = x))
-      }.text("The password for RPC authentication")
-      opt[String]('n', "network") action { (x, c) =>
-        c.copy(network = x)
-      }.text("The network to use. currently 'testnet' is supported. Will support 'mainnet' as well as 'regtest' soon.")
-      cmd("getinfo") required () action { (_, c) =>
-        c.copy(command = "getinfo")
-      }.text("getinfo shows current status of the ScaleChain node.")
-      cmd("gettxout") required () action { (_, c) =>
-        c.copy(command = "gettxout")
-      }.text("gettxout shows a transaction output.") children {
-        arg[String]("<transaction id> <output index>") minOccurs2 maxOccurs2 required () action { (x, c) =>
-          c.copy(args = args :+ x)
-        }.text("provide the transaction ID and the index of the output you want to see.")
+      opt[String]('h', "host")
+        .action { (x, c) =>
+          c.copy(rpcParameters = c.rpcParameters.copy(host = x))
+        }
+        .text("host of the ScaleChain Json-RPC service.")
+      opt[Int]('p', "port")
+        .action { (x, c) =>
+          c.copy(rpcParameters = c.rpcParameters.copy(port = x))
+        }
+        .text("port of the ScaleChain Json-RPC service.")
+      opt[String]('u', "user")
+        .action { (x, c) =>
+          c.copy(rpcParameters = c.rpcParameters.copy(user = x))
+        }
+        .text("The user name for RPC authentication")
+      opt[String]('p', "password")
+        .action { (x: String, c: Parameters) =>
+          c.copy(rpcParameters = c.rpcParameters.copy(password = x))
+        }
+        .text("The password for RPC authentication")
+      opt[String]('n', "network")
+        .action { (x, c) =>
+          c.copy(network = x)
+        }
+        .text("The network to use. currently 'testnet' is supported. Will support 'mainnet' as well as 'regtest' soon.")
+      cmd("getinfo")
+        .required()
+        .action { (_, c: Parameters) =>
+          c.copy(command = "getinfo")
+        }
+        .text("getinfo shows current status of the ScaleChain node.")
+      cmd("gettxout")
+        .required()
+        .action { (_, c: Parameters) =>
+          c.copy(command = "gettxout")
+        }
+        .text("gettxout shows a transaction output.")
+        .children {
+          arg[String]("<transaction id> <output index>")
+            .minOccurs(2)
+            .maxOccurs(2)
+            .required()
+            .action { (x, c) =>
+              c.copy(args = args :+ x)
+            }
+            .text("provide the transaction ID and the index of the output you want to see.")
+        }
+      cmd("generateaddress")
+        .required()
+        .action { (_, c) =>
+          c.copy(command = "generateaddress")
+        }
+        .text("generateaddress generates a private key, public key, and an address.")
+      cmd("generaterawtransactions")
+        .required()
+        .action { (_, c) =>
+          c.copy(command = "generaterawtransactions")
+        }
+        .text("generaterawtransactions generates transactions.")
+        .children {
+          arg[String](
+            "<private key> <output split count> <transaction group count> <transaction count for each group>"
+          ).minOccurs(4)
+            .maxOccurs(4)
+            .required()
+            .action { (x, c) =>
+              c.copy(args = args :+ x)
+            }
+            .text(
+              "provide the private key to get coins to test, the number of outputs for split transactions to use, transaction group count for the parallelism in your test, the number of transactions for each group."
+            )
+        }
+      cmd("multithreadtestlayers")
+        .required()
+        .action { (_, c) =>
+          c.copy(command = "multithreadtestlayers")
+        }
+        .text(
+          "multithreadtestlayers tests each layer using multi-threads. You need to run generaterawtransaction to generate transaction files used as inputs of this RPC."
+        ) children {
+        arg[String]("<transaction group count>")
+          .minOccurs(1)
+          .maxOccurs(1)
+          .required()
+          .action { (x, c) =>
+            c.copy(args = args :+ x)
+          }
+          .text("provide transaction group count for the parallelism in your test.")
       }
-      cmd("generateaddress") required () action { (_, c) =>
-        c.copy(command = "generateaddress")
-      }.text("generateaddress generates a private key, public key, and an address.")
-      cmd("generaterawtransactions") required () action { (_, c) =>
-        c.copy(command = "generaterawtransactions")
-      }.text("generaterawtransactions generates transactions.") children {
-        arg[String](
-          "<private key> <output split count> <transaction group count> <transaction count for each group>"
-        ) minOccurs4 maxOccurs4 required () action { (x, c) =>
-          c.copy(args = args :+ x)
-        }.text(
-          "provide the private key to get coins to test, the number of outputs for split transactions to use, transaction group count for the parallelism in your test, the number of transactions for each group."
-        )
-      }
-      cmd("multithreadtestlayers") required () action { (_, c) =>
-        c.copy(command = "multithreadtestlayers")
-      }.text(
-        "multithreadtestlayers tests each layer using multi-threads. You need to run generaterawtransaction to generate transaction files used as inputs of this RPC."
-      ) children {
-        arg[String]("<transaction group count>") minOccurs1 maxOccurs1 required () action { (x, c) =>
-          c.copy(args = args :+ x)
-        }.text("provide transaction group count for the parallelism in your test.")
-      }
-      cmd("multithreadtestrpc") required () action { (_, c) =>
-        c.copy(command = "multithreadtestrpc")
-      }.text(
-        "multithreadtestrpc calls sendrawtransaction RPC using multi-threads. You need to run generaterawtransaction to generate transaction files used as inputs of this RPC."
-      ) children {
+      cmd("multithreadtestrpc")
+        .required()
+        .action { (_, c) =>
+          c.copy(command = "multithreadtestrpc")
+        }
+        .text(
+          "multithreadtestrpc calls sendrawtransaction RPC using multi-threads. You need to run generaterawtransaction to generate transaction files used as inputs of this RPC."
+        ) children {
         arg[String](
           "<node count> <transaction group count> [filter node index]"
-        ) minOccurs3 maxOccurs3 required () action { (x, c) =>
-          c.copy(args = args :+ x)
-        }.text(
-          "provide total node count, transaction group count, the node index to send data(x for all nodes, or 0,1,2,.. or node count-1) for the parallelism in your test."
-        )
+        ).minOccurs(3)
+          .maxOccurs(3)
+          .required()
+          .action { (x, c) =>
+            c.copy(args = args :+ x)
+          }
+          .text(
+            "provide total node count, transaction group count, the node index to send data(x for all nodes, or 0,1,2,.. or node count-1) for the parallelism in your test."
+          )
       }
     }
 

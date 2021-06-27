@@ -3,11 +3,13 @@ package io.scalechain.blockchain.api.domain
 import org.scalatest._
 import spray.json.DefaultJsonProtocol.StringJsonFormat
 import spray.json._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
   * Test cases for validating our assumptions on spray.io
   */
-class SprayIoSpec extends FlatSpec with BeforeAndAfterEach with ShouldMatchers {
+class SprayIoSpec extends AnyFlatSpec with BeforeAndAfterEach with Matchers {
   this: Suite =>
 
   override def beforeEach() {
@@ -24,15 +26,14 @@ class SprayIoSpec extends FlatSpec with BeforeAndAfterEach with ShouldMatchers {
   }
 
   implicit object JsValueFormat extends RootJsonFormat[JsValue] {
-    def write( any : JsValue ) = {
+    def write(any: JsValue) = {
       // Not used.
       assert(false);
       "".toJson
     }
 
-    def read( value: JsValue ) : JsValue = {
+    def read(value: JsValue): JsValue =
       value
-    }
   }
 
   "convertTo" should "be able to leave JsValue as is if we want" in {
