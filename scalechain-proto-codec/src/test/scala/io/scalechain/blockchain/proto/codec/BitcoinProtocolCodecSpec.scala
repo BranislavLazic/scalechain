@@ -2,11 +2,12 @@ package io.scalechain.blockchain.proto.codec
 
 
 import org.scalatest._
-
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 /**
   * Created by kangmo on 11/2/15.
   */
-class BitcoinProtocolCodecSpec extends FlatSpec with BeforeAndAfterEach with ShouldMatchers {
+class BitcoinProtocolCodecSpec extends AnyFlatSpec with BeforeAndAfterEach with Matchers {
   this: Suite =>
 
   override def beforeEach() {

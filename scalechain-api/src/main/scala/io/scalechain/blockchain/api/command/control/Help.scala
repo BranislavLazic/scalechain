@@ -3,7 +3,7 @@ package io.scalechain.blockchain.api.command.help
 import io.scalechain.blockchain.api.Services
 import io.scalechain.blockchain.api.command.RpcCommand
 import io.scalechain.blockchain.api.command.blockchain.GetBestBlockHash._
-import io.scalechain.blockchain.api.domain.{StringResult, RpcError, RpcRequest, RpcResult}
+import io.scalechain.blockchain.api.domain.{ RpcError, RpcRequest, RpcResult, StringResult }
 import io.scalechain.blockchain.proto.HashFormat
 import spray.json.DefaultJsonProtocol._
 
@@ -31,7 +31,7 @@ import spray.json.DefaultJsonProtocol._
       "error": null,
       "id": "curltest"
     }
-*/
+ */
 
 /** Help: lists all available public RPC commands, or gets help for the specified RPC.
   *
@@ -82,27 +82,25 @@ object Help extends RpcCommand {
       |sendfrom "fromaccount" "tobitcoinaddress" amount ( minconf "comment" "comment-to" )
     """.stripMargin
 
-  def invoke(request : RpcRequest) : Either[RpcError, Option[RpcResult]] = {
+  def invoke(request: RpcRequest): Either[RpcError, Option[RpcResult]] =
     handlingException {
       // Convert request.params.paramValues, which List[JsValue] to SignRawTransactionParams instance.
       val rpcName: Option[String] = request.params.getOption[String]("RPC", 0)
 
-      if (rpcName.isEmpty) {
+      if (rpcName.isEmpty)
         Right(Some(StringResult(helpForAllCommands)))
-      } else {
+      else {
         val command = rpcName.get
 
         val serviceOption = Services.serviceByCommand.get(command)
-        if (serviceOption.isDefined) {
+        if (serviceOption.isDefined)
           Right(Some(StringResult(serviceOption.get.help)))
-        } else {
+        else
           Left(RpcError(0, "Invalid command", command))
-        }
       }
     }
-  }
 
-  def help() : String =
+  def help(): String =
     """help ( "command" )
       |
       |List all commands, or get help for a specified command.
@@ -114,5 +112,3 @@ object Help extends RpcCommand {
       |"text"     (string) The help text
     """.stripMargin
 }
-
-

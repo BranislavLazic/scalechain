@@ -2,7 +2,7 @@ package io.scalechain.blockchain.script.ops
 
 import java.math.BigInteger
 
-import io.scalechain.blockchain.{ErrorCode, ScriptEvalException}
+import io.scalechain.blockchain.{ ErrorCode, ScriptEvalException }
 import io.scalechain.blockchain.script.ScriptEnvironment
 import io.scalechain.util.Utils
 
@@ -15,10 +15,9 @@ trait StackOperation extends ScriptOp
 case class OpToAltStack() extends StackOperation {
   def opCode() = OpCode(0x6b)
 
-  def execute(env : ScriptEnvironment): Unit = {
-    if (env.stack.size() < 1 ) {
+  def execute(env: ScriptEnvironment): Unit = {
+    if (env.stack.size() < 1)
       throw new ScriptEvalException(ErrorCode.NotEnoughInput, "ScriptOp:OpToAltStack")
-    }
 
     val item = env.stack.pop()
     // No need to copy, as we are moving the item.
@@ -33,10 +32,9 @@ case class OpToAltStack() extends StackOperation {
 case class OpFromAltStack() extends StackOperation {
   def opCode() = OpCode(0x6c)
 
-  def execute(env : ScriptEnvironment): Unit = {
-    if (env.altStack.size() < 1 ) {
+  def execute(env: ScriptEnvironment): Unit = {
+    if (env.altStack.size() < 1)
       throw new ScriptEvalException(ErrorCode.NotEnoughInput, "ScriptOp:OpFromAltStack")
-    }
 
     val item = env.altStack.pop()
     // No need to copy, as we are moving the item.
@@ -52,14 +50,12 @@ case class OpFromAltStack() extends StackOperation {
 case class OpIfDup() extends StackOperation {
   def opCode() = OpCode(0x73)
 
-  def execute(env : ScriptEnvironment): Unit = {
-    if (env.stack.size() < 1) {
+  def execute(env: ScriptEnvironment): Unit = {
+    if (env.stack.size() < 1)
       throw new ScriptEvalException(ErrorCode.NotEnoughInput, "ScriptOp:OpIfDup")
-    }
     val top = env.stack.top()
-    if (Utils.castToBool(top.value)) {
+    if (Utils.castToBool(top.value))
       env.stack.push(top.copy())
-    }
   }
 }
 
@@ -70,9 +66,9 @@ case class OpIfDup() extends StackOperation {
 case class OpDepth() extends StackOperation {
   def opCode() = OpCode(0x74)
 
-  def execute(env : ScriptEnvironment): Unit = {
-    val stackSize : Int = env.stack.size()
-    env.stack.pushInt( BigInteger.valueOf(stackSize) )
+  def execute(env: ScriptEnvironment): Unit = {
+    val stackSize: Int = env.stack.size()
+    env.stack.pushInt(BigInteger.valueOf(stackSize))
   }
 }
 
@@ -83,10 +79,9 @@ case class OpDepth() extends StackOperation {
 case class OpDrop() extends StackOperation {
   def opCode() = OpCode(0x75)
 
-  def execute(env : ScriptEnvironment): Unit = {
-    if (env.stack.size() < 1) {
+  def execute(env: ScriptEnvironment): Unit = {
+    if (env.stack.size() < 1)
       throw new ScriptEvalException(ErrorCode.NotEnoughInput, "ScriptOp:OpDrop")
-    }
 
     env.stack.pop()
   }
@@ -99,10 +94,9 @@ case class OpDrop() extends StackOperation {
 case class OpDup() extends StackOperation {
   def opCode() = OpCode(0x76)
 
-  def execute(env : ScriptEnvironment): Unit = {
-    if (env.stack.size() < 1) {
+  def execute(env: ScriptEnvironment): Unit = {
+    if (env.stack.size() < 1)
       throw new ScriptEvalException(ErrorCode.NotEnoughInput, "ScriptOp:OpDup")
-    }
 
     val value = env.stack.top()
     env.stack.push(value.copy())
@@ -116,10 +110,9 @@ case class OpDup() extends StackOperation {
 case class OpNip() extends StackOperation {
   def opCode() = OpCode(0x77)
 
-  def execute(env : ScriptEnvironment): Unit = {
-    if (env.stack.size() < 2) {
+  def execute(env: ScriptEnvironment): Unit = {
+    if (env.stack.size() < 2)
       throw new ScriptEvalException(ErrorCode.NotEnoughInput, "ScriptOp:OpNip")
-    }
 
     // Remove the second item on the stack.
     // The top item has index 0, so the second item in the stack has index 1.
@@ -134,13 +127,12 @@ case class OpNip() extends StackOperation {
 case class OpOver() extends StackOperation {
   def opCode() = OpCode(0x78)
 
-  def execute(env : ScriptEnvironment): Unit = {
-    if (env.stack.size() < 2) {
+  def execute(env: ScriptEnvironment): Unit = {
+    if (env.stack.size() < 2)
       throw new ScriptEvalException(ErrorCode.NotEnoughInput, "ScriptOp:OpOver")
-    }
 
     val secondItem = env.stack(1)
-    env.stack.push( secondItem.copy() )
+    env.stack.push(secondItem.copy())
 
   }
 }
@@ -152,23 +144,23 @@ case class OpOver() extends StackOperation {
 case class OpPick() extends StackOperation {
   def opCode() = OpCode(0x79)
 
-  def execute(env : ScriptEnvironment): Unit = {
-    if (env.stack.size() < 2) {
+  def execute(env: ScriptEnvironment): Unit = {
+    if (env.stack.size() < 2)
       throw new ScriptEvalException(ErrorCode.NotEnoughInput, "ScriptOp:OpPick")
-    }
 
     // Get the <n> value
     val stackIndex = env.stack.popInt().intValue()
 
     // Now, the stack should have at least stackIndex + 1 items.
-    if (env.stack.size() < stackIndex + 1) {
-      throw new ScriptEvalException(ErrorCode.NotEnoughInput, "ScriptOp:OpPick, Not enough input after getting the stack index")
-    }
+    if (env.stack.size() < stackIndex + 1)
+      throw new ScriptEvalException(
+        ErrorCode.NotEnoughInput,
+        "ScriptOp:OpPick, Not enough input after getting the stack index"
+      )
     val itemAtIndex = env.stack(stackIndex)
     env.stack.push(itemAtIndex.copy())
   }
 }
-
 
 /** OP_ROLL(0x7a) : Pop value N from top, then move the Nth item to the top of the stack
   * Before : xn ... x2 x1 x0 <n>
@@ -177,24 +169,24 @@ case class OpPick() extends StackOperation {
 case class OpRoll() extends StackOperation {
   def opCode() = OpCode(0x7a)
 
-  def execute(env : ScriptEnvironment): Unit = {
-    if (env.stack.size() < 2) {
+  def execute(env: ScriptEnvironment): Unit = {
+    if (env.stack.size() < 2)
       throw new ScriptEvalException(ErrorCode.NotEnoughInput, "ScriptOp:OpRoll")
-    }
 
     // Get the <n> value
     val stackIndex = env.stack.popInt().intValue()
 
     // Now, the stack should have at least stackIndex + 1 items.
-    if (env.stack.size() < stackIndex + 1) {
-      throw new ScriptEvalException(ErrorCode.NotEnoughInput, "ScriptOp:OpRoll, Not enough input after getting the stack index")
-    }
+    if (env.stack.size() < stackIndex + 1)
+      throw new ScriptEvalException(
+        ErrorCode.NotEnoughInput,
+        "ScriptOp:OpRoll, Not enough input after getting the stack index"
+      )
     val itemAtIndex = env.stack.remove(stackIndex)
     // No need to copy the item, as we are moving the item.
     env.stack.push(itemAtIndex)
   }
 }
-
 
 /** OP_ROT(0x7b) : Rotate the top three items in the stack
   * Before : x1 x2 x3
@@ -203,10 +195,9 @@ case class OpRoll() extends StackOperation {
 case class OpRot() extends StackOperation {
   def opCode() = OpCode(0x7b)
 
-  def execute(env : ScriptEnvironment): Unit = {
-    if (env.stack.size() < 3) {
+  def execute(env: ScriptEnvironment): Unit = {
+    if (env.stack.size() < 3)
       throw new ScriptEvalException(ErrorCode.NotEnoughInput, "ScriptOp:OpRot")
-    }
 
     val thirdItem = env.stack.remove(2)
 
@@ -215,8 +206,6 @@ case class OpRot() extends StackOperation {
   }
 }
 
-
-
 /** OP_SWAP(0x7c) : Swap the top three items in the stack
   * Before : x1 x2
   * After  : x2 x1
@@ -224,10 +213,9 @@ case class OpRot() extends StackOperation {
 case class OpSwap() extends StackOperation {
   def opCode() = OpCode(0x7c)
 
-  def execute(env : ScriptEnvironment): Unit = {
-    if (env.stack.size() < 2) {
+  def execute(env: ScriptEnvironment): Unit = {
+    if (env.stack.size() < 2)
       throw new ScriptEvalException(ErrorCode.NotEnoughInput, "ScriptOp:OpSwap")
-    }
 
     val secondItem = env.stack.remove(1)
 
@@ -236,7 +224,6 @@ case class OpSwap() extends StackOperation {
   }
 }
 
-
 /** OP_TUCK(0x7d) : The item at the top of the stack is copied and inserted before the second-to-top item.
   * Before : s x1 x2
   * After  : s x2 x1 x2
@@ -244,17 +231,15 @@ case class OpSwap() extends StackOperation {
 case class OpTuck() extends StackOperation {
   def opCode() = OpCode(0x7d)
 
-  def execute(env : ScriptEnvironment): Unit = {
-    if (env.stack.size() < 2) {
+  def execute(env: ScriptEnvironment): Unit = {
+    if (env.stack.size() < 2)
       throw new ScriptEvalException(ErrorCode.NotEnoughInput, "ScriptOp:OpTuck")
-    }
 
     val topItem = env.stack.top()
     // Insert the element at the given position.
     env.stack.insert(1, topItem.copy())
   }
 }
-
 
 /** OP_2DROP(0x6d) : Pop top two stack items
   * Before : x1 x2
@@ -263,10 +248,9 @@ case class OpTuck() extends StackOperation {
 case class Op2Drop() extends StackOperation {
   def opCode() = OpCode(0x6d)
 
-  def execute(env : ScriptEnvironment): Unit = {
-    if (env.stack.size() < 2) {
+  def execute(env: ScriptEnvironment): Unit = {
+    if (env.stack.size() < 2)
       throw new ScriptEvalException(ErrorCode.NotEnoughInput, "ScriptOp:Op2Drop")
-    }
 
     env.stack.pop()
     env.stack.pop()
@@ -280,18 +264,16 @@ case class Op2Drop() extends StackOperation {
 case class Op2Dup() extends StackOperation {
   def opCode() = OpCode(0x6e)
 
-  def execute(env : ScriptEnvironment): Unit = {
-    if (env.stack.size() < 2) {
+  def execute(env: ScriptEnvironment): Unit = {
+    if (env.stack.size() < 2)
       throw new ScriptEvalException(ErrorCode.NotEnoughInput, "ScriptOp:Op2Dup")
-    }
-    val topItem = env.stack(0)
+    val topItem    = env.stack(0)
     val secondItem = env.stack(1)
 
     env.stack.push(secondItem.copy())
     env.stack.push(topItem.copy())
   }
 }
-
 
 /** OP_3DUP(0x6f) : Duplicate top three stack items
   * Before : x1 x2 x3
@@ -300,20 +282,18 @@ case class Op2Dup() extends StackOperation {
 case class Op3Dup() extends StackOperation {
   def opCode() = OpCode(0x6f)
 
-  def execute(env : ScriptEnvironment): Unit = {
-    if (env.stack.size() < 3) {
+  def execute(env: ScriptEnvironment): Unit = {
+    if (env.stack.size() < 3)
       throw new ScriptEvalException(ErrorCode.NotEnoughInput, "ScriptOp:Op3Dup")
-    }
-    val topItem = env.stack(0)
+    val topItem    = env.stack(0)
     val secondItem = env.stack(1)
-    val thirdItem = env.stack(2)
+    val thirdItem  = env.stack(2)
 
     env.stack.push(thirdItem.copy())
     env.stack.push(secondItem.copy())
     env.stack.push(topItem.copy())
   }
 }
-
 
 /** OP_2OVER(0x70) : Copy the third and fourth items in the stack to the top
   * Before : x1 x2 x3 x4
@@ -322,19 +302,17 @@ case class Op3Dup() extends StackOperation {
 case class Op2Over() extends StackOperation {
   def opCode() = OpCode(0x70)
 
-  def execute(env : ScriptEnvironment): Unit = {
-    if (env.stack.size() < 4) {
+  def execute(env: ScriptEnvironment): Unit = {
+    if (env.stack.size() < 4)
       throw new ScriptEvalException(ErrorCode.NotEnoughInput, "ScriptOp:Op2Over")
-    }
 
-    val thirdItem = env.stack(2)
+    val thirdItem  = env.stack(2)
     val fourthItem = env.stack(3)
 
     env.stack.push(fourthItem)
     env.stack.push(thirdItem)
   }
 }
-
 
 /** OP_2ROT(0x71) : Move the fifth and sixth items in the stack to the top
   * Before : x1 x2 x3 x4 x5 x6
@@ -343,10 +321,9 @@ case class Op2Over() extends StackOperation {
 case class Op2Rot() extends StackOperation {
   def opCode() = OpCode(0x71)
 
-  def execute(env : ScriptEnvironment): Unit = {
-    if (env.stack.size() < 6) {
+  def execute(env: ScriptEnvironment): Unit = {
+    if (env.stack.size() < 6)
       throw new ScriptEvalException(ErrorCode.NotEnoughInput, "ScriptOp:Op2Rot")
-    }
 
     val fifthItem = env.stack.remove(4)
     // instead of removing element at index 5, we have to remove an element at 4,
@@ -358,7 +335,6 @@ case class Op2Rot() extends StackOperation {
   }
 }
 
-
 /** OP_2SWAP(0x72) : Swap the two top pairs of items in the stack
   * Before : x1 x2 x3 x4
   * After  : x3 x4 x1 x2
@@ -366,12 +342,11 @@ case class Op2Rot() extends StackOperation {
 case class Op2Swap() extends StackOperation {
   def opCode() = OpCode(0x72)
 
-  def execute(env : ScriptEnvironment): Unit = {
-    if (env.stack.size() < 4) {
+  def execute(env: ScriptEnvironment): Unit = {
+    if (env.stack.size() < 4)
       throw new ScriptEvalException(ErrorCode.NotEnoughInput, "ScriptOp:Op2Swap")
-    }
 
-    val thirdItem  = env.stack.remove(2)
+    val thirdItem = env.stack.remove(2)
     // instead of removing element at index 3, we have to remove an element at 2,
     // because the previous element at index 2 was removed.
     val fourthItem = env.stack.remove(2)

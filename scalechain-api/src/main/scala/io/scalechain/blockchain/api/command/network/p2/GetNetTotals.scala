@@ -1,7 +1,7 @@
 package io.scalechain.blockchain.api.command.network.p2
 
 import io.scalechain.blockchain.api.command.RpcCommand
-import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
+import io.scalechain.blockchain.api.domain.{ RpcError, RpcRequest, RpcResult }
 
 /*
   CLI command :
@@ -23,7 +23,7 @@ import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
       "error": null,
       "id": "curltest"
     }
-*/
+ */
 
 /** GetNetTotals: returns information about network traffic,
   * including bytes in, bytes out, and the current time.
@@ -31,12 +31,12 @@ import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
   * https://bitcoin.org/en/developer-reference#getnettotals
   */
 object GetNetTotals extends RpcCommand {
-  def invoke(request : RpcRequest) : Either[RpcError, Option[RpcResult]] = {
+  def invoke(request: RpcRequest): Either[RpcError, Option[RpcResult]] = {
     // TODO : Implement
     assert(false)
     Right(None)
   }
-  def help() : String =
+  def help(): String =
     """getnettotals
       |
       |Returns information about network traffic, including bytes in, bytes out,
@@ -63,5 +63,3 @@ object GetNetTotals extends RpcCommand {
       |> curl --user myusername --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "getnettotals", "params": [] }' -H 'content-type: text/plain;' http://127.0.0.1:8332/
     """.stripMargin
 }
-
-

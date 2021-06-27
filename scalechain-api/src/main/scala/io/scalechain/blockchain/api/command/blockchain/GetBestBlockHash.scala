@@ -3,8 +3,8 @@ package io.scalechain.blockchain.api.command.blockchain
 import io.scalechain.blockchain.api.RpcSubSystem
 import io.scalechain.blockchain.api.command.RpcCommand
 import io.scalechain.blockchain.api.command.rawtx.SignRawTransaction._
-import io.scalechain.blockchain.api.domain.{StringResult, RpcError, RpcRequest, RpcResult}
-import io.scalechain.blockchain.proto.{HashFormat, Hash}
+import io.scalechain.blockchain.api.domain.{ RpcError, RpcRequest, RpcResult, StringResult }
+import io.scalechain.blockchain.proto.{ Hash, HashFormat }
 import io.scalechain.util.ByteArray
 import spray.json.DefaultJsonProtocol._
 
@@ -25,7 +25,7 @@ import spray.json.DefaultJsonProtocol._
       "id": "curltest"
     }
 
-*/
+ */
 
 /** GetBestBlockHash: returns the header hash of the most recent block on the best block chain.
   *
@@ -39,15 +39,14 @@ import spray.json.DefaultJsonProtocol._
   * https://bitcoin.org/en/developer-reference#getbestblockhash
   */
 object GetBestBlockHash extends RpcCommand {
-  def invoke(request : RpcRequest) : Either[RpcError, Option[RpcResult]] = {
+  def invoke(request: RpcRequest): Either[RpcError, Option[RpcResult]] =
     handlingException {
-      val hashOption : Option[Hash] = RpcSubSystem.get.getBestBlockHash()
-      Right(hashOption.map{ hash =>
+      val hashOption: Option[Hash] = RpcSubSystem.get.getBestBlockHash()
+      Right(hashOption.map { hash =>
         StringResult(ByteArray.byteArrayToString(hash.value))
       })
     }
-  }
-  def help() : String =
+  def help(): String =
     """getbestblockhash
       |
       |Returns the hash of the best (tip) block in the longest block chain.
@@ -60,5 +59,3 @@ object GetBestBlockHash extends RpcCommand {
       |> curl --user myusername --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "getbestblockhash", "params": [] }' -H 'content-type: text/plain;' http://127.0.0.1:8332/
     """.stripMargin
 }
-
-

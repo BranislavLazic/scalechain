@@ -1,8 +1,10 @@
 package io.scalechain.blockchain.transaction
 
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class PublicKeySpec extends FlatSpec with BeforeAndAfterEach with ChainTestTrait with ShouldMatchers {
+class PublicKeySpec extends AnyFlatSpec with BeforeAndAfterEach with ChainTestTrait with Matchers {
   this: Suite =>
 
   override def beforeEach() {

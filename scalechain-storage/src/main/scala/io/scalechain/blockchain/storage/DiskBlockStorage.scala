@@ -4,23 +4,21 @@ import java.io.File
 
 import com.typesafe.scalalogging.Logger
 import io.scalechain.blockchain.proto._
-import io.scalechain.blockchain.proto.codec.{TransactionDescriptorCodec, HashCodec, BlockCodec, TransactionCodec}
+import io.scalechain.blockchain.proto.codec.{ BlockCodec, HashCodec, TransactionCodec, TransactionDescriptorCodec }
 import io.scalechain.blockchain.storage.index._
 import io.scalechain.blockchain.storage.record.BlockRecordStorage
 import io.scalechain.blockchain.script.HashSupported._
 import io.scalechain.crypto.HashEstimation
 import org.slf4j.LoggerFactory
 
-
 // A version Using RocksDB
 object DiskBlockStorage {
   val MAX_FILE_SIZE = 1024 * 1024 * 100
   //val MAX_FILE_SIZE = 1024 * 1024 * 1
 
+  var theBlockStorage: DiskBlockStorage = null
 
-  var theBlockStorage : DiskBlockStorage = null
-
-  def create(storagePath : File, db : KeyValueDatabase) : BlockStorage = {
+  def create(storagePath: File, db: KeyValueDatabase): BlockStorage = {
     assert(theBlockStorage == null)
     theBlockStorage = new DiskBlockStorage(storagePath, MAX_FILE_SIZE)(db)
     theBlockStorage
@@ -30,7 +28,7 @@ object DiskBlockStorage {
     *
     * @return The block storage.
     */
-  def get() : BlockStorage = {
+  def get(): BlockStorage = {
     assert(theBlockStorage != null)
     theBlockStorage
   }
@@ -53,7 +51,6 @@ object DiskBlockStorage {
   *    In this case, both header and block data comes together.
   *    We put both block and block header at once.
   *
-  *
   * Upon receival of blocks, we maintain the following indexes.
   * keys and values are stored on the key/value database, whereas records are stored on the record storage.
   *
@@ -73,23 +70,30 @@ object DiskBlockStorage {
   * @param directoryPath The path where database files are located.
   */
 
-class DiskBlockStorage(directoryPath : File, maxFileSize : Int)(implicit db : KeyValueDatabase) extends BlockStorage with BlockDatabaseForRecordStorage {
-  private val logger = Logger( LoggerFactory.getLogger(classOf[DiskBlockStorage]) )
+class DiskBlockStorage(directoryPath: File, maxFileSize: Int)(implicit db: KeyValueDatabase)
+    extends BlockStorage
+    with BlockDatabaseForRecordStorage {
+  private val logger = Logger(LoggerFactory.getLogger(classOf[DiskBlockStorage]))
 
   directoryPath.mkdir()
 
   protected[storage] val blockRecordStorage = new BlockRecordStorage(directoryPath, maxFileSize)
-  protected[storage] val blockWriter = new BlockWriter(blockRecordStorage)
+  protected[storage] val blockWriter        = new BlockWriter(blockRecordStorage)
 
-  protected[storage] def updateFileInfo(headerLocator : FileRecordLocator, fileSize : Long, blockHeight : Long, blockTimestamp : Long): Unit = {
+  protected[storage] def updateFileInfo(
+      headerLocator: FileRecordLocator,
+      fileSize: Long,
+      blockHeight: Long,
+      blockTimestamp: Long
+  ): Unit = {
     val lastFileNumber = FileNumber(headerLocator.fileIndex)
 
     // Are we writing at the beginning of the file?
     // If yes, we need to update the last block file, because it means we created a file now.
 
-    if (headerLocator.recordLocator.offset == 0) { // case 1 : a new record file was created.
+    if (headerLocator.recordLocator.offset == 0) // case 1 : a new record file was created.
       putLastBlockFile(lastFileNumber)
-    } else { // case 2 : the block was written on the existing record file.
+    else { // case 2 : the block was written on the existing record file.
       // do nothing.
     }
 
@@ -125,11 +129,11 @@ class DiskBlockStorage(directoryPath : File, maxFileSize : Int)(implicit db : Ke
     * @return Boolean true if the block header or block was not existing, and it was put for the first time. false otherwise.
     *                 submitblock rpc uses this method to check if the block to submit is a new one on the database.
     */
-  def putBlock(blockHash : Hash, block : Block)(implicit db : KeyValueDatabase) : Unit = {
+  def putBlock(blockHash: Hash, block: Block)(implicit db: KeyValueDatabase): Unit = {
     val blockInfo: Option[BlockInfo] = getBlockInfo(blockHash)
-    var isNewBlock = false
+    var isNewBlock                   = false
 
-    if (blockInfo.isDefined) {
+    if (blockInfo.isDefined)
       // case 1 : block info was found
       if (blockInfo.get.blockLocatorOption.isEmpty) {
         // case 1.1 : block info without a block locator was found
@@ -142,12 +146,11 @@ class DiskBlockStorage(directoryPath : File, maxFileSize : Int)(implicit db : Ke
         val fileSize = blockRecordStorage.files(appendResult.headerLocator.fileIndex).size
         updateFileInfo(appendResult.headerLocator, fileSize, newBlockInfo.height, block.header.timestamp)
         //logger.info("The block locator was updated. block hash : {}", blockHash)
-      } else {
+      } else
         // case 1.2 block info with a block locator was found
         // The block already exists. Do not put it once more.
         logger.trace("The block already exists. block hash : {}", blockHash)
-      }
-    } else {
+    else {
       // case 2 : no block info was found.
       // get the info of the previous block, to calculate the height and chain-work of the given block.
       val prevBlockInfoOption: Option[BlockInfo] = getBlockInfo(Hash(block.header.hashPrevBlock.value))
@@ -162,24 +165,23 @@ class DiskBlockStorage(directoryPath : File, maxFileSize : Int)(implicit db : Ke
           prevBlockInfoOption,
           block.header,
           blockHash,
-          block.transactions.length, // transaction count
+          block.transactions.length,      // transaction count
           Some(appendResult.blockLocator) // block locator
         )
 
         putBlockInfo(blockHash, blockInfo)
 
         val blockHeight = blockInfo.height
-        val fileSize = blockRecordStorage.files(appendResult.headerLocator.fileIndex).size
+        val fileSize    = blockRecordStorage.files(appendResult.headerLocator.fileIndex).size
         updateFileInfo(appendResult.headerLocator, fileSize, blockInfo.height, block.header.timestamp)
 
         isNewBlock = true
         //logger.info("The new block was put. block hash : {}", blockHash)
-      } else {
+      } else
         // case 2.2 : no block info was found, previous block header does not exists.
         // Actually the code execution should never come to here, because we have checked if the block is an orphan block
         // before invoking putBlock method.
         logger.trace("An orphan block was discarded while saving a block. block hash : {}", block.header)
-      }
     }
   }
 
@@ -190,13 +192,12 @@ class DiskBlockStorage(directoryPath : File, maxFileSize : Int)(implicit db : Ke
     * @param transactionHash
     * @return
     */
-  def getTransaction(transactionHash : Hash)(implicit db : KeyValueDatabase) : Option[Transaction] = {
+  def getTransaction(transactionHash: Hash)(implicit db: KeyValueDatabase): Option[Transaction] = {
     val txDescriptorOption = getTransactionDescriptor(transactionHash)
-    if (txDescriptorOption.isDefined) { // The transaction is in a block on the best blockchain.
-      Some( blockRecordStorage.readRecord(txDescriptorOption.get.transactionLocator)(TransactionCodec) )
-    } else {
+    if (txDescriptorOption.isDefined) // The transaction is in a block on the best blockchain.
+      Some(blockRecordStorage.readRecord(txDescriptorOption.get.transactionLocator)(TransactionCodec))
+    else
       getTransactionFromPool(transactionHash).map(_.transaction)
-    }
   }
 
   /** Get a block searching by the header hash.
@@ -206,27 +207,26 @@ class DiskBlockStorage(directoryPath : File, maxFileSize : Int)(implicit db : Ke
     * @param blockHash The header hash of the block to search.
     * @return The searched block.
     */
-  def getBlock(blockHash : Hash)(implicit db : KeyValueDatabase) : Option[(BlockInfo, Block)] = {
+  def getBlock(blockHash: Hash)(implicit db: KeyValueDatabase): Option[(BlockInfo, Block)] = {
     val blockInfoOption = getBlockInfo(blockHash)
-    if (blockInfoOption.isDefined) {
+    if (blockInfoOption.isDefined)
       // case 1 : The block info was found.
-      if (blockInfoOption.get.blockLocatorOption.isDefined) {
+      if (blockInfoOption.get.blockLocatorOption.isDefined)
         //logger.info(s"getBlock - Found a block info with a locator. block hash : ${blockHash}, locator : ${blockInfoOption.get.blockLocatorOption}")
         // case 1.1 : the block info with a block locator was found.
-        Some( (blockInfoOption.get, blockRecordStorage.readRecord(blockInfoOption.get.blockLocatorOption.get)(BlockCodec)) )
-      } else {
+        Some(
+          (blockInfoOption.get, blockRecordStorage.readRecord(blockInfoOption.get.blockLocatorOption.get)(BlockCodec))
+        )
+      else
         // case 1.2 : the block info without a block locator was found.
         //logger.info("getBlock - Found a block info without a locator. block hash : {}", blockHash)
         None
-      }
-    } else {
+    else
       // case 2 : The block info was not found
       //logger.info("getBlock - No block info found. block hash : {}", blockHash)
       None
-    }
   }
 
-  def close() : Unit = {
+  def close(): Unit =
     blockRecordStorage.close()
-  }
 }

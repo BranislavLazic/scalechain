@@ -7,12 +7,13 @@ import io.scalechain.blockchain.storage.index.{KeyValueDatabase, RocksDatabase}
 import io.scalechain.util.HexUtil._
 import org.apache.commons.io.FileUtils
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
   * Created by kangmo on 6/4/16.
   */
-class OrphanTransactionIndexSpec  extends FlatSpec with ShouldMatchers with BeforeAndAfterEach {
-  this: Suite =>
+class OrphanTransactionIndexSpec  extends AnyFlatSpec with Matchers with BeforeAndAfterEach {
 
   Storage.initialize()
 

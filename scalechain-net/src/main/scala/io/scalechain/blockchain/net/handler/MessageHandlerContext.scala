@@ -1,6 +1,6 @@
 package io.scalechain.blockchain.net.handler
 
-import io.scalechain.blockchain.net.{PeerCommunicator, Peer}
+import io.scalechain.blockchain.net.{ Peer, PeerCommunicator }
 
 /**
   * The context for handling messages for a peer.
@@ -9,4 +9,4 @@ import io.scalechain.blockchain.net.{PeerCommunicator, Peer}
   * @param peer The peer that this node is handler is communicating.
   * @param communicator The peer communicator that can communicate with any of peers connected to this node.
   */
-class MessageHandlerContext(val peer : Peer, val communicator : PeerCommunicator)
+class MessageHandlerContext(val peer: Peer, val communicator: PeerCommunicator)

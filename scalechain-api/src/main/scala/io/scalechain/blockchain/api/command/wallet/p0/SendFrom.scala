@@ -1,8 +1,8 @@
 package io.scalechain.blockchain.api.command.wallet.p0
 
 import io.scalechain.blockchain.api.command.RpcCommand
-import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
-import io.scalechain.blockchain.{ErrorCode, UnsupportedFeature}
+import io.scalechain.blockchain.api.domain.{ RpcError, RpcRequest, RpcResult }
+import io.scalechain.blockchain.{ ErrorCode, UnsupportedFeature }
 import spray.json.DefaultJsonProtocol._
 
 /*
@@ -30,8 +30,7 @@ import spray.json.DefaultJsonProtocol._
       "error": null,
       "id": "curltest"
     }
-*/
-
+ */
 
 /** SendFrom: spends an amount from a local account to a bitcoin address.
   *
@@ -71,25 +70,24 @@ import spray.json.DefaultJsonProtocol._
   * https://bitcoin.org/en/developer-reference#sendfrom
   */
 object SendFrom extends RpcCommand {
-  def invoke(request : RpcRequest) : Either[RpcError, Option[RpcResult]] = {
+  def invoke(request: RpcRequest): Either[RpcError, Option[RpcResult]] =
     handlingException {
-      val fromAccount:   String                = request.params.get[String]("From Account", 0)
-      val toAddress:     String                = request.params.get[String]("To Address", 1)
-      val amount:        scala.math.BigDecimal = request.params.get[scala.math.BigDecimal]("Amount", 2)
-      val confirmations: Long                  = request.params.getOption[Long]("Confirmations", 3).getOrElse(1L)
-      val comment:       Option[String]        = request.params.getOption[String]("Comment", 4)
-      val commentTo:     Option[String]        = request.params.getOption[String]("Comment To", 5)
-/*
+      val fromAccount: String           = request.params.get[String]("From Account", 0)
+      val toAddress: String             = request.params.get[String]("To Address", 1)
+      val amount: scala.math.BigDecimal = request.params.get[scala.math.BigDecimal]("Amount", 2)
+      val confirmations: Long           = request.params.getOption[Long]("Confirmations", 3).getOrElse(1L)
+      val comment: Option[String]       = request.params.getOption[String]("Comment", 4)
+      val commentTo: Option[String]     = request.params.getOption[String]("Comment To", 5)
+      /*
       // TODO : Implement
       val transactionHash = Hash("f14ee5368c339644d3037d929bbe1f1544a532f8826c7b7288cb994b0b0ff5d8")
 
       Right(Some(StringResult(ByteArray.byteArrayToString(transactionHash.value))))
-*/
+       */
       throw new UnsupportedFeature(ErrorCode.UnsupportedFeature)
     }
-  }
 
-  def help() : String =
+  def help(): String =
     """sendfrom "fromaccount" "tobitcoinaddress" amount ( minconf "comment" "comment-to" )
       |
       |DEPRECATED (use sendtoaddress). Sent an amount from an account to a bitcoin address.
@@ -120,5 +118,3 @@ object SendFrom extends RpcCommand {
       |> curl --user myusername --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "sendfrom", "params": ["tabby", "1M72Sfpbz1BPpXFHz9m3CdqATR44Jvaydd", 0.01, 6, "donation", "seans outpost"] }' -H 'content-type: text/plain;' http://127.0.0.1:8332/
     """.stripMargin
 }
-
-

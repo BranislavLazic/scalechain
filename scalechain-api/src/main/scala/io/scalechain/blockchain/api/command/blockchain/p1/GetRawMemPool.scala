@@ -1,7 +1,7 @@
 package io.scalechain.blockchain.api.command.blockchain.p1
 
 import io.scalechain.blockchain.api.command.RpcCommand
-import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
+import io.scalechain.blockchain.api.domain.{ RpcError, RpcRequest, RpcResult }
 import org.slf4j.LoggerFactory
 
 /*
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory
       "error": null,
       "id": "curltest"
     }
-*/
+ */
 
 /** GetRawMemPool: returns all transaction identifiers (TXIDs) in the memory pool as a JSON array,
   * or detailed information about each transaction in the memory pool as a JSON object.
@@ -49,12 +49,12 @@ import org.slf4j.LoggerFactory
   */
 object GetRawMemPool extends RpcCommand {
 
-  def invoke(request : RpcRequest) : Either[RpcError, Option[RpcResult]] = {
+  def invoke(request: RpcRequest): Either[RpcError, Option[RpcResult]] = {
     // TODO : Implement
     assert(false)
     Right(None)
   }
-  def help() : String =
+  def help(): String =
     """getrawmempool ( verbose )
       |
       |Returns all transaction ids in memory pool as a json array of string transaction ids.
@@ -93,5 +93,3 @@ object GetRawMemPool extends RpcCommand {
       |
     """.stripMargin
 }
-
-

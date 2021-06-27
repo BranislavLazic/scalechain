@@ -2,10 +2,10 @@ package io.scalechain.blockchain.api.command.wallet
 
 import io.scalechain.blockchain.chain.Blockchain
 import io.scalechain.blockchain.transaction.CoinAddress
-import io.scalechain.blockchain.{ErrorCode, UnsupportedFeature}
+import io.scalechain.blockchain.{ ErrorCode, UnsupportedFeature }
 import io.scalechain.blockchain.api.command.RpcCommand
 import io.scalechain.blockchain.api.command.rawtx.GetRawTransaction._
-import io.scalechain.blockchain.api.domain.{StringResult, RpcError, RpcRequest, RpcResult}
+import io.scalechain.blockchain.api.domain.{ RpcError, RpcRequest, RpcResult, StringResult }
 import io.scalechain.blockchain.proto.HashFormat
 import io.scalechain.wallet.Wallet
 import spray.json.DefaultJsonProtocol._
@@ -27,7 +27,7 @@ import spray.json.DefaultJsonProtocol._
       "error": null,
       "id": "curltest"
     }
-*/
+ */
 
 /** GetAccountAddress: returns the current address for receiving payments to this account.
   * If the account doesn’t exist, it creates both the account and a new address for receiving payment.
@@ -44,17 +44,16 @@ import spray.json.DefaultJsonProtocol._
   * https://bitcoin.org/en/developer-reference#getaccountaddress
   */
 object GetAccountAddress extends RpcCommand {
-  def invoke(request : RpcRequest) : Either[RpcError, Option[RpcResult]] = {
+  def invoke(request: RpcRequest): Either[RpcError, Option[RpcResult]] =
     handlingException {
       val account: String = request.params.get[String]("Account", 0)
 
-      val receivingCoinAddress : CoinAddress = Wallet.get.getReceivingAddress(account)(Blockchain.get.db)
+      val receivingCoinAddress: CoinAddress = Wallet.get.getReceivingAddress(account)(Blockchain.get.db)
 
       val address = receivingCoinAddress.base58
       Right(Some(StringResult(address)))
     }
-  }
-  def help() : String =
+  def help(): String =
     """getaccountaddress "account"
       |
       |DEPRECATED. Returns the current Bitcoin address for receiving payments to this account.
@@ -72,5 +71,3 @@ object GetAccountAddress extends RpcCommand {
       |> curl --user myusername --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "getaccountaddress", "params": ["myaccount"] }' -H 'content-type: text/plain;' http://127.0.0.1:8332/
     """.stripMargin
 }
-
-

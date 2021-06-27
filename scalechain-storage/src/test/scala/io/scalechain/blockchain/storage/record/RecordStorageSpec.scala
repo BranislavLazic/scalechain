@@ -8,14 +8,14 @@ import io.scalechain.blockchain.proto.codec.{OneByteCodec, FileNumberCodec}
 import io.scalechain.blockchain.storage.Storage
 import org.apache.commons.io.FileUtils
 import org.scalatest._
-import Matchers._
+import org.scalatest.flatspec.AnyFlatSpec
 import scodec.codecs._
+import org.scalatest.matchers.should.Matchers
 
 /**
   * Created by kangmo on 11/2/15.
   */
-class RecordStorageSpec extends FlatSpec with BeforeAndAfterEach with ShouldMatchers {
-  this: Suite =>
+class RecordStorageSpec extends AnyFlatSpec with BeforeAndAfterEach with Matchers {
 
   Storage.initialize()
 

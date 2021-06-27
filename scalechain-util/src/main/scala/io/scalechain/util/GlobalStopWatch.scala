@@ -5,11 +5,10 @@ package io.scalechain.util
   */
 object GlobalStopWatch extends StopWatchEx {}
 
-
 class StopWatchEx extends StopWatch {
-  def measure[T] (subject : String)(block : => T): T = {
-    val watchSubject : StopWatchSubject = start(subject)
-    val returnValue = block
+  def measure[T](subject: String)(block: => T): T = {
+    val watchSubject: StopWatchSubject = start(subject)
+    val returnValue                    = block
     watchSubject.stop()
     returnValue
   }

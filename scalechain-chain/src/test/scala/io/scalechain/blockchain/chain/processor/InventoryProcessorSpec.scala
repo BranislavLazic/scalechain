@@ -11,10 +11,9 @@ import org.scalatest._
 import HashSupported._
 
 import scala.util.Random
+import org.scalatest.matchers.should.Matchers
 
-class InventoryProcessorSpec extends BlockchainTestTrait with TransactionTestDataTrait with ShouldMatchers {
-
-  this: Suite =>
+class InventoryProcessorSpec extends BlockchainTestTrait with TransactionTestDataTrait with Matchers {
 
   val testPath = new File(s"./target/unittests-InventoryProcessorSpec/")
 

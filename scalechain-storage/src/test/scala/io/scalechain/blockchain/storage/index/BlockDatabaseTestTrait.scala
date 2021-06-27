@@ -5,11 +5,13 @@ import io.scalechain.blockchain.proto.codec.{CodecTestUtil}
 import io.scalechain.blockchain.storage.test.TestData
 import io.scalechain.util.HexUtil._
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
   * Created by kangmo on 3/24/16.
   */
-trait BlockDatabaseTestTrait extends FlatSpec with ShouldMatchers with CodecTestUtil {
+trait BlockDatabaseTestTrait extends AnyFlatSpec with Matchers with CodecTestUtil {
   var blockDb : BlockDatabase
   implicit var db : KeyValueDatabase
 

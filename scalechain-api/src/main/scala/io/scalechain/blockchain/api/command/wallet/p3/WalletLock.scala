@@ -1,7 +1,7 @@
 package io.scalechain.blockchain.api.command.wallet.p3
 
 import io.scalechain.blockchain.api.command.RpcCommand
-import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
+import io.scalechain.blockchain.api.domain.{ RpcError, RpcRequest, RpcResult }
 
 /*
   CLI command :
@@ -19,7 +19,7 @@ import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
       "error": null,
       "id": "curltest"
     }
-*/
+ */
 
 /** WalletLock: removes the wallet encryption key from memory, locking the wallet.
   *
@@ -29,12 +29,10 @@ import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
   * https://bitcoin.org/en/developer-reference#walletlock
   */
 object WalletLock extends RpcCommand {
-  def invoke(request : RpcRequest) : Either[RpcError, Option[RpcResult]] = {
+  def invoke(request: RpcRequest): Either[RpcError, Option[RpcResult]] = {
     // TODO : Implement
     assert(false)
     Right(None)
   }
-  def help() : String = ""
+  def help(): String = ""
 }
-
-

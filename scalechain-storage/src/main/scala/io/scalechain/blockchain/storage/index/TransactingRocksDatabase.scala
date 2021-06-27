@@ -3,26 +3,26 @@ package io.scalechain.blockchain.storage.index
 import java.io.File
 import java.nio.ByteBuffer
 
-import io.scalechain.blockchain.{ErrorCode, GeneralException}
-import io.scalechain.util.{HexUtil, ArrayUtil}
+import io.scalechain.blockchain.{ ErrorCode, GeneralException }
+import io.scalechain.util.{ ArrayUtil, HexUtil }
 import io.scalechain.util.Using._
-import org.rocksdb.{RocksDB, WriteOptions, WriteBatchWithIndex}
+import org.rocksdb.{ RocksDB, WriteBatchWithIndex, WriteOptions }
 
 /**
   * Created by kangmo on 7/9/16.
   */
-class TransactingRocksDatabase(db : RocksDatabase) extends KeyValueDatabase {
+class TransactingRocksDatabase(db: RocksDatabase) extends KeyValueDatabase {
   assert(db != null)
 
-  var writeBatch : WriteBatchWithIndex = null
+  var writeBatch: WriteBatchWithIndex = null
 
-  var putCache : scala.collection.mutable.Map[ByteBuffer, Array[Byte]] = null // key, value
-  var delCache : scala.collection.mutable.Map[ByteBuffer, Unit] = null // key, dummy
+  var putCache: scala.collection.mutable.Map[ByteBuffer, Array[Byte]] = null // key, value
+  var delCache: scala.collection.mutable.Map[ByteBuffer, Unit]        = null // key, dummy
 
   /**
     * Begin a database transaction.
     */
-  def beginTransaction() : Unit = {
+  def beginTransaction(): Unit = {
     assert(writeBatch == null)
     writeBatch = new WriteBatchWithIndex(true)
     putCache = scala.collection.mutable.Map[ByteBuffer, Array[Byte]]()
@@ -32,16 +32,16 @@ class TransactingRocksDatabase(db : RocksDatabase) extends KeyValueDatabase {
   /**
     * Commit the database transaction began.
     */
-  def commitTransaction() : Unit = {
+  def commitTransaction(): Unit = {
     assert(writeBatch != null)
-/*
+    /*
     putCache foreach { case (key, value) =>
       writeBatch.put(key.array(), value)
     }
     delCache foreach { case (key, value) =>
       writeBatch.remove(key.array())
     }
-*/
+     */
     //    println(s"Committing a transaction. Write count : ${writeBatch.count}")
     val writeOptions = new WriteOptions()
     // BUGBUG : Need to set to true?
@@ -56,7 +56,7 @@ class TransactingRocksDatabase(db : RocksDatabase) extends KeyValueDatabase {
   /**
     * Abort the database transaction began.
     */
-  def abortTransaction() : Unit = {
+  def abortTransaction(): Unit = {
     assert(writeBatch != null)
 //    println(s"Aborting a transaction. Write count : ${writeBatch.count}")
     writeBatch = null
@@ -64,34 +64,31 @@ class TransactingRocksDatabase(db : RocksDatabase) extends KeyValueDatabase {
     delCache = null
   }
 
-  def seek(keyOption : Option[Array[Byte]] ) : ClosableIterator[(Array[Byte], Array[Byte])] = {
+  def seek(keyOption: Option[Array[Byte]]): ClosableIterator[(Array[Byte], Array[Byte])] = {
     val rocksIterator =
-      if (writeBatch!= null)
-        writeBatch.newIteratorWithBase( db.db.newIterator() )
+      if (writeBatch != null)
+        writeBatch.newIteratorWithBase(db.db.newIterator())
       else
         db.db.newIterator()
 
     db.seek(rocksIterator, keyOption)
   }
 
-  def get(key : Array[Byte] ) : Option[Array[Byte]] = {
+  def get(key: Array[Byte]): Option[Array[Byte]] = {
     val wrappedKey = ByteBuffer.wrap(key)
-    if (delCache == null || putCache == null) {
+    if (delCache == null || putCache == null)
       db.get(key)
-    } else {
-      if (delCache.contains(wrappedKey)) {
-        None
-      } else {
-        val wrappedValue = putCache.get(wrappedKey)
-        if (wrappedValue.isDefined) {
-          wrappedValue
-        } else {
-          db.get(key)
-        }
-      }
+    else if (delCache.contains(wrappedKey))
+      None
+    else {
+      val wrappedValue = putCache.get(wrappedKey)
+      if (wrappedValue.isDefined)
+        wrappedValue
+      else
+        db.get(key)
     }
 
-/*
+    /*
     assert(writeBatch != null)
 
     {
@@ -116,10 +113,10 @@ class TransactingRocksDatabase(db : RocksDatabase) extends KeyValueDatabase {
         }
       }
     }
-*/
+     */
   }
 
-  def put(key : Array[Byte], value : Array[Byte] ) : Unit = {
+  def put(key: Array[Byte], value: Array[Byte]): Unit = {
 //    println(s"put ${HexUtil.hex(key)}, ${HexUtil.hex(value)}")
     assert(writeBatch != null)
     writeBatch.put(key, value)
@@ -129,7 +126,7 @@ class TransactingRocksDatabase(db : RocksDatabase) extends KeyValueDatabase {
     delCache.remove(wrappedKey)
   }
 
-  def del(key : Array[Byte]) : Unit = {
+  def del(key: Array[Byte]): Unit = {
 //    println(s"del ${HexUtil.hex(key)}")
     assert(writeBatch != null)
     writeBatch.remove(key)
@@ -139,7 +136,6 @@ class TransactingRocksDatabase(db : RocksDatabase) extends KeyValueDatabase {
     putCache.remove(wrappedKey)
   }
 
-  def close() : Unit = {
+  def close(): Unit =
     db.close()
-  }
 }

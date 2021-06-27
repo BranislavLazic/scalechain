@@ -6,8 +6,5 @@ object BlockRecordStorage {
   val FILE_PREFIX = "blk"
 }
 
-class BlockRecordStorage(directoryPath : File, maxFileSize : Int)
-  extends RecordStorage(
-            directoryPath,
-            BlockRecordStorage.FILE_PREFIX,
-            maxFileSize)
+class BlockRecordStorage(directoryPath: File, maxFileSize: Int)
+    extends RecordStorage(directoryPath, BlockRecordStorage.FILE_PREFIX, maxFileSize)

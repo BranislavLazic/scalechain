@@ -1,7 +1,7 @@
 package io.scalechain.blockchain.api.command.mining.p3
 
 import io.scalechain.blockchain.api.command.RpcCommand
-import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
+import io.scalechain.blockchain.api.domain.{ RpcError, RpcRequest, RpcResult }
 
 /*
   CLI command :
@@ -20,7 +20,7 @@ import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
       "error": null,
       "id": "curltest"
     }
-*/
+ */
 
 /** PrioritiseTransaction: adds virtual priority or fee to a transaction,
   * allowing it to be accepted into blocks mined by this node (or miners which use this node)
@@ -35,15 +35,13 @@ import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
   * https://bitcoin.org/en/developer-reference#prioritisetransaction
   */
 object PrioritiseTransaction extends RpcCommand {
-  def invoke(request : RpcRequest) : Either[RpcError, Option[RpcResult]] = {
+  def invoke(request: RpcRequest): Either[RpcError, Option[RpcResult]] = {
     // TODO : Implement
     assert(false)
     Right(None)
   }
-  def help() : String =
-"""
+  def help(): String =
+    """
 
 """
 }
-
-

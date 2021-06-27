@@ -3,11 +3,13 @@ package io.scalechain.wallet
 import io.scalechain.blockchain.storage.index.KeyValueDatabase
 import io.scalechain.blockchain.{ErrorCode, WalletException}
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
   * Created by kangmo on 5/18/16.
   */
-trait WalletStoreWalletOutputTestTrait extends FlatSpec with WalletStoreTestDataTrait with ShouldMatchers{
+trait WalletStoreWalletOutputTestTrait extends AnyFlatSpec with WalletStoreTestDataTrait with Matchers {
   var store : WalletStore
   implicit var db : KeyValueDatabase
 

@@ -8,9 +8,10 @@ import io.scalechain.blockchain.storage.index.{RocksDatabase, KeyValueDatabase}
 import org.apache.commons.io.FileUtils
 import io.scalechain.util.HexUtil._
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class TransactionTimeSpec  extends FlatSpec with ShouldMatchers with BeforeAndAfterEach {
-  this: Suite =>
+class TransactionTimeSpec  extends AnyFlatSpec with Matchers with BeforeAndAfterEach {
 
   Storage.initialize()
 

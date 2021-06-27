@@ -9,11 +9,10 @@ import io.scalechain.blockchain.transaction.BlockchainView
   */
 object TransactionAnalyzer {
 
-  protected [chain] def sumAmount(outputs : List[TransactionOutput]) : scala.math.BigDecimal = {
-    outputs.foldLeft( scala.math.BigDecimal(0) ) { (sum, output) =>
+  protected[chain] def sumAmount(outputs: List[TransactionOutput]): scala.math.BigDecimal =
+    outputs.foldLeft(scala.math.BigDecimal(0)) { (sum, output) =>
       sum + output.value
     }
-  }
 
   /** Calculate fee for a transaction.
     *
@@ -21,19 +20,20 @@ object TransactionAnalyzer {
     * @param transaction The transaction to calculate fee for it.
     * @return
     */
-  def calculateFee(blockchainView : BlockchainView, transaction : Transaction)(implicit db : KeyValueDatabase) : scala.math.BigDecimal = {
+  def calculateFee(blockchainView: BlockchainView, transaction: Transaction)(implicit
+      db: KeyValueDatabase
+  ): scala.math.BigDecimal = {
     // We can't calculate the fee for the generation transaction.
     assert(!transaction.inputs(0).isCoinBaseInput())
 
-    val sumOfInputAmounts = sumAmount( getSpentOutputs(blockchainView, transaction) )
+    val sumOfInputAmounts = sumAmount(getSpentOutputs(blockchainView, transaction))
 
-    val sumOfOutputAmounts = sumAmount( transaction.outputs )
+    val sumOfOutputAmounts = sumAmount(transaction.outputs)
 
     val fee = sumOfInputAmounts - sumOfOutputAmounts
 
     fee
   }
-
 
   /** Get spent outputs in the transaction.
     *
@@ -41,12 +41,15 @@ object TransactionAnalyzer {
     * @param transaction
     * @return
     */
-  def getSpentOutputs(blockchainView : BlockchainView, transaction : Transaction)(implicit db : KeyValueDatabase) : List[TransactionOutput] = {
-    transaction.inputs.map { transactionInput : TransactionInput =>
-      blockchainView.getTransactionOutput(OutPoint(
-        Hash( transactionInput.outputTransactionHash.value ),
-        transactionInput.outputIndex.toInt
-      ))
+  def getSpentOutputs(blockchainView: BlockchainView, transaction: Transaction)(implicit
+      db: KeyValueDatabase
+  ): List[TransactionOutput] =
+    transaction.inputs.map { transactionInput: TransactionInput =>
+      blockchainView.getTransactionOutput(
+        OutPoint(
+          Hash(transactionInput.outputTransactionHash.value),
+          transactionInput.outputIndex.toInt
+        )
+      )
     }
-  }
 }

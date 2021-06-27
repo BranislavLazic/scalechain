@@ -5,11 +5,13 @@ import org.scalatest._
 import io.scalechain.blockchain.proto.{RecordLocator, FileNumber}
 import io.scalechain.blockchain.proto.codec.{RecordLocatorCodec, FileNumberCodec}
 import io.scalechain.crypto.HashFunctions
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
   * Created by kangmo on 3/23/16.
   */
-trait KeyValueDatabaseTestTrait extends FlatSpec with KeyValueCommonTrait with ShouldMatchers{
+trait KeyValueDatabaseTestTrait extends AnyFlatSpec with KeyValueCommonTrait with Matchers {
   var db : KeyValueDatabase
 
   "getObject(rawKey)" should "return a value which was put" in {

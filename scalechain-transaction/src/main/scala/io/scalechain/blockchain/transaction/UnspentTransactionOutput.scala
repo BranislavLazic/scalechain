@@ -10,8 +10,8 @@ import io.scalechain.blockchain.proto.Hash
   * @param redeemScript If the pubkey script was a script hash, this must be the corresponding redeem script.
   */
 case class UnspentTransactionOutput(
-                                     txid      : Hash,
-                                     vout      : Int,
-                                     scriptPubKey : String,
-                                     redeemScript : Option[String]
-                                   )
+    txid: Hash,
+    vout: Int,
+    scriptPubKey: String,
+    redeemScript: Option[String]
+)

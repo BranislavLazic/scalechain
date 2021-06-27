@@ -6,14 +6,14 @@ import io.scalechain.blockchain.{ErrorCode, ScriptEvalException}
 import io.scalechain.blockchain.script.ops._
 import org.scalatest._
 import org.scalatest.prop.TableDrivenPropertyChecks._
+import org.scalatest.flatspec.AnyFlatSpec
 
 
 /** Test splice operations in Splice.scala
   *
   */
-class SpliceSpec extends FlatSpec with BeforeAndAfterEach with OperationTestTrait {
+class SpliceSpec extends AnyFlatSpec with BeforeAndAfterEach with OperationTestTrait {
 
-  this: Suite =>
 
   override def beforeEach() {
     // set-up code

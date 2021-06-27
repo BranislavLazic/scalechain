@@ -1,7 +1,7 @@
 package io.scalechain.blockchain.api
 
 import com.typesafe.scalalogging.Logger
-import io.scalechain.blockchain.api.domain.{RpcResponse, RpcParams, RpcRequest, RpcParamsJsonFormat}
+import io.scalechain.blockchain.api.domain.{ RpcParams, RpcParamsJsonFormat, RpcRequest, RpcResponse }
 import io.scalechain.util.StringUtil
 
 import spray.json.DefaultJsonProtocol._
@@ -19,15 +19,15 @@ object RequestHandler extends ServiceDispatcher {
 
   val requestLog = new java.io.FileWriter(s"./target/request-${Math.abs(Random.nextInt)}.log")
   //var requestCount = 0
-  def handleRequest(requestString : String) : String = {
+  def handleRequest(requestString: String): String = {
     //requestCount += 1
     //requestLog.write(s"Request[${requestCount}] : ${requestString}\n\n")
     logger.trace(s"String Request : ${requestString}")
 
     val parsedRequest = requestString.parseJson
-    assert( parsedRequest != null)
+    assert(parsedRequest != null)
 
-    val id = parsedRequest.asJsObject.fields("id")
+    val id     = parsedRequest.asJsObject.fields("id")
     val method = parsedRequest.asJsObject.fields("method")
     val params = parsedRequest.asJsObject.fields("params")
 
@@ -38,12 +38,12 @@ object RequestHandler extends ServiceDispatcher {
       params = params.convertTo[RpcParams]
     )
 
-    val serviceResponse : RpcResponse = dispatch(request)
-    val stringResponse = serviceResponse.toJson.prettyPrint
+    val serviceResponse: RpcResponse = dispatch(request)
+    val stringResponse               = serviceResponse.toJson.prettyPrint
     // Show the first 256 chars of the response.
     //requestLog.write(s"Response[${requestCount}] : ${StringUtil.getBrief(stringResponse,2048)}\n\n")
     //requestLog.flush()
-    logger.trace(s"String Response : ${StringUtil.getBrief(stringResponse,2048)}")
+    logger.trace(s"String Response : ${StringUtil.getBrief(stringResponse, 2048)}")
     stringResponse
   }
 }

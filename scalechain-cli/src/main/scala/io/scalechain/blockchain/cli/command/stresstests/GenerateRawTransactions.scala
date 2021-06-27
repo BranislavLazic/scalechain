@@ -1,11 +1,11 @@
 package io.scalechain.blockchain.cli.command.stresstests
 
-import java.io.{PrintWriter, File}
+import java.io.{ File, PrintWriter }
 import java.util
 
-import io.scalechain.blockchain.chain.{TransactionBuilder}
+import io.scalechain.blockchain.chain.{ TransactionBuilder }
 import io.scalechain.blockchain.cli.CoinMiner
-import io.scalechain.blockchain.cli.command.{RpcParameters, Command}
+import io.scalechain.blockchain.cli.command.{ Command, RpcParameters }
 import io.scalechain.blockchain.proto.codec.TransactionCodec
 import io.scalechain.blockchain.proto._
 import io.scalechain.blockchain.script.HashSupported
@@ -13,16 +13,14 @@ import io.scalechain.blockchain.transaction._
 import io.scalechain.util.HexUtil
 import HashSupported._
 
-
-
 /**
   * Created by kangmo on 7/28/16.
   */
 object GenerateRawTransactions extends Command {
-  def initialSplitTransactionFileName() = "initial-split-transaction.txt"
-  def transactionGroupFileName(groupNumber : Int) = s"transaction-group-${groupNumber}.txt"
+  def initialSplitTransactionFileName()          = "initial-split-transaction.txt"
+  def transactionGroupFileName(groupNumber: Int) = s"transaction-group-${groupNumber}.txt"
 
-  def createSplitTransaction( privateKey : PrivateKey, transactionGroupCount : Int) : Transaction = {
+  def createSplitTransaction(privateKey: PrivateKey, transactionGroupCount: Int): Transaction = {
     // Assumption : The output of the generation transaction of the block height 1 (right above the genesis block)
     //              can be spent by using the given private key.
     //              (1) For a node, scalechain.mining.address in scalechain.conf should have the address generated from the given private key.
@@ -36,27 +34,27 @@ object GenerateRawTransactions extends Command {
 
     // The transaction that splits the output of the generation tx into N outputs owned by tx group addresses.
     val unsignedInitialSplitTransaction = txGenerator.newTransaction(generationTx.hash, 0, 0, txGroupAddresses)
-    val initialSplitTransaction = txGenerator.signTransaction(unsignedInitialSplitTransaction, Some(List(privateKey)))
+    val initialSplitTransaction         = txGenerator.signTransaction(unsignedInitialSplitTransaction, Some(List(privateKey)))
     txGenerator.addTransaction(initialSplitTransaction)
 
     // Write the initial split transaction.
-    val writer = new PrintWriter(new File( initialSplitTransactionFileName() ))
+    val writer                     = new PrintWriter(new File(initialSplitTransactionFileName()))
     val rawInitialSplitTransaction = HexUtil.hex(TransactionCodec.serialize(initialSplitTransaction))
     writer.append(rawInitialSplitTransaction)
     writer.close
 
     initialSplitTransaction
   }
-  def invoke(command : String, args : Array[String], rpcParams : RpcParameters) = {
-    val privateKeyString = args(1)
-    val outputSplitCount = Integer.parseInt(args(2))
-    val transactionGroupCount = Integer.parseInt(args(3))
+  def invoke(command: String, args: Array[String], rpcParams: RpcParameters) = {
+    val privateKeyString         = args(1)
+    val outputSplitCount         = Integer.parseInt(args(2))
+    val transactionGroupCount    = Integer.parseInt(args(3))
     val transactionCountPerGroup = Integer.parseInt(args(4))
 
     val privateKey = PrivateKey.from(privateKeyString)
 
     val initialSplitTransaction = createSplitTransaction(privateKey, transactionGroupCount)
-    val initialSplitTxHash = initialSplitTransaction.hash
+    val initialSplitTxHash      = initialSplitTransaction.hash
 
     val threads =
       (0 until transactionGroupCount).map { i =>
@@ -67,18 +65,18 @@ object GenerateRawTransactions extends Command {
           val splitAddresses = txGenerator.newAddresses(outputSplitCount)
           val mergeAddresses = txGenerator.newAddresses(1)
           override def run(): Unit = {
-            val writer = new PrintWriter(new File(transactionGroupFileName(i)))
-            var txHash : Hash = initialSplitTxHash
-            for (t <- 1 to transactionCountPerGroup/2) {
-              if ( ((t >> 7) << 7) == t) { // t % 128 = 0
-                println(s"Processing ${t*2} transactions")
-              }
-              val splitTx = txGenerator.newTransaction(txHash, outputIndex, outputIndex, splitAddresses )
-              val signedSplitTx = txGenerator.signTransaction( splitTx )
+            val writer       = new PrintWriter(new File(transactionGroupFileName(i)))
+            var txHash: Hash = initialSplitTxHash
+            for (t <- 1 to transactionCountPerGroup / 2) {
+              if (((t >> 7) << 7) == t) // t % 128 = 0
+                println(s"Processing ${t * 2} transactions")
+              val splitTx       = txGenerator.newTransaction(txHash, outputIndex, outputIndex, splitAddresses)
+              val signedSplitTx = txGenerator.signTransaction(splitTx)
               txGenerator.addTransaction(signedSplitTx)
 
-              val mergeTx = txGenerator.newTransaction(signedSplitTx.hash, 0, splitTx.outputs.length-1, mergeAddresses)
-              val signedMergeTx = txGenerator.signTransaction( mergeTx )
+              val mergeTx =
+                txGenerator.newTransaction(signedSplitTx.hash, 0, splitTx.outputs.length - 1, mergeAddresses)
+              val signedMergeTx = txGenerator.signTransaction(mergeTx)
               txGenerator.addTransaction(signedMergeTx)
 
               val rawSplitTransaction = HexUtil.hex(TransactionCodec.serialize(signedSplitTx))

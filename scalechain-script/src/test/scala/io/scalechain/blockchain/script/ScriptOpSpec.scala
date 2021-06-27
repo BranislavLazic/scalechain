@@ -1,11 +1,12 @@
 package io.scalechain.blockchain.script
 
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
 
 /** Test common super classes of script operations in ScriptOp.scala
   *
   */
-class ScriptOpSpec extends FlatSpec with BeforeAndAfterEach with OperationTestTrait {
+class ScriptOpSpec extends AnyFlatSpec with BeforeAndAfterEach with OperationTestTrait {
 
   this: Suite =>
 

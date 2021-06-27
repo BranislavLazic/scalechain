@@ -1,7 +1,7 @@
 package io.scalechain.blockchain.api.command.wallet.p1
 
 import io.scalechain.blockchain.api.command.RpcCommand
-import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
+import io.scalechain.blockchain.api.domain.{ RpcError, RpcRequest, RpcResult }
 
 /*
   CLI command :
@@ -26,7 +26,7 @@ import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
       "error": null,
       "id": "curltest"
     }
-*/
+ */
 
 /** GetWalletInfo: provides information about the wallet.
   *
@@ -35,12 +35,12 @@ import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
   * https://bitcoin.org/en/developer-reference#getwalletinfo
   */
 object GetWalletInfo extends RpcCommand {
-  def invoke(request : RpcRequest) : Either[RpcError, Option[RpcResult]] = {
+  def invoke(request: RpcRequest): Either[RpcError, Option[RpcResult]] = {
     // TODO : Implement
     assert(false)
     Right(None)
   }
-  def help() : String =
+  def help(): String =
     """getwalletinfo
       |Returns an object containing various wallet state info.
       |
@@ -62,5 +62,3 @@ object GetWalletInfo extends RpcCommand {
       |> curl --user myusername --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "getwalletinfo", "params": [] }' -H 'content-type: text/plain;' http://127.0.0.1:8332/
     """.stripMargin
 }
-
-

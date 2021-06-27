@@ -1,6 +1,6 @@
 package io.scalechain.blockchain.chain.mining
 
-import io.scalechain.blockchain.chain.{BlockBuilder, MerkleRootCalculator}
+import io.scalechain.blockchain.chain.{ BlockBuilder, MerkleRootCalculator }
 import io.scalechain.blockchain.proto._
 import io.scalechain.blockchain.transaction.ChainEnvironment
 
@@ -13,9 +13,8 @@ import io.scalechain.blockchain.transaction.ChainEnvironment
   *
   * @param difficultyBits the 4 byte integer representing the hash difficulty. This value is stored as the block header's target.
   * @param sortedTransactions the sorted transactions to add to the block.
-  *
   */
-class BlockTemplate(difficultyBits : Long, sortedTransactions : List[Transaction]) {
+class BlockTemplate(difficultyBits: Long, sortedTransactions: List[Transaction]) {
 
   // TODO : Use difficultyBits
 
@@ -24,14 +23,21 @@ class BlockTemplate(difficultyBits : Long, sortedTransactions : List[Transaction
     * @param prevBlockHash the hash of the previous block header.
     * @return The block header created from this template.
     */
-  def getBlockHeader(prevBlockHash : Hash) : BlockHeader = {
+  def getBlockHeader(prevBlockHash: Hash): BlockHeader = {
     // Step 1 : Calculate the merkle root hash.
     val merkleRootHash = MerkleRootCalculator.calculate(sortedTransactions)
 
     val env = ChainEnvironment.get
 
     // Step 2 : Create the block header
-    BlockHeader(env.DefaultBlockVersion, prevBlockHash, merkleRootHash, System.currentTimeMillis()/1000, difficultyBits, 0L)
+    BlockHeader(
+      env.DefaultBlockVersion,
+      prevBlockHash,
+      merkleRootHash,
+      System.currentTimeMillis() / 1000,
+      difficultyBits,
+      0L
+    )
   }
 
   /** Create a block based on the block header and nonce.
@@ -40,8 +46,6 @@ class BlockTemplate(difficultyBits : Long, sortedTransactions : List[Transaction
     * @param nonce The nonce we found by calling findNonce method.
     * @return The created block that has all transactions in this template with a valid block header.
     */
-  def createBlock(blockHeader : BlockHeader, nonce : Long) = {
-    Block( blockHeader.copy(nonce = nonce),
-      sortedTransactions )
-  }
+  def createBlock(blockHeader: BlockHeader, nonce: Long) =
+    Block(blockHeader.copy(nonce = nonce), sortedTransactions)
 }

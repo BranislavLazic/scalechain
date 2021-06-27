@@ -1,7 +1,7 @@
 package io.scalechain.blockchain.api.command.wallet.p0
 
 import io.scalechain.blockchain.api.command.RpcCommand
-import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
+import io.scalechain.blockchain.api.domain.{ RpcError, RpcRequest, RpcResult }
 
 /*
   CLI command :
@@ -60,7 +60,7 @@ import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
       "error": null,
       "id": "curltest"
     }
-*/
+ */
 
 /** ListSinceBlock: gets all transactions affecting the wallet
   * which have occurred since a particular block,
@@ -71,12 +71,12 @@ import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
   * https://bitcoin.org/en/developer-reference#listsinceblock
   */
 object ListSinceBlock extends RpcCommand {
-  def invoke(request : RpcRequest) : Either[RpcError, Option[RpcResult]] = {
+  def invoke(request: RpcRequest): Either[RpcError, Option[RpcResult]] = {
     // TODO : Implement
     assert(false)
     Right(None)
   }
-  def help() : String =
+  def help(): String =
     """listsinceblock ( "blockhash" target-confirmations includeWatchonly)
       |
       |Get all transactions in blocks since block [blockhash], or all transactions if omitted
@@ -115,5 +115,3 @@ object ListSinceBlock extends RpcCommand {
       |> curl --user myusername --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "listsinceblock", "params": ["000000000000000bacf66f7497b7dc45ef753ee9a7d38571037cdb1a57f663ad", 6] }' -H 'content-type: text/plain;' http://127.0.0.1:8332/
     """.stripMargin
 }
-
-

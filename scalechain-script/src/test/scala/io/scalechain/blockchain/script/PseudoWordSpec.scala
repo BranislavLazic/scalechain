@@ -1,11 +1,12 @@
 package io.scalechain.blockchain.script
 
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
 
 /** Test pseudo word operations in PseudoWord.scala
   *
   */
-class PseudoWordSpec extends FlatSpec with BeforeAndAfterEach with OperationTestTrait {
+class PseudoWordSpec extends AnyFlatSpec with BeforeAndAfterEach with OperationTestTrait {
 
   this: Suite =>
 

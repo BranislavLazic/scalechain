@@ -8,10 +8,11 @@ import io.scalechain.blockchain.storage.index.{RocksDatabase, KeyValueDatabase}
 import io.scalechain.blockchain.transaction.TransactionTestDataTrait
 import org.scalatest._
 import HashSupported._
+import org.scalatest.matchers.should.Matchers
 
 // Need to rewrite test case
 @Ignore
-class BlockMiningSpec extends BlockchainTestTrait with TransactionTestDataTrait with ShouldMatchers {
+class BlockMiningSpec extends BlockchainTestTrait with TransactionTestDataTrait with Matchers {
 
   this: Suite =>
 

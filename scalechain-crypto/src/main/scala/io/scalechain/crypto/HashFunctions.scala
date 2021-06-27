@@ -7,56 +7,54 @@ trait HashValue {
   val value: Array[Byte]
 }
 
-case class SHA1(bytes:Array[Byte]) extends HashValue {
+case class SHA1(bytes: Array[Byte]) extends HashValue {
   override val value = bytes
 }
 
-case class SHA256(bytes:Array[Byte]) extends HashValue {
+case class SHA256(bytes: Array[Byte]) extends HashValue {
   override val value = bytes
 }
 
-case class RIPEMD160(bytes:Array[Byte]) extends HashValue {
+case class RIPEMD160(bytes: Array[Byte]) extends HashValue {
   override val value = bytes
 }
 
-case class Hash160(bytes:Array[Byte]) extends HashValue {
+case class Hash160(bytes: Array[Byte]) extends HashValue {
   override val value = bytes
 }
 
-case class Hash256(bytes:Array[Byte]) extends HashValue {
+case class Hash256(bytes: Array[Byte]) extends HashValue {
   override val value = bytes
 }
 
 /**
- * Created by kangmo on 11/11/15.
- */
+  * Created by kangmo on 11/11/15.
+  */
 object HashFunctions {
+
   /**
-   *
-   * @param input
-   * @return
-   */
-  def sha1(input: Array[Byte]) : SHA1 = {
+    * @param input
+    * @return
+    */
+  def sha1(input: Array[Byte]): SHA1 = {
     val sha1md = MessageDigest.getInstance("SHA-1")
-    SHA1( sha1md.digest(input) )
+    SHA1(sha1md.digest(input))
   }
 
   /**
-   *
-   * @param input
-   * @return
-   */
-  def sha256(input: Array[Byte]) : SHA256 = {
+    * @param input
+    * @return
+    */
+  def sha256(input: Array[Byte]): SHA256 = {
     val sha256md = MessageDigest.getInstance("SHA-256")
-    SHA256( sha256md.digest(input) )
+    SHA256(sha256md.digest(input))
   }
 
   /**
-   *
-   * @param input
-   * @return
-   */
-  def ripemd160(input: Array[Byte]) : RIPEMD160 = {
+    * @param input
+    * @return
+    */
+  def ripemd160(input: Array[Byte]): RIPEMD160 = {
     val md = new RIPEMD160Digest()
     md.update(input, 0, input.length)
     val out = Array.fill[Byte](md.getDigestSize())(0)
@@ -65,20 +63,18 @@ object HashFunctions {
   }
 
   /** Return RIPEMD160(SHA256(x)) hash
-   *
-   * @param input
-   * @return
-   */
-  def hash160(input: Array[Byte]) : Hash160 = {
-    Hash160( ripemd160( sha256(input).value ).value )
-  }
+    *
+    * @param input
+    * @return
+    */
+  def hash160(input: Array[Byte]): Hash160 =
+    Hash160(ripemd160(sha256(input).value).value)
 
   /** Return SHA256(SHA256(x)) hash
-   *
-   * @param input
-   * @return
-   */
-  def hash256(input: Array[Byte]) : Hash256 = {
-    Hash256( sha256( sha256(input).value ).value )
-  }
+    *
+    * @param input
+    * @return
+    */
+  def hash256(input: Array[Byte]): Hash256 =
+    Hash256(sha256(sha256(input).value).value)
 }

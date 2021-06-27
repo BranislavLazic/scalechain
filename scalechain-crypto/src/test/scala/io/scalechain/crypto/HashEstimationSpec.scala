@@ -2,8 +2,10 @@ package io.scalechain.crypto
 
 import org.scalatest._
 import io.scalechain.util.HexUtil._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class HashEstimationSpec extends FlatSpec with BeforeAndAfterEach with ShouldMatchers {
+class HashEstimationSpec extends AnyFlatSpec with BeforeAndAfterEach with Matchers {
   "getHashCalculations" should "calculate the number of hash calculations based on a hash value" in {
     HashEstimation.getHashCalculations(bytes("F000000000000000000000000000000000000000000000000000000000000000")) shouldBe 1
     HashEstimation.getHashCalculations(bytes("E000000000000000000000000000000000000000000000000000000000000000")) shouldBe 1

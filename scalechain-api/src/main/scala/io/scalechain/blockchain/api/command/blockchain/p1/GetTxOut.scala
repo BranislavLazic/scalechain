@@ -1,7 +1,7 @@
 package io.scalechain.blockchain.api.command.blockchain.p1
 
 import io.scalechain.blockchain.api.command.RpcCommand
-import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
+import io.scalechain.blockchain.api.domain.{ RpcError, RpcRequest, RpcResult }
 import org.slf4j.LoggerFactory
 
 /*
@@ -37,24 +37,24 @@ import org.slf4j.LoggerFactory
       "error": null,
       "id": "curltest"
     }
-*/
+ */
 
 case class ScriptPubKey(
-                         asm: String,
-                         hex: String,
-                         reqSigs: Int,
-                         `type` : String,
-                         addresses : Array[String]
-                       )
+    asm: String,
+    hex: String,
+    reqSigs: Int,
+    `type`: String,
+    addresses: Array[String]
+)
 
 case class GetTxOutResult(
-                           bestblock : String,
-                           confirmations: Int,
-                           value: Int,
-                           scriptPubKey: ScriptPubKey,
-                           version: Int,
-                           coinbase : Boolean
-                         ) extends RpcResult
+    bestblock: String,
+    confirmations: Int,
+    value: Int,
+    scriptPubKey: ScriptPubKey,
+    version: Int,
+    coinbase: Boolean
+) extends RpcResult
 
 /** GetTxOut: returns details about a transaction output.
   * Only unspent transaction outputs (UTXOs) are guaranteed to be available.
@@ -63,7 +63,7 @@ case class GetTxOutResult(
   */
 object GetTxOut extends RpcCommand {
 
-  def invoke(request : RpcRequest) : Either[RpcError, Option[RpcResult]] = {
+  def invoke(request: RpcRequest): Either[RpcError, Option[RpcResult]] =
     // TODO : Implement
     Right(
       Some(
@@ -71,20 +71,19 @@ object GetTxOut extends RpcCommand {
           bestblock = "000000000000000001ef38012ed2e2f674e59bf2314e55f2b4e6f71a7657df50",
           confirmations = 5,
           value = 15,
-          scriptPubKey = ScriptPubKey (
+          scriptPubKey = ScriptPubKey(
             asm = "OP_DUP OP_HASH160 60692856b3121dab03f477f130b9fee7e6e60234 OP_EQUALVERIFY OP_CHECKSIG",
             hex = "76a91460692856b3121dab03f477f130b9fee7e6e6023488ac",
             reqSigs = 1,
             `type` = "pubkeyhash",
-            addresses = Array[String]( "19nmqtjciexd6NU9VNp5JTu4hht98pULn5" )
+            addresses = Array[String]("19nmqtjciexd6NU9VNp5JTu4hht98pULn5")
           ),
           version = 1,
           coinbase = false
         )
       )
     )
-  }
-  def help() : String =
+  def help(): String =
     """gettxout "txid" n ( includemempool )
       |
       |Returns details about an unspent transaction output.
@@ -126,5 +125,3 @@ object GetTxOut extends RpcCommand {
       |
     """.stripMargin
 }
-
-

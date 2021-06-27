@@ -4,14 +4,12 @@ import io.scalechain.blockchain.proto.Hash
 import io.scalechain.blockchain.proto.codec.BlockCodec
 import io.scalechain.util.HexUtil._
 
-
 /**
   * Created by kangmo on 3/16/16.
   */
 object GenesisBlock {
   val SERIALIZED_GENESIS_BLOCK =
-    bytes(
-      """
+    bytes("""
         |01 00 00 00 00 00 00 00
         |00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
         |00 00 00 00 00 00 00 00 00 00 00 00 3b a3 ed fd
@@ -34,7 +32,5 @@ object GenesisBlock {
       """.stripMargin)
 
   val BLOCK = BlockCodec.parse(SERIALIZED_GENESIS_BLOCK)
-  val HASH = Hash( bytes("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f") )
+  val HASH  = Hash(bytes("000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"))
 }
-
-

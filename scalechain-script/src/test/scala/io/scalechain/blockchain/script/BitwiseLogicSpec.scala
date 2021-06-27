@@ -7,11 +7,11 @@ import io.scalechain.blockchain.script.ops._
 import org.scalatest._
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
-
+import org.scalatest.flatspec.AnyFlatSpec
 /** Test bitwise logic operations in BitwiseLogic.scala
   *
   */
-class BitwiseLogicSpec extends FlatSpec with BeforeAndAfterEach with OperationTestTrait {
+class BitwiseLogicSpec extends AnyFlatSpec with BeforeAndAfterEach with OperationTestTrait {
 
   this: Suite =>
 

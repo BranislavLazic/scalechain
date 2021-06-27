@@ -6,11 +6,11 @@ import io.scalechain.util.HexUtil
 import org.scalatest._
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
-
+import org.scalatest.flatspec.AnyFlatSpec
 /** Test crypto operations in Crypto.scala
   *
   */
-class CryptoSpec extends FlatSpec with BeforeAndAfterEach with OperationTestTrait {
+class CryptoSpec extends AnyFlatSpec with BeforeAndAfterEach with OperationTestTrait {
 
   this: Suite =>
 

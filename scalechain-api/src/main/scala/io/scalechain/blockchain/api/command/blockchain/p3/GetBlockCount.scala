@@ -1,7 +1,7 @@
 package io.scalechain.blockchain.api.command.blockchain.p3
 
 import io.scalechain.blockchain.api.command.RpcCommand
-import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
+import io.scalechain.blockchain.api.domain.{ RpcError, RpcRequest, RpcResult }
 
 /*
   CLI command :
@@ -19,20 +19,20 @@ import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
       "error": null,
       "id": "curltest"
     }
-*/
+ */
 
 /** GetBlockCount: returns the number of blocks in the local best block chain.
   *
   * https://bitcoin.org/en/developer-reference#getblockcount
   */
 object GetBlockCount extends RpcCommand {
-  def invoke(request : RpcRequest) : Either[RpcError, Option[RpcResult]] = {
+  def invoke(request: RpcRequest): Either[RpcError, Option[RpcResult]] = {
     // TODO : Implement
     assert(false)
     Right(None)
   }
-  def help() : String =
-  """getblockcount
+  def help(): String =
+    """getblockcount
     |
     |Returns the number of blocks in the longest block chain.
     |
@@ -44,5 +44,3 @@ object GetBlockCount extends RpcCommand {
     |> curl --user myusername --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "getblockcount", "params": [] }' -H 'content-type: text/plain;' http://127.0.0.1:8332/
   """.stripMargin
 }
-
-

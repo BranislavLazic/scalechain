@@ -2,7 +2,7 @@ package io.scalechain.blockchain.api
 
 import io.scalechain.blockchain.chain.Blockchain
 import io.scalechain.blockchain.chain.processor.TransactionProcessor
-import io.scalechain.blockchain.net.{PeerInfo, PeerCommunicator, PeerSet}
+import io.scalechain.blockchain.net.{ PeerCommunicator, PeerInfo, PeerSet }
 import io.scalechain.blockchain.proto._
 import io.scalechain.blockchain.script.HashSupported
 import io.scalechain.blockchain.script.HashSupported._
@@ -11,13 +11,14 @@ import io.scalechain.blockchain.storage.index.KeyValueDatabase
 import io.scalechain.blockchain.transaction.TransactionVerifier
 import spray.json.JsObject
 import HashSupported._
+
 /**
   * Created by kangmo on 3/15/16.
   */
 object RpcSubSystem {
-  var theRpcSubSystem : RpcSubSystem = null
+  var theRpcSubSystem: RpcSubSystem = null
 
-  def create(chain : Blockchain, peerCommunicator: PeerCommunicator) = {
+  def create(chain: Blockchain, peerCommunicator: PeerCommunicator) = {
     theRpcSubSystem = new RpcSubSystem(chain, peerCommunicator)(chain.db)
     theRpcSubSystem
   }
@@ -28,7 +29,7 @@ object RpcSubSystem {
   }
 }
 
-class RpcSubSystem(chain : Blockchain, peerCommunicator: PeerCommunicator)(implicit db : KeyValueDatabase) {
+class RpcSubSystem(chain: Blockchain, peerCommunicator: PeerCommunicator)(implicit db: KeyValueDatabase) {
 
   /** Get the hash of a block specified by the block height on the best blockchain.
     *
@@ -37,9 +38,8 @@ class RpcSubSystem(chain : Blockchain, peerCommunicator: PeerCommunicator)(impli
     * @param blockHeight The height of the block.
     * @return The hash of the block header.
     */
-  def getBlockHash(blockHeight : Long) : Hash = {
+  def getBlockHash(blockHeight: Long): Hash =
     chain.getBlockHash(blockHeight)
-  }
 
   /** Get a block searching by the header hash.
     *
@@ -48,9 +48,8 @@ class RpcSubSystem(chain : Blockchain, peerCommunicator: PeerCommunicator)(impli
     * @param blockHash The header hash of the block to search.
     * @return The searched block.
     */
-  def getBlock(blockHash: Hash): Option[(BlockInfo, Block)] = {
+  def getBlock(blockHash: Hash): Option[(BlockInfo, Block)] =
     chain.getBlock(blockHash)
-  }
 
   /** Get the header hash of the most recent block on the best block chain.
     *
@@ -58,10 +57,8 @@ class RpcSubSystem(chain : Blockchain, peerCommunicator: PeerCommunicator)(impli
     *
     * @return The header hash of the most recent block.
     */
-  def getBestBlockHash(): Option[Hash] = {
+  def getBestBlockHash(): Option[Hash] =
     chain.getBestBlockHash()
-  }
-
 
   /**
     * Return the block height of the best block.
@@ -70,9 +67,8 @@ class RpcSubSystem(chain : Blockchain, peerCommunicator: PeerCommunicator)(impli
     *
     * @return The height of the best block.
     */
-  def getBestBlockHeight() : Long = {
+  def getBestBlockHeight(): Long =
     chain.getBestBlockHeight()
-  }
 
   /**
     * Get the block info of the block which has the given transaction.
@@ -80,9 +76,8 @@ class RpcSubSystem(chain : Blockchain, peerCommunicator: PeerCommunicator)(impli
     * @param txHash The hash of the transaction to get the block info of the block which has the transaction.
     * @return Some(block info) if the transaction is included in a block; None otherwise.
     */
-  def getTransactionBlockInfo(txHash : Hash) : Option[BlockInfo] = {
+  def getTransactionBlockInfo(txHash: Hash): Option[BlockInfo] =
     chain.getTransactionBlockInfo(txHash)
-  }
 
   /** Get a transaction searching by the transaction hash.
     *
@@ -91,10 +86,8 @@ class RpcSubSystem(chain : Blockchain, peerCommunicator: PeerCommunicator)(impli
     * @param txHash The header hash of the transaction to search.
     * @return The searched block.
     */
-  def getTransaction(txHash : Hash): Option[Transaction] = {
+  def getTransaction(txHash: Hash): Option[Transaction] =
     chain.getTransaction(txHash)
-  }
-
 
   /** List of responses for submitblock RPC.
     */
@@ -113,12 +106,12 @@ class RpcSubSystem(chain : Blockchain, peerCommunicator: PeerCommunicator)(impli
     * @param parameters The JsObject we got from the second parameter of submitblock RPC. A common parameter is a workid string.
     * @return Some(SubmitBlockResult) if any error happend; None otherwise.
     */
-  def submitBlock(block : Block, parameters : JsObject) : Option[SubmitBlockResult.Value] = {
+  def submitBlock(block: Block, parameters: JsObject): Option[SubmitBlockResult.Value] = {
     // TODO : BUGBUG : parameters is not used.
     val blockHash = block.header.hash
-    if (chain.hasBlock(blockHash)) {
+    if (chain.hasBlock(blockHash))
       Some(SubmitBlockResult.DUPLICATE)
-    } else {
+    else {
       peerCommunicator.propagateBlock(block)
       chain.withTransaction { transactingDB =>
         chain.putBlock(Hash(blockHash.value), block)(transactingDB)
@@ -135,7 +128,7 @@ class RpcSubSystem(chain : Blockchain, peerCommunicator: PeerCommunicator)(impli
     * @param allowHighFees Whether to allow the transaction to pay a high transaction fee.
     * @return
     */
-  def sendRawTransaction(transaction : Transaction, allowHighFees : Boolean) = {
+  def sendRawTransaction(transaction: Transaction, allowHighFees: Boolean) = {
     TransactionProcessor.putTransaction(transaction.hash, transaction)(Blockchain.get.db)
 
     peerCommunicator.propagateTransaction(transaction)
@@ -147,15 +140,12 @@ class RpcSubSystem(chain : Blockchain, peerCommunicator: PeerCommunicator)(impli
     *
     * @return The list of peer information.
     */
-  def getPeerInfos() : List[PeerInfo] = {
+  def getPeerInfos(): List[PeerInfo] =
     peerCommunicator.getPeerInfos()
-  }
 
-  def verifyTransaction( transaction : Transaction ) : Unit = {
-    implicit val db : KeyValueDatabase = Blockchain.get.db
+  def verifyTransaction(transaction: Transaction): Unit = {
+    implicit val db: KeyValueDatabase = Blockchain.get.db
 
     new TransactionVerifier(transaction).verify(Blockchain.get)
   }
 }
-
-

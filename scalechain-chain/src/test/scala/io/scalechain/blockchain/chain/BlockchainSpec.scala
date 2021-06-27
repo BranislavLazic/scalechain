@@ -8,9 +8,10 @@ import io.scalechain.blockchain.transaction.TransactionTestDataTrait
 import io.scalechain.crypto.HashFunctions
 import org.apache.commons.io.FileUtils
 import org.scalatest._
+import org.scalatest.matchers.should.Matchers
 
 // Remove the ignore annotation after creating the "by block height" index
-class BlockchainSpec extends BlockchainTestTrait with TransactionTestDataTrait with ShouldMatchers {
+class BlockchainSpec extends BlockchainTestTrait with TransactionTestDataTrait with Matchers {
 
   this: Suite =>
 

@@ -2,43 +2,40 @@ package io.scalechain.blockchain.script
 
 import com.typesafe.scalalogging.Logger
 import io.scalechain.blockchain.proto.Script
-import io.scalechain.blockchain.script.ops.{ScriptOpWithoutCode, OpCond, ScriptOp}
-import io.scalechain.blockchain.{ErrorCode, ScriptEvalException, ScriptParseException}
+import io.scalechain.blockchain.script.ops.{ OpCond, ScriptOp, ScriptOpWithoutCode }
+import io.scalechain.blockchain.{ ErrorCode, ScriptEvalException, ScriptParseException }
 import io.scalechain.util.HexUtil
 import org.slf4j.LoggerFactory
 
 import scala.collection.mutable.ListBuffer
 
-
-case class ScriptOpList(val operations : List[ScriptOp]) {
-  override def toString(): String = {
+case class ScriptOpList(val operations: List[ScriptOp]) {
+  override def toString(): String =
     s"ScriptOpList(operations=Array(${operations.mkString(",")}))"
-  }
 }
 
-
 /** The parse result returned by parseUntil method.
- *
- * @param scriptOpList The list of operations we got as a result of parsing a raw script.
- * @param foundFenceOp The script operation found as a fence operation while parsing the script. null if no fence operation was found.
- * @param bytesConsumed The number of bytes consumed during parsing the script.
- */
-case class ParseResult(scriptOpList : ScriptOpList, foundFenceOp : ScriptOp, bytesConsumed : Int)
+  *
+  * @param scriptOpList The list of operations we got as a result of parsing a raw script.
+  * @param foundFenceOp The script operation found as a fence operation while parsing the script. null if no fence operation was found.
+  * @param bytesConsumed The number of bytes consumed during parsing the script.
+  */
+case class ParseResult(scriptOpList: ScriptOpList, foundFenceOp: ScriptOp, bytesConsumed: Int)
 
 /**
- * Parse byte array and produce list of script operations.
- *
- * @param rawScript The raw bytes of script that we did not parse yet.
- */
+  * Parse byte array and produce list of script operations.
+  *
+  * @param rawScript The raw bytes of script that we did not parse yet.
+  */
 object ScriptParser {
-  val logger = Logger( LoggerFactory.getLogger(ScriptParser.getClass) )
+  val logger = Logger(LoggerFactory.getLogger(ScriptParser.getClass))
 
   /** Parse a given raw script in a byte array to get the list of ScriptOp(s)
-   *
-   * @param script The input script.
-   * @return The list of ScriptOp(s).
-   */
-  def parse(script : Script): ScriptOpList  = {
+    *
+    * @param script The input script.
+    * @return The list of ScriptOp(s).
+    */
+  def parse(script: Script): ScriptOpList = {
     val parseResult = parseUntil(script, 0)
     parseResult.scriptOpList
   }
@@ -63,17 +60,19 @@ object ScriptParser {
     * and we reached at the end of the script.
     * @return The list of ScriptOp(s).
     */
-  def parseUntil(script : Script, offset : Int, fenceScriptOps : ScriptOp*): ParseResult  = {
+  def parseUntil(script: Script, offset: Int, fenceScriptOps: ScriptOp*): ParseResult = {
     val operations = new ListBuffer[ScriptOp]()
 
-    var programCounter = offset
-    var fenceOpOption : Option[ScriptOp] = None
+    var programCounter                  = offset
+    var fenceOpOption: Option[ScriptOp] = None
     // BUGBUG : Improve readability of this code.
 
-    while ( (programCounter < script.length) && // Loop until we meet the end of script and
-            fenceOpOption.isEmpty) {               // we did not meet any fence operation.
+    while (
+      (programCounter < script.length) && // Loop until we meet the end of script and
+      fenceOpOption.isEmpty
+    ) { // we did not meet any fence operation.
       // Read the script op code
-      val opCode = (script(programCounter) & 0xFF).toShort
+      val opCode = (script(programCounter) & 0xff).toShort
       // Move the cursor forward
       programCounter += 1
 
@@ -89,21 +88,23 @@ object ScriptParser {
 
         // See if the scriptOp exists in the fenceScriptOps list.
         // For example, while parsing OP_IF/OP_NOTIF, we need to parse until we meet either OP_ELSE or OP_ENDIF.
-        if (!scriptOp.isInstanceOf[ScriptOpWithoutCode]) { // BUGBUG : Improve this code without using runtime type checking.
-          fenceOpOption = fenceScriptOps.find( scriptOp.opCode() == _.opCode() )
-        }
+        if (
+          !scriptOp.isInstanceOf[ScriptOpWithoutCode]
+        ) // BUGBUG : Improve this code without using runtime type checking.
+          fenceOpOption = fenceScriptOps.find(scriptOp.opCode() == _.opCode())
 
         // Append to the list of operations only if it is not a fence operation.
-        if (fenceOpOption.isEmpty) {
+        if (fenceOpOption.isEmpty)
           operations.append(scriptOp)
-        }
 
         programCounter += bytesConsumed
       } else {
         // Encountered an invalid OP code. This could be an attack, so dump the raw script onto log.
-        logger.warn(s"InvalidScriptOperation. " +
-                    s"code : ${HexUtil.prettyHex(Array(opCode.toByte))}" +
-                    s"programCounter : $programCounter" )
+        logger.warn(
+          s"InvalidScriptOperation. " +
+          s"code : ${HexUtil.prettyHex(Array(opCode.toByte))}" +
+          s"programCounter : $programCounter"
+        )
 
         throw new ScriptParseException(ErrorCode.InvalidScriptOperation)
       }
@@ -111,14 +112,11 @@ object ScriptParser {
 
     // Throw an exception if we did not meet any fence operation
     // even though the caller of this method passed list of fence operations.
-    if (fenceScriptOps.length > 0) {
-      if (fenceOpOption.isEmpty) {
+    if (fenceScriptOps.length > 0)
+      if (fenceOpOption.isEmpty)
         throw new ScriptParseException(ErrorCode.UnexpectedEndOfScript)
-      }
-    }
 
-    ParseResult( ScriptOpList(operations.toList), fenceOpOption.getOrElse(null), bytesConsumed = programCounter - offset )
+    ParseResult(ScriptOpList(operations.toList), fenceOpOption.getOrElse(null), bytesConsumed = programCounter - offset)
   }
-
 
 }

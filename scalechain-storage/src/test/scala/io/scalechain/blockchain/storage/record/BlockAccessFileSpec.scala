@@ -6,11 +6,13 @@ import java.nio.ByteBuffer
 import io.scalechain.blockchain.storage.Storage
 
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
   * Created by kangmo on 11/2/15.
   */
-class BlockAccessFileSpec extends FlatSpec with BeforeAndAfterEach with ShouldMatchers {
+class BlockAccessFileSpec extends AnyFlatSpec with BeforeAndAfterEach with Matchers {
   this: Suite =>
 
   Storage.initialize()

@@ -7,16 +7,17 @@ import org.scalatest._
 
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-trait PerformanceTestTrait extends FlatSpec with ShouldMatchers {
+trait PerformanceTestTrait extends AnyFlatSpec with Matchers {
 
-  def sha256(value : Array[Byte]) : Array[Byte] = {
+  def sha256(value: Array[Byte]): Array[Byte] =
     MessageDigest.getInstance("SHA-1").digest(value).array
-  }
 
   def rand32bytes = sha256(BigInteger.valueOf(Random.nextLong).toByteArray)
 
-  def measure[T](subject: String)(block: => T)(implicit loopCount: Int) : T = {
+  def measure[T](subject: String)(block: => T)(implicit loopCount: Int): T = {
     println(s"Performance test started. ${subject}.")
     val startTimestamp = System.currentTimeMillis()
 
@@ -30,7 +31,7 @@ trait PerformanceTestTrait extends FlatSpec with ShouldMatchers {
     returnValue
   }
 
-  def measureWithSize(subject: String)(block: => Int)(implicit loopCount: Int) : Unit = {
+  def measureWithSize(subject: String)(block: => Int)(implicit loopCount: Int): Unit = {
     println(s"Performance test started. ${subject}.")
     val startTimestamp = System.currentTimeMillis()
 
@@ -51,13 +52,13 @@ trait PerformanceTestTrait extends FlatSpec with ShouldMatchers {
       // 256 byte value
       val value =
         rand32bytes ++
-          rand32bytes ++
-          rand32bytes ++
-          rand32bytes ++
-          rand32bytes ++
-          rand32bytes ++
-          rand32bytes ++
-          rand32bytes
+        rand32bytes ++
+        rand32bytes ++
+        rand32bytes ++
+        rand32bytes ++
+        rand32bytes ++
+        rand32bytes ++
+        rand32bytes
       buffer.append((key, value))
     }
     buffer.toList

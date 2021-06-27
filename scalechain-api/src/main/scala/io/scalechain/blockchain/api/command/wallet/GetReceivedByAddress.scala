@@ -1,10 +1,10 @@
 package io.scalechain.blockchain.api.command.wallet
 
 import io.scalechain.blockchain.chain.Blockchain
-import io.scalechain.blockchain.transaction.{CoinAmount, CoinAddress}
-import io.scalechain.blockchain.{ErrorCode, UnsupportedFeature}
+import io.scalechain.blockchain.transaction.{ CoinAddress, CoinAmount }
+import io.scalechain.blockchain.{ ErrorCode, UnsupportedFeature }
 import io.scalechain.blockchain.api.command.RpcCommand
-import io.scalechain.blockchain.api.domain.{NumberResult, RpcError, RpcRequest, RpcResult}
+import io.scalechain.blockchain.api.domain.{ NumberResult, RpcError, RpcRequest, RpcResult }
 import io.scalechain.wallet.Wallet
 import spray.json.DefaultJsonProtocol._
 
@@ -25,7 +25,7 @@ import spray.json.DefaultJsonProtocol._
       "error": null,
       "id": "curltest"
     }
-*/
+ */
 
 /** GetReceivedByAddress: returns the total amount received by the specified address
   * in transactions with the specified number of confirmations.
@@ -50,21 +50,20 @@ import spray.json.DefaultJsonProtocol._
   * https://bitcoin.org/en/developer-reference#getreceivedbyaddress
   */
 object GetReceivedByAddress extends RpcCommand {
-  def invoke(request : RpcRequest) : Either[RpcError, Option[RpcResult]] = {
+  def invoke(request: RpcRequest): Either[RpcError, Option[RpcResult]] =
     handlingException {
       // Convert request.params.paramValues, which List[JsValue] to SignRawTransactionParams instance.
-      val addressString      : String                = request.params.get[String]("Address", 0)
-      val confirmation : Long = request.params.getOption[Long]("Confirmations", 1).getOrElse(1L)
+      val addressString: String = request.params.get[String]("Address", 0)
+      val confirmation: Long    = request.params.getOption[Long]("Confirmations", 1).getOrElse(1L)
 
       val address = CoinAddress.from(addressString)
 
-      val amount : CoinAmount = Wallet.get.getReceivedByAddress(Blockchain.get, address, confirmation)(Blockchain.get.db)
+      val amount: CoinAmount = Wallet.get.getReceivedByAddress(Blockchain.get, address, confirmation)(Blockchain.get.db)
 
       Right(Some(NumberResult(amount.value)))
 
     }
-  }
-  def help() : String =
+  def help(): String =
     """getreceivedbyaddress "bitcoinaddress" ( minconf )
       |
       |Returns the total amount received by the given bitcoinaddress in transactions with at least minconf confirmations.
@@ -91,5 +90,3 @@ object GetReceivedByAddress extends RpcCommand {
       |> curl --user myusername --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "getreceivedbyaddress", "params": ["1D1ZrZNe3JUo7ZycKEYQQiQAWd9y54F4XZ", 6] }' -H 'content-type: text/plain;' http://127.0.0.1:8332/
     """.stripMargin
 }
-
-

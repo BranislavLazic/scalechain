@@ -3,10 +3,12 @@ package io.scalechain.blockchain.transaction
 import io.scalechain.blockchain.proto.TransactionOutput
 import org.scalatest._
 import io.scalechain.util.HexUtil._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 /**
   * Created by kangmo on 5/18/16.
   */
-class CoinAddressSpec extends FlatSpec with TransactionTestDataTrait with BeforeAndAfterEach with ChainTestTrait with ShouldMatchers {
+class CoinAddressSpec extends AnyFlatSpec with TransactionTestDataTrait with BeforeAndAfterEach with ChainTestTrait with Matchers {
 
   this: Suite =>
 

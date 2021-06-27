@@ -2,10 +2,10 @@ package io.scalechain.blockchain.api.command.wallet
 
 import io.scalechain.blockchain.chain.Blockchain
 import io.scalechain.blockchain.transaction.CoinAddress
-import io.scalechain.blockchain.{ErrorCode, UnsupportedFeature}
+import io.scalechain.blockchain.{ ErrorCode, UnsupportedFeature }
 import io.scalechain.blockchain.api.command.RpcCommand
 import io.scalechain.blockchain.api.command.rawtx.GetRawTransaction._
-import io.scalechain.blockchain.api.domain.{StringResult, RpcError, RpcRequest, RpcResult}
+import io.scalechain.blockchain.api.domain.{ RpcError, RpcRequest, RpcResult, StringResult }
 import io.scalechain.blockchain.proto.HashFormat
 import io.scalechain.wallet.Wallet
 import spray.json.DefaultJsonProtocol._
@@ -27,7 +27,7 @@ import spray.json.DefaultJsonProtocol._
       "error": null,
       "id": "curltest"
     }
-*/
+ */
 
 /** GetNewAddress: returns a new coin address for receiving payments.
   * If an account is specified, payments received with the address will be credited to that account.
@@ -49,16 +49,15 @@ import spray.json.DefaultJsonProtocol._
   * https://bitcoin.org/en/developer-reference#getnewaddress
   */
 object GetNewAddress extends RpcCommand {
-  def invoke(request : RpcRequest) : Either[RpcError, Option[RpcResult]] = {
+  def invoke(request: RpcRequest): Either[RpcError, Option[RpcResult]] =
     handlingException {
       val account: String = request.params.getOption[String]("Account", 0).getOrElse("")
 
-      val newCoinAddress : CoinAddress = Wallet.get.newAddress(account)(Blockchain.get.db)
+      val newCoinAddress: CoinAddress = Wallet.get.newAddress(account)(Blockchain.get.db)
 
       Right(Some(StringResult(newCoinAddress.base58)))
     }
-  }
-  def help() : String =
+  def help(): String =
     """getnewaddress ( "account" )
       |
       |Returns a new Bitcoin address for receiving payments.
@@ -77,5 +76,3 @@ object GetNewAddress extends RpcCommand {
     """.stripMargin
 
 }
-
-

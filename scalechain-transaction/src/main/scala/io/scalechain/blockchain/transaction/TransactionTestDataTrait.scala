@@ -1,9 +1,9 @@
 package io.scalechain.blockchain.transaction
 
 import io.scalechain.blockchain.proto.test.ProtoTestData
-import io.scalechain.blockchain.proto.{TransactionOutput, OutPoint, Hash}
+import io.scalechain.blockchain.proto.{ Hash, OutPoint, TransactionOutput }
 import io.scalechain.blockchain.script.ops._
-import io.scalechain.blockchain.script.{ScriptOpList}
+import io.scalechain.blockchain.script.{ ScriptOpList }
 import io.scalechain.blockchain.script.HashSupported._
 import io.scalechain.util.HexUtil
 
@@ -11,7 +11,12 @@ import io.scalechain.util.HexUtil
   * Created by kangmo on 5/18/16.
   */
 trait TransactionTestDataTrait extends ProtoTestData with ChainTestTrait {
-  case class AddressData(privateKey : PrivateKey, publicKey : PublicKey, pubKeyScript : ParsedPubKeyScript, address : CoinAddress)
+  case class AddressData(
+      privateKey: PrivateKey,
+      publicKey: PublicKey,
+      pubKeyScript: ParsedPubKeyScript,
+      address: CoinAddress
+  )
 
   /** Get rid of bytes data in OpCheckSig in the operations of ParsedPubKeyScript.
     *
@@ -21,45 +26,42 @@ trait TransactionTestDataTrait extends ProtoTestData with ChainTestTrait {
     * @param pubKeyScript The ParsedPubKeyScript to scrub script operations it it.
     * @return The ParsedPubKeyScript which has scrubbed script operations.
     */
-  def scrubScript(pubKeyScript : ParsedPubKeyScript) : ParsedPubKeyScript = {
+  def scrubScript(pubKeyScript: ParsedPubKeyScript): ParsedPubKeyScript =
     pubKeyScript.copy(
       scriptOps = ScriptOpList(pubKeyScript.scriptOps.operations.map { op =>
         op match {
-          case OpCheckSig(_) => OpCheckSig()
+          case OpCheckSig(_)      => OpCheckSig()
           case OpCheckMultiSig(_) => OpCheckMultiSig()
-          case op => op
+          case op                 => op
         }
       })
     )
-  }
 
   /** Same as scrubScript, but checks from a list of output ownerships
     *
     * @param ownerships the list of ownerships to scrub scripts. Only ParsedPubKeyScript is scrubbed. CoinAddress remains untouched.
     * @return The scrubbed scripts.
     */
-  def scrubScript(ownerships : List[OutputOwnership]) : List[OutputOwnership] = {
+  def scrubScript(ownerships: List[OutputOwnership]): List[OutputOwnership] =
     ownerships.map { ownership =>
       ownership match {
-        case p : ParsedPubKeyScript => scrubScript(p)
-        case ownership => ownership
+        case p: ParsedPubKeyScript => scrubScript(p)
+        case ownership             => ownership
       }
     }
-  }
 
-  def scrubScript(ownership : OutputOwnership) : OutputOwnership = {
+  def scrubScript(ownership: OutputOwnership): OutputOwnership =
     ownership match {
-      case p : ParsedPubKeyScript => scrubScript(p)
-      case ownership => ownership
+      case p: ParsedPubKeyScript => scrubScript(p)
+      case ownership             => ownership
     }
-  }
 
-  def generateAddress() : AddressData = {
+  def generateAddress(): AddressData = {
 
-    val privateKey   = PrivateKey.generate
-    val publicKey = PublicKey.from(privateKey)
+    val privateKey      = PrivateKey.generate
+    val publicKey       = PublicKey.from(privateKey)
     val publicKeyScript = ParsedPubKeyScript.from(privateKey)
-    val address       = CoinAddress.from(privateKey)
+    val address         = CoinAddress.from(privateKey)
 
     AddressData(
       privateKey,
@@ -69,20 +71,19 @@ trait TransactionTestDataTrait extends ProtoTestData with ChainTestTrait {
     )
   }
 
-  def generateTransactionOutput(value : Long, pubKeyScript : ParsedPubKeyScript) = {
-    TransactionOutput( value, pubKeyScript.lockingScript )
-  }
+  def generateTransactionOutput(value: Long, pubKeyScript: ParsedPubKeyScript) =
+    TransactionOutput(value, pubKeyScript.lockingScript)
 
   val TXHASH1 = transaction1.hash
   val TXHASH2 = transaction2.hash
   val TXHASH3 = transaction3.hash
-/*
+  /*
   val DUMMY_TXHASH1 = Hash
   val DUMMY_TXHASH2 =
   val DUMMY_TXHASH3 =
   val DUMMY_TXHASH4 =
   val DUMMY_TXHASH5 =
-*/
+   */
   val OUTPOINT1 = OutPoint(TXHASH1, 0)
   val OUTPOINT2 = OutPoint(TXHASH2, 0)
   val OUTPOINT3 = OutPoint(TXHASH3, 0)
@@ -103,4 +104,3 @@ trait TransactionTestDataTrait extends ProtoTestData with ChainTestTrait {
   val SIMPLE_SCRIPT_OPS_B = ScriptOpList(List(OpNum(3), OpEqual()))
 
 }
-

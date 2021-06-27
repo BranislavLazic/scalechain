@@ -12,12 +12,13 @@ import io.scalechain.util.HexUtil._
 import org.apache.commons.io.FileUtils
 import org.scalatest._
 import scodec.bits.BitVector
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
   * Covers all methods in BlockDatabaseForRecordStorage as well as its super class, BlockDatabase
   */
-class BlockDatabaseForRecordStorageSpec extends FlatSpec with ShouldMatchers with CodecTestUtil with BeforeAndAfterEach  {
-  this: Suite =>
+class BlockDatabaseForRecordStorageSpec extends AnyFlatSpec with Matchers with CodecTestUtil with BeforeAndAfterEach  {
 
   Storage.initialize()
 

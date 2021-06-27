@@ -5,7 +5,6 @@ import java.io.File
 import io.scalechain.blockchain.storage.Storage
 import org.apache.commons.io.FileUtils
 import org.scalatest._
-import org.scalatest.junit.JUnitRunner
 
 /**
   * Created by kangmo on 11/2/15.

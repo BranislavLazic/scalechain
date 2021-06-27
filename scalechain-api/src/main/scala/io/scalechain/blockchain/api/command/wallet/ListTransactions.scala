@@ -1,11 +1,11 @@
 package io.scalechain.blockchain.api.command.wallet
 
 import io.scalechain.blockchain.chain.Blockchain
-import io.scalechain.blockchain.{ErrorCode, UnsupportedFeature}
+import io.scalechain.blockchain.{ ErrorCode, UnsupportedFeature }
 import io.scalechain.blockchain.api.command.RpcCommand
 import io.scalechain.blockchain.api.command.rawtx.GetRawTransaction._
-import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
-import io.scalechain.blockchain.proto.{Transaction, HashFormat, Hash}
+import io.scalechain.blockchain.api.domain.{ RpcError, RpcRequest, RpcResult }
+import io.scalechain.blockchain.proto.{ Hash, HashFormat, Transaction }
 import io.scalechain.wallet.Wallet
 import io.scalechain.wallet.WalletTransactionDescriptor
 import spray.json.DefaultJsonProtocol._
@@ -45,10 +45,9 @@ import spray.json.DefaultJsonProtocol._
       "error": null,
       "id": "curltest"
     }
-*/
+ */
 
-case class ListTransactionsResult( transactionDescs : List[WalletTransactionDescriptor] ) extends RpcResult
-
+case class ListTransactionsResult(transactionDescs: List[WalletTransactionDescriptor]) extends RpcResult
 
 /** ListTransactions: returns the most recent transactions that affect the wallet.
   *
@@ -80,18 +79,21 @@ case class ListTransactionsResult( transactionDescs : List[WalletTransactionDesc
   * https://bitcoin.org/en/developer-reference#listtransactions
   */
 object ListTransactions extends RpcCommand {
-  def invoke(request : RpcRequest) : Either[RpcError, Option[RpcResult]] = {
-
+  def invoke(request: RpcRequest): Either[RpcError, Option[RpcResult]] =
     handlingException {
-      val account         : String  = request.params.getOption[String] ("Account", 0).getOrElse("")
-      val count           : Int     = request.params.getOption[Int]    ("Count", 1).getOrElse(10)
-      val skip            : Long    = request.params.getOption[Long]   ("Skip", 2).getOrElse(0)
+      val account: String           = request.params.getOption[String]("Account", 0).getOrElse("")
+      val count: Int                = request.params.getOption[Int]("Count", 1).getOrElse(10)
+      val skip: Long                = request.params.getOption[Long]("Skip", 2).getOrElse(0)
       val includeWatchOnly: Boolean = request.params.getOption[Boolean]("Include WatchOnly", 3).getOrElse(false)
 
       // None means to list transactions from all accounts in the wallet.
       val accountOption = if (account == "*") None else Some(account)
-      val transactionDescs : List[WalletTransactionDescriptor] = Wallet.get.listTransactions(
-        Blockchain.get, accountOption, count, skip, includeWatchOnly
+      val transactionDescs: List[WalletTransactionDescriptor] = Wallet.get.listTransactions(
+        Blockchain.get,
+        accountOption,
+        count,
+        skip,
+        includeWatchOnly
       )(Blockchain.get.db)
 
       // transactionDescs is an array containing objects, with each object describing a payment or internal accounting entry (not a transaction).
@@ -121,11 +123,10 @@ object ListTransactions extends RpcCommand {
             otheraccount = None
           )
         )
-      */
+       */
       Right(Some(ListTransactionsResult(transactionDescs)))
     }
-  }
-  def help() : String =
+  def help(): String =
     """listtransactions ( "account" count from includeWatchonly)
       |
       |Returns up to 'count' most recent transactions skipping the first 'from' transactions for account 'account'.
@@ -188,5 +189,3 @@ object ListTransactions extends RpcCommand {
       |> curl --user myusername --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "listtransactions", "params": ["*", 20, 100] }' -H 'content-type: text/plain;' http://127.0.0.1:8332/
     """.stripMargin
 }
-
-

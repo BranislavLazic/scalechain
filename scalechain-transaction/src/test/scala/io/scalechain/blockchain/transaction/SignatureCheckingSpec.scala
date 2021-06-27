@@ -6,14 +6,13 @@ import io.scalechain.blockchain.script.{ScriptParser, BlockPrinterSetter}
 import io.scalechain.util.HexUtil._
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
-import org.scalatest.{BeforeAndAfterEach, FlatSpec, Suite}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.BeforeAndAfterEach
 
 /** Test signature validation operations in Crypto.scala
   *
   */
-class SignatureCheckingSpec extends FlatSpec with BeforeAndAfterEach with SignatureTestTrait {
-
-  this: Suite =>
+class SignatureCheckingSpec extends AnyFlatSpec with BeforeAndAfterEach with SignatureTestTrait {
 
   override def beforeEach() {
     // set-up code

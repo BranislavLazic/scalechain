@@ -7,11 +7,12 @@ import io.scalechain.blockchain.storage.index.KeyValueDatabase
 import io.scalechain.blockchain.transaction.TransactionTestDataTrait
 import org.scalatest._
 import io.scalechain.blockchain.script.HashSupported._
+import org.scalatest.matchers.should.Matchers
 
 /**
   * Created by kangmo on 6/30/16.
   */
-class TransactionPriorityQueueSpec extends BlockchainTestTrait with TransactionTestDataTrait with ShouldMatchers {
+class TransactionPriorityQueueSpec extends BlockchainTestTrait with TransactionTestDataTrait with Matchers {
 
   this: Suite =>
 

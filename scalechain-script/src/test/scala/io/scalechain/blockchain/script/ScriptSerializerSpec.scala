@@ -6,13 +6,13 @@ import io.scalechain.util.HexUtil
 import org.scalatest._
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
  * Created by kangmo on 11/12/15.
  */
-class ScriptSerializerSpec extends FlatSpec with BeforeAndAfterEach with OperationTestTrait {
-
-  this: Suite =>
+class ScriptSerializerSpec extends AnyFlatSpec with BeforeAndAfterEach with OperationTestTrait with Matchers {
 
   override def beforeEach() {
     // set-up code

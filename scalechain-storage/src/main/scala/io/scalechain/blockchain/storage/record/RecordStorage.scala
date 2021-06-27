@@ -4,8 +4,8 @@ import java.io.File
 
 import com.typesafe.scalalogging.Logger
 import io.scalechain.blockchain.proto.codec.MessagePartCodec
-import io.scalechain.blockchain.proto.{FileRecordLocator, ProtocolMessage}
-import io.scalechain.blockchain.{BlockStorageException, ErrorCode}
+import io.scalechain.blockchain.proto.{ FileRecordLocator, ProtocolMessage }
+import io.scalechain.blockchain.{ BlockStorageException, ErrorCode }
 import org.slf4j.LoggerFactory
 
 import scala.collection.mutable
@@ -17,8 +17,8 @@ import scala.collection.mutable
   *   Record storage keeps track of multiple record files, enables us to search a record by a record locator,
   *   which hash the file index of the multiple record files.
   */
-class RecordStorage(directoryPath : File, filePrefix : String, maxFileSize : Long) {
-  private val logger = Logger( LoggerFactory.getLogger(classOf[RecordStorage]) )
+class RecordStorage(directoryPath: File, filePrefix: String, maxFileSize: Long) {
+  private val logger = Logger(LoggerFactory.getLogger(classOf[RecordStorage]))
 
   val files = mutable.ArrayBuffer.empty[RecordFile]
 
@@ -27,31 +27,25 @@ class RecordStorage(directoryPath : File, filePrefix : String, maxFileSize : Lon
     val fileList = directoryPath.listFiles
     if (fileList.isEmpty) {
       // Do nothing. no file exists
-    } else {
-      for ( file <- fileList.sortBy(_.getName() ) ) {
+    } else
+      for (file <- fileList.sortBy(_.getName()))
         file.getName() match {
-          case BlockFileName(prefix, fileNumber) => {
-            if (prefix == filePrefix) {
-              if (files.length == fileNumber) {
+          case BlockFileName(prefix, fileNumber) =>
+            if (prefix == filePrefix)
+              if (files.length == fileNumber)
                 files += newFile(file)
-              } else {
+              else {
                 logger.error(s"Invalid Block File Number. Expected : ${files.length}, Actual : ${fileNumber}")
                 throw new BlockStorageException(ErrorCode.InvalidFileNumber)
               }
-            }
-          }
-          case _ => {
-            // Ignore files that are not matching the block file name format.
-          }
+          case _ =>
+          // Ignore files that are not matching the block file name format.
         }
-      }
-    }
-  } else {
+  } else
     throw new BlockStorageException(ErrorCode.BlockFilePathNotExists)
-  }
 
   /** If there is no file at all, add a file.
-   */
+    */
   if (files.isEmpty)
     files += newFile()
 
@@ -62,13 +56,13 @@ class RecordStorage(directoryPath : File, filePrefix : String, maxFileSize : Lon
     */
   protected[storage] def flush = lastFile.flush
 
-  protected[storage] def lastFileIndex = files.length-1
+  protected[storage] def lastFileIndex = files.length - 1
 
-  protected[storage] def newFile(blockFile : File) : RecordFile = new RecordFile(blockFile, maxFileSize )
+  protected[storage] def newFile(blockFile: File): RecordFile = new RecordFile(blockFile, maxFileSize)
 
-  protected[storage] def newFile() : RecordFile = {
+  protected[storage] def newFile(): RecordFile = {
     val fileNumber = lastFileIndex + 1
-    val blockFile = new File( directoryPath.getAbsolutePath + File.separatorChar + BlockFileName(filePrefix, fileNumber))
+    val blockFile  = new File(directoryPath.getAbsolutePath + File.separatorChar + BlockFileName(filePrefix, fileNumber))
     newFile(blockFile)
   }
 
@@ -81,27 +75,23 @@ class RecordStorage(directoryPath : File, filePrefix : String, maxFileSize : Lon
 
   // TODO : Make FileRecordLocator to have a type parameter, T so that we can have a compile error when an incorrect codec is used for a record locator.
 
-  def appendRecord[T <: ProtocolMessage ](record : T)(implicit codec : MessagePartCodec[T]): FileRecordLocator = {
+  def appendRecord[T <: ProtocolMessage](record: T)(implicit codec: MessagePartCodec[T]): FileRecordLocator =
     try {
       val recordLocator = lastFile.appendRecord(record)
-      FileRecordLocator( lastFileIndex, recordLocator )
+      FileRecordLocator(lastFileIndex, recordLocator)
     } catch {
-      case e : BlockStorageException => {
+      case e: BlockStorageException =>
         if (e.code == ErrorCode.OutOfFileSpace) {
           addNewFile
           val recordLocator = lastFile.appendRecord(record)
-          FileRecordLocator( lastFileIndex, recordLocator )
-        } else {
+          FileRecordLocator(lastFileIndex, recordLocator)
+        } else
           throw e
-        }
-      }
     }
-  }
 
-  def readRecord[T <: ProtocolMessage ](locator : FileRecordLocator)(implicit codec : MessagePartCodec[T]) : T = {
-    if (locator.fileIndex < 0 || locator.fileIndex >= files.length) {
+  def readRecord[T <: ProtocolMessage](locator: FileRecordLocator)(implicit codec: MessagePartCodec[T]): T = {
+    if (locator.fileIndex < 0 || locator.fileIndex >= files.length)
       throw new BlockStorageException(ErrorCode.InvalidFileNumber)
-    }
 
     val file = files(locator.fileIndex)
 
@@ -112,7 +102,7 @@ class RecordStorage(directoryPath : File, filePrefix : String, maxFileSize : Lon
     // Flush the last file first not to lose any data.
     lastFile.flush()
 
-    for ( file <- files) {
+    for (file <- files) {
       file.flush()
       file.close()
     }

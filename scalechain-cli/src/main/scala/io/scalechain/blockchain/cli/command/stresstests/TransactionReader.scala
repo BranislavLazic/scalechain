@@ -15,17 +15,15 @@ object TransactionReader {
 
 /**
   * Read a transaction file, which has a raw transaction in the hex format. The file has a transaction per line.
-  *
   */
-class TransactionReader(transactionFile : File) {
+class TransactionReader(transactionFile: File) {
+
   /**
     * Read all transactions from the file, call the transaction listener for each transaction read.
     *
     * @param listener The listener, which will be notified for each transaction in the file.
     */
-  def read(listener : RawTransactionListener) : Unit = {
-    for( rawTransactionString <- Source.fromFile(transactionFile).getLines()) {
+  def read(listener: RawTransactionListener): Unit =
+    for (rawTransactionString <- Source.fromFile(transactionFile).getLines())
       listener(rawTransactionString)
-    }
-  }
 }

@@ -6,8 +6,10 @@ import org.scalatest._
 
 import io.scalechain.util.ByteArray
 import ByteArray._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class LockingScriptAnalyzerSpec extends FlatSpec with BeforeAndAfterEach with TransactionTestDataTrait with ChainTestTrait with ShouldMatchers {
+class LockingScriptAnalyzerSpec extends AnyFlatSpec with BeforeAndAfterEach with TransactionTestDataTrait with ChainTestTrait with Matchers {
 
   this: Suite =>
 

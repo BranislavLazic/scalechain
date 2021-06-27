@@ -1,8 +1,8 @@
 package io.scalechain.blockchain.transaction
 
 import io.scalechain.blockchain.proto.WalletOutput
-import io.scalechain.blockchain.proto.codec.primitive.{UInt64, VarByteArray}
-import io.scalechain.blockchain.proto.codec.{LockingScriptCodec, TransactionOutputCodec, MessagePartCodec}
+import io.scalechain.blockchain.proto.codec.primitive.{ UInt64, VarByteArray }
+import io.scalechain.blockchain.proto.codec.{ LockingScriptCodec, MessagePartCodec, TransactionOutputCodec }
 import io.scalechain.util.ByteArray
 import scodec.Codec
 import scodec.codecs._
@@ -13,19 +13,18 @@ object ByteArrayCodec {
     ("array" | VarByteArray.codec)
   }.as[ByteArray]
 }
-*/
+ */
 
 object CoinAddressCodec extends MessagePartCodec[CoinAddress] {
-  val codec: Codec[CoinAddress] = utf8_32.xmap(
-    addressString => CoinAddress.from(addressString),
-    coinAddress => coinAddress.base58)
+  val codec: Codec[CoinAddress] =
+    utf8_32.xmap(addressString => CoinAddress.from(addressString), coinAddress => coinAddress.base58)
 }
-
 
 object ParsedPubKeyScriptCodec extends MessagePartCodec[ParsedPubKeyScript] {
   val codec: Codec[ParsedPubKeyScript] = LockingScriptCodec.codec.xmap(
     lockingScript => ParsedPubKeyScript.from(lockingScript),
-    parsedPubKeyScript => parsedPubKeyScript.lockingScript)
+    parsedPubKeyScript => parsedPubKeyScript.lockingScript
+  )
 }
 
 // From sample code of scodec.
@@ -46,13 +45,12 @@ object ParsedPubKeyScriptCodec extends MessagePartCodec[ParsedPubKeyScript] {
       roundtrip(codec, Stay)
       roundtrip(codec, Go(42))
     }
-*/
+ */
 
 object OutputOwnershipCodec extends MessagePartCodec[OutputOwnership] {
-  val codec : Codec[OutputOwnership] =
-    discriminated[OutputOwnership].by(uint8).
-      typecase(1, CoinAddressCodec.codec).
-      typecase(2, ParsedPubKeyScriptCodec.codec)
+  val codec: Codec[OutputOwnership] =
+    discriminated[OutputOwnership]
+      .by(uint8)
+      .typecase(1, CoinAddressCodec.codec)
+      .typecase(2, ParsedPubKeyScriptCodec.codec)
 }
-
-

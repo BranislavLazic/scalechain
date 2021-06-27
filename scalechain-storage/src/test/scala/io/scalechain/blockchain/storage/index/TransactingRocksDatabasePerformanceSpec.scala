@@ -5,8 +5,10 @@ import java.io.File
 import io.scalechain.blockchain.storage.Storage
 import org.apache.commons.io.FileUtils
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class TransactingRocksDatabasePerformanceSpec extends FlatSpec with KeyValueDatabasePerformanceTrait with ShouldMatchers with BeforeAndAfterEach {
+class TransactingRocksDatabasePerformanceSpec extends AnyFlatSpec with KeyValueDatabasePerformanceTrait with Matchers with BeforeAndAfterEach {
   this: Suite =>
 
   Storage.initialize()

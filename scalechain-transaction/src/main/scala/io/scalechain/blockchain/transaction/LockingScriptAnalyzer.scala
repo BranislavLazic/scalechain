@@ -2,13 +2,14 @@ package io.scalechain.blockchain.transaction
 
 import io.scalechain.blockchain.proto.LockingScript
 import io.scalechain.blockchain.script.ops._
-import io.scalechain.blockchain.script.{ScriptValue, ScriptParser, ScriptOpList}
+import io.scalechain.blockchain.script.{ ScriptOpList, ScriptParser, ScriptValue }
 import io.scalechain.crypto.HashFunctions
 
 /**
   * Analyze the locking script attached to UTXOs.
   */
 object LockingScriptAnalyzer {
+
   /** Extract addresses from a parsed script operations.
     *
     * A locking script has only one address if it is P2PK or P2PKH.
@@ -17,31 +18,27 @@ object LockingScriptAnalyzer {
     * @param scriptOps The parsed script operations.
     * @return The list of extracted addresses.
     */
-  protected[transaction] def extractAddresses(scriptOps: ScriptOpList ) : List[CoinAddress] = {
+  protected[transaction] def extractAddresses(scriptOps: ScriptOpList): List[CoinAddress] =
     scriptOps.operations match {
       // TODO : Extract multisig addresses
       // Pay to public key
-      case List( OpPush(_, encodedPublicKey : ScriptValue), OpCheckSig(_) ) => {
-        val publicKey : PublicKey = PublicKey.from(encodedPublicKey.value)
+      case List(OpPush(_, encodedPublicKey: ScriptValue), OpCheckSig(_)) =>
+        val publicKey: PublicKey  = PublicKey.from(encodedPublicKey.value)
         val uncompressedPublicKey = publicKey.encode()
-        val publicKeyHash = HashFunctions.hash160(uncompressedPublicKey)
-        List( CoinAddress.from(publicKeyHash.value) )
-      }
+        val publicKeyHash         = HashFunctions.hash160(uncompressedPublicKey)
+        List(CoinAddress.from(publicKeyHash.value))
       // Pay to public key hash
-      case List( OpDup(), OpHash160(), OpPush(20, publicKeyHash), OpEqualVerify(), OpCheckSig(_) ) => {
-        List( CoinAddress.from(publicKeyHash.value) )
-      }
-      case _ => {
+      case List(OpDup(), OpHash160(), OpPush(20, publicKeyHash), OpEqualVerify(), OpCheckSig(_)) =>
+        List(CoinAddress.from(publicKeyHash.value))
+      case _ =>
         List()
-      }
     }
-  }
 
   /** Extract addresses from a locking script.
     *
     * @param lockingScript The locking script where we extract addreses.
     */
-  def extractAddresses(lockingScript: LockingScript) : List[CoinAddress] = {
+  def extractAddresses(lockingScript: LockingScript): List[CoinAddress] = {
     val scriptOperations: ScriptOpList = ScriptParser.parse(lockingScript)
     extractAddresses(scriptOperations)
   }
@@ -51,32 +48,30 @@ object LockingScriptAnalyzer {
     * @param lockingScript The locking script where we extract an output ownership.
     * @return The extracted output ownership.
     */
-  def extractOutputOwnership(lockingScript : LockingScript ) : OutputOwnership = {
+  def extractOutputOwnership(lockingScript: LockingScript): OutputOwnership = {
     // Step 1 : parse the script operations
-    val scriptOperations : ScriptOpList = ScriptParser.parse(lockingScript)
+    val scriptOperations: ScriptOpList = ScriptParser.parse(lockingScript)
 
     // Step 2 : try to extract coin addresses from it.
     val addresses = extractAddresses(scriptOperations)
 
-    if (addresses.isEmpty) {
+    if (addresses.isEmpty)
       // Step 2 : construct a pared public key script as an output ownership.
       //
       ParsedPubKeyScript(scriptOperations)
-    } else {
+    else
       // TODO : BUGBUG : We are using the first coin address only. is this ok?
       addresses(0)
-    }
   }
-
 
   /**
     * Extract all possible output ownerships from a locking script matching with known patterns of script operations for the locking script.
     * @param lockingScript The locking script to analyze
     * @return The list of all possible output ownerships.
     */
-  def extractPossibleOutputOwnerships(lockingScript : LockingScript ) : List[OutputOwnership] = {
+  def extractPossibleOutputOwnerships(lockingScript: LockingScript): List[OutputOwnership] = {
     // Step 1 : parse the script operations
-    val scriptOperations : ScriptOpList = ScriptParser.parse(lockingScript)
+    val scriptOperations: ScriptOpList = ScriptParser.parse(lockingScript)
 
     // Step 2 : try to extract coin addresses from it.
     val addresses = extractAddresses(scriptOperations)

@@ -22,12 +22,13 @@ import scodec.bits.BitVector
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
-
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 /**
   * Created by kangmo on 7/4/16.
   */
 
-class WalletPerformanceSpec extends FlatSpec with PerformanceTestTrait with WalletTestTrait with BeforeAndAfterEach with TransactionTestDataTrait with Matchers {
+class WalletPerformanceSpec extends AnyFlatSpec with PerformanceTestTrait with WalletTestTrait with BeforeAndAfterEach with TransactionTestDataTrait with Matchers {
 
   this: Suite =>
 

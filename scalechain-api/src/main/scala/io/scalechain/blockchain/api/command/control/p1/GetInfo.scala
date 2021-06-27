@@ -1,7 +1,7 @@
 package io.scalechain.blockchain.api.command.control.p1
 
 import io.scalechain.blockchain.api.command.RpcCommand
-import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
+import io.scalechain.blockchain.api.domain.{ RpcError, RpcRequest, RpcResult }
 
 /*
   CLI command :
@@ -35,25 +35,25 @@ import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
       "error": null,
       "id": "curltest"
     }
-*/
+ */
 
 case class GetInfoResult(
-  version : Int,
-  protocolversion : Int,
-  walletversion : Int,
-  balance: Int,
-  blocks: Int,
-  timeoffset: Int,
-  connections : Int,
-  proxy: String,
-  difficulty: scala.math.BigDecimal,
-  testnet: Boolean,
-  keypoololdest: Long,
-  keypoolsize: Int,
-  paytxfee : Int,
-  // Make sure the Json serialized format is like "5.0e-5"
-  relayfee: scala.math.BigDecimal,
-  errors: String
+    version: Int,
+    protocolversion: Int,
+    walletversion: Int,
+    balance: Int,
+    blocks: Int,
+    timeoffset: Int,
+    connections: Int,
+    proxy: String,
+    difficulty: scala.math.BigDecimal,
+    testnet: Boolean,
+    keypoololdest: Long,
+    keypoolsize: Int,
+    paytxfee: Int,
+    // Make sure the Json serialized format is like "5.0e-5"
+    relayfee: scala.math.BigDecimal,
+    errors: String
 ) extends RpcResult
 
 /** GetInfo: prints various information about the node and the network.
@@ -63,7 +63,7 @@ case class GetInfoResult(
   * https://bitcoin.org/en/developer-reference#getinfo
   */
 object GetInfo extends RpcCommand {
-  def invoke(request : RpcRequest) : Either[RpcError, Option[RpcResult]] = {
+  def invoke(request: RpcRequest): Either[RpcError, Option[RpcResult]] =
     // TODO : Implement
     Right(
       Some(
@@ -87,8 +87,7 @@ object GetInfo extends RpcCommand {
         )
       )
     )
-  }
-  def help() : String =
+  def help(): String =
     """getinfo
       |Returns an object containing various state info.
       |

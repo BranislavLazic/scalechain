@@ -3,14 +3,13 @@ package io.scalechain.blockchain.api.command.wallet
 import io.scalechain.blockchain.chain.Blockchain
 import io.scalechain.blockchain.proto.LockingScript
 import io.scalechain.blockchain.script.ScriptParser
-import io.scalechain.blockchain.transaction.{ParsedPubKeyScript, CoinAddress}
-import io.scalechain.blockchain.{ScriptParseException, GeneralException, ErrorCode, UnsupportedFeature}
+import io.scalechain.blockchain.transaction.{ CoinAddress, ParsedPubKeyScript }
+import io.scalechain.blockchain.{ ErrorCode, GeneralException, ScriptParseException, UnsupportedFeature }
 import io.scalechain.blockchain.api.command.RpcCommand
-import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
-import io.scalechain.util.{HexUtil, ByteArray}
+import io.scalechain.blockchain.api.domain.{ RpcError, RpcRequest, RpcResult }
+import io.scalechain.util.{ ByteArray, HexUtil }
 import io.scalechain.wallet.Wallet
 import spray.json.DefaultJsonProtocol._
-
 
 /*
   CLI command :
@@ -29,7 +28,7 @@ import spray.json.DefaultJsonProtocol._
       "error": null,
       "id": "curltest"
     }
-*/
+ */
 
 /** ImportAddress: adds an address or pubkey script to the wallet without the associated private key,
   * allowing you to watch for transactions affecting that address or
@@ -40,31 +39,27 @@ import spray.json.DefaultJsonProtocol._
   * https://bitcoin.org/en/developer-reference#importaddress
   */
 object ImportAddress extends RpcCommand {
-  def invoke(request : RpcRequest) : Either[RpcError, Option[RpcResult]] = {
+  def invoke(request: RpcRequest): Either[RpcError, Option[RpcResult]] =
     handlingException {
-      val scriptOrAddress  : String = request.params.get[String]("Script", 0)
-      val account          : String = request.params.getOption[String]("Account" , 1).getOrElse("")
-      val rescanBlockchain : Boolean = request.params.getOption[Boolean]("Rescan Blockchain", 2).getOrElse(true)
+      val scriptOrAddress: String   = request.params.get[String]("Script", 0)
+      val account: String           = request.params.getOption[String]("Account", 1).getOrElse("")
+      val rescanBlockchain: Boolean = request.params.getOption[Boolean]("Rescan Blockchain", 2).getOrElse(true)
 ///      val p2sh  : Boolean = request.params.getOption[Boolean]("Allow P2SH Scripts"  , 3).getOrElse(false)
 
       val coinOwnership =
         // Step 1 : Check if it is an address.
-        try {
-          CoinAddress.from(scriptOrAddress)
-        } catch {
-          case e : GeneralException => {
+        try CoinAddress.from(scriptOrAddress)
+        catch {
+          case e: GeneralException =>
             // Step 2 : Check if it is a public key hash script.
             val scriptBytes = ByteArray.arrayToByteArray(HexUtil.bytes(scriptOrAddress))
-            try {
-              ParsedPubKeyScript( ScriptParser.parse(LockingScript(scriptBytes)) )
-            } catch {
-              case e : ScriptParseException => {
+            try ParsedPubKeyScript(ScriptParser.parse(LockingScript(scriptBytes)))
+            catch {
+              case e: ScriptParseException =>
                 // Step 3 : If it is neither an address nor an script, throw an exception.
                 // The RpcInvalidAddress is converted to an RPC error, RPC_INVALID_ADDRESS_OR_KEY by handlingException.
                 throw new GeneralException(ErrorCode.RpcInvalidAddress)
-              }
             }
-          }
         }
 
       Wallet.get.importOutputOwnership(
@@ -77,12 +72,11 @@ object ImportAddress extends RpcCommand {
       // None is converted to JsNull, so we will have { result : null .. } within the response json.
       Right(None)
     }
-  }
 
   // BUGBUG : Add fourth parameter.
   // 4. p2sh                 (boolean, optional, default=false) Add the P2SH version of the script as well
 
-  def help() : String =
+  def help(): String =
     """importaddress "address" ( "label" rescan p2sh )
       |
       |Adds a script (in hex) or address that can be watched as if it were in your wallet but cannot be used to spend.
@@ -107,5 +101,3 @@ object ImportAddress extends RpcCommand {
       |> curl --user myusername --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "importaddress", "params": ["myscript", "testing", false] }' -H 'content-type: text/plain;' http://127.0.0.1:8332/
     """.stripMargin
 }
-
-

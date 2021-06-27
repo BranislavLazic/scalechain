@@ -10,48 +10,39 @@ import io.scalechain.blockchain.script.HashSupported._
   */
 object BlockPrinterSetter {
   def initialize() = {
-    LockingScript.printer =
-      new LockingScriptPrinter {
-        def toString(lockingScript:LockingScript): String = {
-          val scriptOps = ScriptParser.parse(lockingScript)
+    LockingScript.printer = new LockingScriptPrinter {
+      def toString(lockingScript: LockingScript): String = {
+        val scriptOps = ScriptParser.parse(lockingScript)
 
-          s"LockingScript(${lockingScript.data}) /* ops:$scriptOps */ "
-        }
+        s"LockingScript(${lockingScript.data}) /* ops:$scriptOps */ "
       }
+    }
 
-    UnlockingScript.printer =
-      new UnlockingScriptPrinter {
-        def toString(unlockingScript : UnlockingScript): String = {
-          val scriptOps = ScriptParser.parse(unlockingScript)
+    UnlockingScript.printer = new UnlockingScriptPrinter {
+      def toString(unlockingScript: UnlockingScript): String = {
+        val scriptOps = ScriptParser.parse(unlockingScript)
 
-          val hashType =
-            if (scriptOps.operations.size > 0) {
+        val hashType =
+          if (scriptOps.operations.size > 0)
             // The last byte of the signature, hash type decides how to create a hash value from transaction and script.
             // The hash value and public key is used to verify the signature.
             scriptOps.operations(0) match {
-              case signature : OpPush => {
+              case signature: OpPush =>
                 Some(signature.inputValue.value.last)
-              }
-              case _ => {
+              case _ =>
                 None
-              }
             }
-          } else {
+          else
             None
-          }
 
-          s"UnlockingScript(${unlockingScript.data}) /* ops:$scriptOps, hashType:$hashType */"
-        }
+        s"UnlockingScript(${unlockingScript.data}) /* ops:$scriptOps, hashType:$hashType */"
       }
+    }
 
-    Transaction.printer =
-      new TransactionPrinter {
-        override def toString(transaction : Transaction) : String = {
-          s"Transaction(version=${transaction.version}, inputs=List(${transaction.inputs.mkString(",")}), outputs=List(${transaction.outputs.mkString(",")}), lockTime=${transaction.lockTime}L /* hash:${transaction.hash} */)"
-        }
-      }
+    Transaction.printer = new TransactionPrinter {
+      override def toString(transaction: Transaction): String =
+        s"Transaction(version=${transaction.version}, inputs=List(${transaction.inputs.mkString(",")}), outputs=List(${transaction.outputs
+          .mkString(",")}), lockTime=${transaction.lockTime}L /* hash:${transaction.hash} */)"
+    }
   }
 }
-
-
-

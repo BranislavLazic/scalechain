@@ -6,11 +6,13 @@ import io.scalechain.blockchain.proto.FileNumber
 import io.scalechain.blockchain.proto.codec.{FileNumberCodec, CodecTestUtil}
 import io.scalechain.blockchain.storage.Storage
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
   * Created by kangmo on 11/2/15.
   */
-class RecordFileSpec extends FlatSpec with BeforeAndAfterEach with ShouldMatchers with CodecTestUtil {
+class RecordFileSpec extends AnyFlatSpec with BeforeAndAfterEach with Matchers with CodecTestUtil {
   this: Suite =>
 
   Storage.initialize()

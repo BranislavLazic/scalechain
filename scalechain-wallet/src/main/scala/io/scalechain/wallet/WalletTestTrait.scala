@@ -7,10 +7,10 @@ import org.scalatest.Suite
 /**
   * Created by kangmo on 7/9/16.
   */
-trait WalletTestTrait extends BlockchainTestTrait with ChainTestTrait{
+trait WalletTestTrait extends BlockchainTestTrait with ChainTestTrait {
   this: Suite =>
 
-  var wallet : Wallet = null
+  var wallet: Wallet = null
 
   override def beforeEach() {
     super.beforeEach()
@@ -25,7 +25,7 @@ trait WalletTestTrait extends BlockchainTestTrait with ChainTestTrait{
 
     super.afterEach()
 
-    wallet  = null
+    wallet = null
   }
 
 }

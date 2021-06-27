@@ -2,7 +2,7 @@ package io.scalechain.blockchain.transaction
 
 import io.scalechain.blockchain.proto._
 import io.scalechain.blockchain.script._
-import io.scalechain.blockchain.script.ops.{OpEqual, OpHash160, OpPush, OpPushData}
+import io.scalechain.blockchain.script.ops.{ OpEqual, OpHash160, OpPush, OpPushData }
 import io.scalechain.blockchain.storage.BlockIndex
 import io.scalechain.blockchain.script.HashSupported._
 import io.scalechain.blockchain._
@@ -10,73 +10,66 @@ import io.scalechain.blockchain.storage.index.KeyValueDatabase
 import io.scalechain.util.Utils
 
 /** Check if inputs of a transaction successfully unlocks the locking script attached to the UTXO, which the input references.
- *
+  *
   * @param spendingTransaction The transaction that has inputs with unlocking scripts.
- */
-class TransactionVerifier(spendingTransaction : Transaction)(implicit db : KeyValueDatabase) {
+  */
+class TransactionVerifier(spendingTransaction: Transaction)(implicit db: KeyValueDatabase) {
+
   /** Check if a transaction's input successfully unlocks the locking script attached to the UTXO, which the input references.
-   *
-   * @param inputIndex Among multiple transaction inputs in the spending transaction, which one are we going to verify?
-   * @param chainView A blockchain view that can get the transaction output pointed by an out point.
-   */
-  def verifyInput(inputIndex : Int, chainView : BlockchainView) = {
+    *
+    * @param inputIndex Among multiple transaction inputs in the spending transaction, which one are we going to verify?
+    * @param chainView A blockchain view that can get the transaction output pointed by an out point.
+    */
+  def verifyInput(inputIndex: Int, chainView: BlockchainView) = {
     val env = new ScriptEnvironment(spendingTransaction, Some(inputIndex))
 
-    if (inputIndex < 0 || inputIndex >= spendingTransaction.inputs.length) {
-      throw new TransactionVerificationException(ErrorCode.InvalidInputIndex, "Invalid Input Index on Transaction Verifier")
-    }
+    if (inputIndex < 0 || inputIndex >= spendingTransaction.inputs.length)
+      throw new TransactionVerificationException(
+        ErrorCode.InvalidInputIndex,
+        "Invalid Input Index on Transaction Verifier"
+      )
 
     spendingTransaction.inputs(inputIndex) match {
-      case tx : NormalTransactionInput => {
+      case tx: NormalTransactionInput =>
         new NormalTransactionVerifier(tx, spendingTransaction, inputIndex).verify(env, chainView)
-      }
-      case tx : GenerationTransactionInput => {
+      case tx: GenerationTransactionInput =>
         new GenerationTransactionVerifier(tx).verify(env, chainView)
-      }
     }
   }
 
   /** Verify all inputs of the spendingTransaction.
-   */
-  def verify(chainView : BlockchainView) : Unit = {
-    for ( inputIndex <- 0 until spendingTransaction.inputs.length) {
+    */
+  def verify(chainView: BlockchainView): Unit =
+    for (inputIndex <- 0 until spendingTransaction.inputs.length)
       verifyInput(inputIndex, chainView)
-    }
-  }
 }
 
 object NormalTransactionVerifier {
-  var successCount = 0
+  var successCount             = 0
   var verificationFailureCount = 0
-  var parseFailureCount = 0
-  var evalFailureCount = 0
-  var generalFailureCount = 0
+  var parseFailureCount        = 0
+  var evalFailureCount         = 0
+  var generalFailureCount      = 0
 
-  def totalFailureCount =  verificationFailureCount + parseFailureCount + evalFailureCount + generalFailureCount
+  def totalFailureCount = verificationFailureCount + parseFailureCount + evalFailureCount + generalFailureCount
 
-  def success() : Unit = {
+  def success(): Unit =
     successCount += 1
-  }
 
-  def verificationFailure() : Unit = {
+  def verificationFailure(): Unit =
     verificationFailureCount += 1
-  }
 
-  def parseFailure() : Unit = {
+  def parseFailure(): Unit =
     parseFailureCount += 1
-  }
 
-  def evalFailure() : Unit = {
+  def evalFailure(): Unit =
     evalFailureCount += 1
-  }
 
-  def generalFailure() : Unit = {
+  def generalFailure(): Unit =
     generalFailureCount += 1
-  }
 
-  def stats() = {
+  def stats() =
     s"TransactionVerification( success:$successCount, failure:$totalFailureCount, verificationFailure:$verificationFailureCount, parseFailure:$parseFailureCount, evalFailure:$evalFailureCount, generalFailure:$generalFailureCount)"
-  }
 }
 
 /** Verify a normal transaction input.
@@ -85,7 +78,9 @@ object NormalTransactionVerifier {
   * @param transaction (for debugging) When an exception is thrown, we attach this transaction to create a MergedScript instance, which is logged for debugging Script execution.
   * @param inputIndex (for debugging) When an exception is thrown, this is necessary to create a MergedScript.
   */
-class NormalTransactionVerifier(transactionInput : NormalTransactionInput, transaction : Transaction, inputIndex : Int)(implicit db : KeyValueDatabase) {
+class NormalTransactionVerifier(transactionInput: NormalTransactionInput, transaction: Transaction, inputIndex: Int)(
+    implicit db: KeyValueDatabase
+) {
 
   /** Convert any exception happened within the body to TransactionVerificationException
     *
@@ -94,60 +89,69 @@ class NormalTransactionVerifier(transactionInput : NormalTransactionInput, trans
     * @tparam T The return type of the body function
     * @return Whatever the body returns.
     */
-  protected def throwingTransactionVerificationException[T](scriptOption:Option[MergedScript]=None)( body : => T ) : T = {
+  protected def throwingTransactionVerificationException[T](scriptOption: Option[MergedScript] = None)(body: => T): T =
     try {
       val returnValue = body
       NormalTransactionVerifier.success()
       returnValue
     } catch {
-      case e : ScriptParseException => {
+      case e: ScriptParseException =>
         NormalTransactionVerifier.parseFailure()
-        throw new TransactionVerificationException(ErrorCode.ScriptParseFailure, s"[${e.code}]message=${e.message}", e.getStackTrace(), debuggingInfo = scriptOption)
-      }
-      case e : ScriptEvalException => {
+        throw new TransactionVerificationException(
+          ErrorCode.ScriptParseFailure,
+          s"[${e.code}]message=${e.message}",
+          e.getStackTrace(),
+          debuggingInfo = scriptOption
+        )
+      case e: ScriptEvalException =>
         NormalTransactionVerifier.evalFailure()
-        throw new TransactionVerificationException(ErrorCode.ScriptEvalFailure, s"[${e.code}]message=${e.message}", e.getStackTrace(), debuggingInfo = scriptOption)
-      }
-      case e: TransactionVerificationException => {
+        throw new TransactionVerificationException(
+          ErrorCode.ScriptEvalFailure,
+          s"[${e.code}]message=${e.message}",
+          e.getStackTrace(),
+          debuggingInfo = scriptOption
+        )
+      case e: TransactionVerificationException =>
         NormalTransactionVerifier.verificationFailure()
         e.debuggingInfo = scriptOption
         throw e
-      }
-      case e : Exception => {
+      case e: Exception =>
         NormalTransactionVerifier.generalFailure()
-        throw new TransactionVerificationException(ErrorCode.GeneralFailure, s"message=${e.getMessage}", e.getStackTrace(), debuggingInfo = scriptOption)
-      }
+        throw new TransactionVerificationException(
+          ErrorCode.GeneralFailure,
+          s"message=${e.getMessage}",
+          e.getStackTrace(),
+          debuggingInfo = scriptOption
+        )
     }
-  }
 
-  protected def throwingTransactionVerificationException[T]( body : => T ) : T = {
+  protected def throwingTransactionVerificationException[T](body: => T): T =
     throwingTransactionVerificationException(None)(body)
-  }
 
   /** Get the locking script attached to the UTXO which this input references with transactionHash and outputIndex.
     *
     * @param chainView A blockchain view that can get the transaction output pointed by an out point.
     * @return The locking script attached to the UTXO which this input references.
     */
-  def getLockingScript(chainView : BlockchainView): LockingScript = {
+  def getLockingScript(chainView: BlockchainView): LockingScript = {
 //    try {
-      val output = chainView.getTransactionOutput(
-        OutPoint(
-          Hash( transactionInput.outputTransactionHash.value) ,
-          transactionInput.outputIndex.toInt
-        )
+    val output = chainView.getTransactionOutput(
+      OutPoint(
+        Hash(transactionInput.outputTransactionHash.value),
+        transactionInput.outputIndex.toInt
       )
-      output.lockingScript
-      // TODO : BUGBUG : Need to check if the UTXO is from Generation transaction to check 100 blocks are created?
-/*
+    )
+    output.lockingScript
+    // TODO : BUGBUG : Need to check if the UTXO is from Generation transaction to check 100 blocks are created?
+    /*
     } catch {
       case _ : ChainException => {
         val details = s"OutPoint : (${transactionInput.outputTransactionHash}, ${transactionInput.outputIndex}). Transaction:${transaction}, Input index : ${inputIndex}, Transaction Hash : ${transaction.hash}"
         throw new TransactionVerificationException(ErrorCode.InvalidOutPoint, message = s"Invalid Output Index." + details)
       }
     }
-*/
-/*
+     */
+    /*
     val outputTxOption = blockIndex.getTransaction(transactionInput.outputTransactionHash)
     lazy val details = s"OutPoint : (${transactionInput.outputTransactionHash}, ${transactionInput.outputIndex}). Transaction:${transaction}, Input index : ${inputIndex}, Transaction Hash : ${transaction.hash}"
     if (outputTxOption.isEmpty) {
@@ -160,7 +164,7 @@ class NormalTransactionVerifier(transactionInput : NormalTransactionInput, trans
       throw new TransactionVerificationException(ErrorCode.InvalidOutputIndex, message = s"Invalid Output Index." + details)
     }
     outputTx.outputs(transactionInput.outputIndex.toInt).lockingScript
-*/
+     */
   }
 
   /** With a block index, verify that the unlocking script of the input successfully unlocks the locking script attached to the UTXO that this input references.
@@ -170,8 +174,8 @@ class NormalTransactionVerifier(transactionInput : NormalTransactionInput, trans
     * @return (unlocking script, locking script) pair. This is used for debugging purpose. When an transaction verification fails, we will log the information to execute the transaction again using our debugger.
     * @throws TransactionVerificationException if the verification failed.
     */
-  def verify(env : ScriptEnvironment, chainView : BlockchainView): Unit = {
-    val lockingScript : LockingScript = throwingTransactionVerificationException {
+  def verify(env: ScriptEnvironment, chainView: BlockchainView): Unit = {
+    val lockingScript: LockingScript = throwingTransactionVerificationException {
       getLockingScript(chainView)
     }
 
@@ -179,38 +183,39 @@ class NormalTransactionVerifier(transactionInput : NormalTransactionInput, trans
     // When a transaction verification fails, we log the merged script,
     // which has an unlocking script and a locking script into a log file.
     // We can use it to debug why the transaction failed.
-    val mergedScriptOption = Some(MergedScript(transaction, inputIndex, transactionInput.unlockingScript, lockingScript))
+    val mergedScriptOption = Some(
+      MergedScript(transaction, inputIndex, transactionInput.unlockingScript, lockingScript)
+    )
     throwingTransactionVerificationException(mergedScriptOption) {
-      val lockingScript : LockingScript = getLockingScript(chainView)
+      val lockingScript: LockingScript = getLockingScript(chainView)
 
       verify(env, lockingScript)
     }
   }
+
   /** Get the redeem script if the lockingScriptOps match the P2SH pattern.
     *
     * @param unlockingScriptOps The unlocking script that is provided by the spending transaction.
     * @param lockingScriptOps The locking script attached to the UTXO.
     * @return Some(redeem script) if the locking script had the P2SH pattern. None otherwise.
     */
-  def getRedeemScript(unlockingScriptOps : ScriptOpList,
-                      lockingScriptOps : ScriptOpList) : Option[ScriptValue]= {
+  def getRedeemScript(unlockingScriptOps: ScriptOpList, lockingScriptOps: ScriptOpList): Option[ScriptValue] =
     // TODO : Extract the duplicate code to a method. see p2sh_filter
     lockingScriptOps.operations match {
       // TODO : Optimize by checking opCode() instead of slow pattern matching.
       // STEP 1 : Check if the locking script matches P2SH pattern.
-      case List(OpHash160(), OpPush(20, _), OpEqual()) => {
+      case List(OpHash160(), OpPush(20, _), OpEqual()) =>
         // STEP 2 : Get the redeem script from the last operation of unlocking script.
         val lastOperation = unlockingScriptOps.operations.last
         lastOperation match {
           // TODO : Verify assumption : the redeem script is provided by only OpPushData or OpPush
           case OpPushData(_, redeemingScript) => Some(redeemingScript)
-          case OpPush(_, redeemingScript) => Some(redeemingScript)
-          case _ => None
+          case OpPush(_, redeemingScript)     => Some(redeemingScript)
+          case _                              => None
         }
-      }
       case _ => None
     }
-  }
+
   /** With a locking script, verify that the unlocking script of the input successfully unlocks the locking script attached to the UTXO that this input references.
     * This method supports P2SH.
     *
@@ -232,18 +237,17 @@ class NormalTransactionVerifier(transactionInput : NormalTransactionInput, trans
     * @param env The script execution environment, which has (1) the transaction that this input belongs to, and (2) the index of the inputs of the transaction that corresponds to this transaction input.
     * @param lockingScript The locking script attached to the UTXO that this input references.
     */
-  def verify(env : ScriptEnvironment, lockingScript : LockingScript): Unit = {
+  def verify(env: ScriptEnvironment, lockingScript: LockingScript): Unit =
     throwingTransactionVerificationException {
       // Step 1 : Parse both unlocking script and locking script.
-      val unlockingScriptOps : ScriptOpList = ScriptParser.parse(transactionInput.unlockingScript)
-      val lockingScriptOps : ScriptOpList = ScriptParser.parse(lockingScript)
+      val unlockingScriptOps: ScriptOpList = ScriptParser.parse(transactionInput.unlockingScript)
+      val lockingScriptOps: ScriptOpList   = ScriptParser.parse(lockingScript)
 
       // Step 2 : Run the unlocking script.
       ScriptInterpreter.eval_internal(env, unlockingScriptOps)
 
       // Step 3 : See if it is P2SH. If yes, copy the redeeming script.
-      val redeemScript : Option[ScriptValue]
-      = getRedeemScript(unlockingScriptOps, lockingScriptOps)
+      val redeemScript: Option[ScriptValue] = getRedeemScript(unlockingScriptOps, lockingScriptOps)
 
       // Step 4 : Run the locking script
       ScriptInterpreter.eval_internal(env, lockingScriptOps)
@@ -251,37 +255,45 @@ class NormalTransactionVerifier(transactionInput : NormalTransactionInput, trans
       // Step 5 : Check the top value of the stack
       if (env.stack.size() > 0) {
         val top = env.stack.pop()
-        if ( !Utils.castToBool(top.value) ) {
-          throw new TransactionVerificationException(ErrorCode.TopValueFalse, message = s"Result of unlocking script execution : ${top.value}")
-        }
-      } else {
-        throw new TransactionVerificationException(ErrorCode.NotEnoughStackValues, message = s"Not enough stack values after the script execution.")
-      }
+        if (!Utils.castToBool(top.value))
+          throw new TransactionVerificationException(
+            ErrorCode.TopValueFalse,
+            message = s"Result of unlocking script execution : ${top.value}"
+          )
+      } else
+        throw new TransactionVerificationException(
+          ErrorCode.NotEnoughStackValues,
+          message = s"Not enough stack values after the script execution."
+        )
 
       // Step 6 : If we have any redeeming script, parse it, and run it.
-      redeemScript.map { scriptValue : ScriptValue=>
-        val redeemScriptOps : ScriptOpList =
+      redeemScript.map { scriptValue: ScriptValue =>
+        val redeemScriptOps: ScriptOpList =
           ScriptParser.parse(LockingScript(scriptValue.value))
         ScriptInterpreter.eval_internal(env, redeemScriptOps)
 
         // Step 6.1 : See if the result of the redeem script execution is true.
         if (env.stack.size() > 0) {
           val top = env.stack.pop()
-          if (!Utils.castToBool(top.value)) {
-            throw new TransactionVerificationException(ErrorCode.TopValueFalse, message = s"Result of redeem script execution : ${top.value}")
-          }
-        } else {
-          throw new TransactionVerificationException(ErrorCode.NotEnoughStackValues, message = s"Not enough stack values after the redeem script execution.")
-        }
+          if (!Utils.castToBool(top.value))
+            throw new TransactionVerificationException(
+              ErrorCode.TopValueFalse,
+              message = s"Result of redeem script execution : ${top.value}"
+            )
+        } else
+          throw new TransactionVerificationException(
+            ErrorCode.NotEnoughStackValues,
+            message = s"Not enough stack values after the redeem script execution."
+          )
       }
 
       // BUGBUG : Is there any case that redeemScript is None even though there is a redeem script?
     }
-  }
 
 }
 
-class GenerationTransactionVerifier(transaction : GenerationTransactionInput)(implicit db : KeyValueDatabase) {
+class GenerationTransactionVerifier(transaction: GenerationTransactionInput)(implicit db: KeyValueDatabase) {
+
   /** Verify that 100 blocks are created after the generation transaction was created.
     * Generation transactions do not reference any UTXO, as it creates UTXO from the scratch.
     * So, we don't have to verify the locking script and unlocking script, but we need to make sure that at least 100 blocks are created
@@ -291,11 +303,10 @@ class GenerationTransactionVerifier(transaction : GenerationTransactionInput)(im
     * @param chainView A blockchain view that can get the transaction output pointed by an out point.
     * @throws TransactionVerificationException if the verification failed.
     */
-  def verify(env : ScriptEnvironment, chainView : BlockchainView): Unit = {
+  def verify(env: ScriptEnvironment, chainView: BlockchainView): Unit = {
     //assert(env == null)
     //assert(chainView == null)
     // Do nothing.
     // TODO : Verify that 100 blocks are created after the generation transaction was created.
   }
 }
-

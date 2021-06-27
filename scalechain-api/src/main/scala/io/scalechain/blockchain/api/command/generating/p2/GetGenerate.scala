@@ -1,7 +1,7 @@
 package io.scalechain.blockchain.api.command.generating.p2
 
 import io.scalechain.blockchain.api.command.RpcCommand
-import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
+import io.scalechain.blockchain.api.domain.{ RpcError, RpcRequest, RpcResult }
 
 /*
   CLI command :
@@ -19,19 +19,19 @@ import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
       "error": null,
       "id": "curltest"
     }
-*/
+ */
 
 /** GetGenerate: returns true if the node is set to generate blocks using its CPU.
   *
   * https://bitcoin.org/en/developer-reference#getgenerate
   */
 object GetGenerate extends RpcCommand {
-  def invoke(request : RpcRequest) : Either[RpcError, Option[RpcResult]] = {
+  def invoke(request: RpcRequest): Either[RpcError, Option[RpcResult]] = {
     // TODO : Implement
     assert(false)
     Right(None)
   }
-  def help() : String =
+  def help(): String =
     """getgenerate
       |
       |Return if the server is set to generate coins or not. The default is false.
@@ -47,5 +47,3 @@ object GetGenerate extends RpcCommand {
     """.stripMargin
 
 }
-
-

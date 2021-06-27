@@ -1,7 +1,7 @@
 package io.scalechain.blockchain.api.command.wallet.p3
 
 import io.scalechain.blockchain.api.command.RpcCommand
-import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
+import io.scalechain.blockchain.api.domain.{ RpcError, RpcRequest, RpcResult }
 
 /*
   CLI command :
@@ -20,19 +20,17 @@ import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
       "error": null,
       "id": "curltest"
     }
-*/
+ */
 
 /** WalletPassphraseChange: changes the wallet passphrase from ‘old passphrase’ to ‘new passphrase’.
   *
   * https://bitcoin.org/en/developer-reference#walletpassphrasechange
   */
 object WalletPassphraseChange extends RpcCommand {
-  def invoke(request : RpcRequest) : Either[RpcError, Option[RpcResult]] = {
+  def invoke(request: RpcRequest): Either[RpcError, Option[RpcResult]] = {
     // TODO : Implement
     assert(false)
     Right(None)
   }
-  def help() : String = ""
+  def help(): String = ""
 }
-
-

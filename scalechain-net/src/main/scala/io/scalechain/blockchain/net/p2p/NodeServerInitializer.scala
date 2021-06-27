@@ -8,15 +8,15 @@ import io.netty.handler.codec.Delimiters
 import io.netty.handler.codec.string.StringDecoder
 import io.netty.handler.codec.string.StringEncoder
 import io.netty.handler.ssl.SslContext
-import io.scalechain.blockchain.net.p2p.{BitcoinProtocolEncoder, BitcoinProtocolDecoder}
+import io.scalechain.blockchain.net.p2p.{ BitcoinProtocolDecoder, BitcoinProtocolEncoder }
 
 /**
   * Creates a newly configured {@link ChannelPipeline} for a new channel.
   */
-class NodeServerInitializer(sslCtx : SslContext, peerSet : PeerSet) extends ChannelInitializer[SocketChannel] {
+class NodeServerInitializer(sslCtx: SslContext, peerSet: PeerSet) extends ChannelInitializer[SocketChannel] {
 
-  override def initChannel(ch : SocketChannel) : Unit = {
-    val pipeline : ChannelPipeline = ch.pipeline()
+  override def initChannel(ch: SocketChannel): Unit = {
+    val pipeline: ChannelPipeline = ch.pipeline()
 
     // Add SSL handler first to encrypt and decrypt everything.
     // In this example, we use a bogus certificate in the server side

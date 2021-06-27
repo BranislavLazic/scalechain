@@ -9,7 +9,7 @@ import io.scalechain.util.ByteArrayAndVectorConverter._
   * Created by kangmo on 1/31/16.
   */
 object VarByteArray {
-/*
+  /*
   def byteArrayToVectorWithReverse(barray : ByteArray   ) = barray.array.reverse.toVector
   def vectorToByteArrayWithReverse(vector : Vector[Byte]) = ByteArray(vector.toArray[Byte].reverse)
 
@@ -17,10 +17,8 @@ object VarByteArray {
     vectorOfN(VarInt.countCodec, byte).xmap(
       vectorToByteArrayWithReverse,
       byteArrayToVectorWithReverse)
-*/
-  val codec : Codec[ByteArray] =
-    vectorOfN(VarInt.countCodec, byte).xmap(
-      vectorToByteArray,
-      byteArrayToVector)
+   */
+  val codec: Codec[ByteArray] =
+    vectorOfN(VarInt.countCodec, byte).xmap(vectorToByteArray, byteArrayToVector)
 
 }

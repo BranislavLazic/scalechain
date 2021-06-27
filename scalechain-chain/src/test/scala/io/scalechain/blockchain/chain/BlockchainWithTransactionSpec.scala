@@ -9,10 +9,11 @@ import io.scalechain.blockchain.storage.index.KeyValueDatabase
 import io.scalechain.blockchain.transaction._
 import org.scalatest._
 import HashSupported._
+import org.scalatest.matchers.should.Matchers
 
 
 // Remove the ignore annotation after creating the "by block height" index
-class BlockchainWithTransactionSpec extends BlockchainTestTrait with ChainTestTrait with ShouldMatchers {
+class BlockchainWithTransactionSpec extends BlockchainTestTrait with ChainTestTrait with Matchers {
 
   this: Suite =>
 

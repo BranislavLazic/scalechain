@@ -13,14 +13,14 @@ import io.scalechain.blockchain.script.{ScriptParser, BlockPrinterSetter}
 import io.scalechain.util.HexUtil._
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
-import org.scalatest.{BeforeAndAfterEach, FlatSpec, Suite}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.BeforeAndAfterEach
 
 /** Test cases that have transactions failed verification after the release of v0.2.
   * We got these cases by running scalechain and logging BlovkVerifier.getFailures for every 1000 blocks.
   */
-class OddTransactionVerificationSpec extends FlatSpec with BeforeAndAfterEach with ChainTestTrait with SignatureTestTrait {
+class OddTransactionVerificationSpec extends AnyFlatSpec with BeforeAndAfterEach with ChainTestTrait with SignatureTestTrait {
 
-  this: Suite =>
 
   override def beforeEach() {
     // set-up code

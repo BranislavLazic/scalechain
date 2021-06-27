@@ -1,11 +1,12 @@
 package io.scalechain.blockchain.script
 
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
 
 /** Test reserved word operations in ReservedWord.scala
   *
   */
-class ReservedWordSpec extends FlatSpec with BeforeAndAfterEach with OperationTestTrait {
+class ReservedWordSpec extends AnyFlatSpec with BeforeAndAfterEach with OperationTestTrait {
 
   this: Suite =>
 

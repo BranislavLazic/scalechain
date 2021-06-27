@@ -2,10 +2,10 @@ package io.scalechain.blockchain.chain
 
 import com.typesafe.scalalogging.Logger
 import io.scalechain.blockchain.storage.index.KeyValueDatabase
-import io.scalechain.blockchain.{ErrorCode, ChainException}
+import io.scalechain.blockchain.{ ChainException, ErrorCode }
 import io.scalechain.blockchain.chain.processor.BlockProcessor
 import io.scalechain.blockchain.proto._
-import io.scalechain.blockchain.storage.{TransactionLocator, BlockWriter, BlockStorage}
+import io.scalechain.blockchain.storage.{ BlockStorage, BlockWriter, TransactionLocator }
 import io.scalechain.blockchain.transaction.ChainBlock
 import org.slf4j.LoggerFactory
 
@@ -16,8 +16,8 @@ import io.scalechain.blockchain.script.HashSupported._
 /**
   * Created by kangmo on 6/9/16.
   */
-class BlockMagnet(storage : BlockStorage, txPool : TransactionPool, txMagnet : TransactionMagnet) {
-  private val logger = Logger( LoggerFactory.getLogger(classOf[BlockMagnet]) )
+class BlockMagnet(storage: BlockStorage, txPool: TransactionPool, txMagnet: TransactionMagnet) {
+  private val logger = Logger(LoggerFactory.getLogger(classOf[BlockMagnet]))
 
   /**
     * Detach a block from the best blockchain.
@@ -25,10 +25,10 @@ class BlockMagnet(storage : BlockStorage, txPool : TransactionPool, txMagnet : T
     * @param blockInfo The BlockInfo of the block to detach.
     * @param block The block to detach.
     */
-  protected[chain] def detachBlock(blockInfo: BlockInfo, block : Block)(implicit db : KeyValueDatabase) : Unit = {
+  protected[chain] def detachBlock(blockInfo: BlockInfo, block: Block)(implicit db: KeyValueDatabase): Unit = {
     // Detach each transaction in reverse order.
     // TODO : Optimize : Iterate a list in reverse order without reversing it.
-    block.transactions.reverse foreach { transaction : Transaction =>
+    block.transactions.reverse foreach { transaction: Transaction =>
       txMagnet.detachTransaction(transaction)
     }
 
@@ -47,7 +47,12 @@ class BlockMagnet(storage : BlockStorage, txPool : TransactionPool, txMagnet : T
     * @param last The last block in the best blockchain.
     */
   @tailrec
-  protected[chain] final def detachBlocksAfter(beforeFirstHeader : BlockHeader, last : BlockInfo, lastBlock : Block, detachedBlocks : ListBuffer[Block])(implicit db : KeyValueDatabase) : Unit = {
+  protected[chain] final def detachBlocksAfter(
+      beforeFirstHeader: BlockHeader,
+      last: BlockInfo,
+      lastBlock: Block,
+      detachedBlocks: ListBuffer[Block]
+  )(implicit db: KeyValueDatabase): Unit =
     if (beforeFirstHeader == last.blockHeader) {
       // The base case.
     } else {
@@ -59,43 +64,49 @@ class BlockMagnet(storage : BlockStorage, txPool : TransactionPool, txMagnet : T
       val Some((beforeLastInfo, beforeLastBlock)) = storage.getBlock(last.blockHeader.hashPrevBlock)
       detachBlocksAfter(beforeFirstHeader, beforeLastInfo, beforeLastBlock, detachedBlocks)
     }
-  }
 
   /**
     * Attach a block to the best blockchain.
     *
     * @param block The block to attach
     */
-  protected[chain] def attachBlock(blockInfo: BlockInfo, block : Block)(implicit db : KeyValueDatabase) : Unit = {
+  protected[chain] def attachBlock(blockInfo: BlockInfo, block: Block)(implicit db: KeyValueDatabase): Unit = {
     val blockHash = block.header.hash
     // Check if the block is valid.
     BlockProcessor.get.validateBlock(block)
 
     assert(blockInfo.blockHeader == block.header)
 
-    val txLocators : List[TransactionLocator] = BlockWriter.getTxLocators(blockInfo.blockLocatorOption.get, block)
+    val txLocators: List[TransactionLocator] = BlockWriter.getTxLocators(blockInfo.blockLocatorOption.get, block)
 
     // TODO : BUGBUG : Optimize : length on List is slow.
     assert(txLocators.length == block.transactions.length)
 
     // TODO : BUGBUG : P0 : Need to check with a temporary transaction pool.
-/*
+    /*
     // Before attaching a block, check if we can attach each transaction first without affecting the transaction database.
     // If any error such as double spending is detected, an exception is raised.
     for ( ( txLocator : TransactionLocator, transaction: Transaction) <- (txLocators zip block.transactions)) {
       val transactionHash = transaction.hash
       txMagnet.attachTransaction(transactionHash, transaction, Some(txLocator.txLocator), checkOnly = true)
     }
-*/
-    val chainBlockOption = Some(ChainBlock(blockInfo.height, block))
+     */
+    val chainBlockOption  = Some(ChainBlock(blockInfo.height, block))
     val blockHeightOption = Some(blockInfo.height)
-    var transactionIndex = -1
-    for ( ( txLocator : TransactionLocator, transaction: Transaction) <- (txLocators zip block.transactions)) {
+    var transactionIndex  = -1
+    for ((txLocator: TransactionLocator, transaction: Transaction) <- (txLocators zip block.transactions)) {
       transactionIndex += 1
 
       val transactionHash = transaction.hash
 
-      txMagnet.attachTransaction(transactionHash, transaction, checkOnly = false, Some(txLocator.txLocator), chainBlockOption, Some(transactionIndex) )
+      txMagnet.attachTransaction(
+        transactionHash,
+        transaction,
+        checkOnly = false,
+        Some(txLocator.txLocator),
+        chainBlockOption,
+        Some(transactionIndex)
+      )
 
       // Step 5 : Remove the transaction from the disk pool.
       txPool.removeTransactionFromPool(transactionHash)
@@ -110,10 +121,9 @@ class BlockMagnet(storage : BlockStorage, txPool : TransactionPool, txMagnet : T
     val prevBlockHash = blockInfo.blockHeader.hashPrevBlock
     if (prevBlockHash.isAllZero()) {
       // the genesis block. do nothing. genesis blocks are not reorganized, but can be attached when the block is put for the first time.
-    } else {
+    } else
       // Link the next block hash.
       storage.updateNextBlockHash(prevBlockHash, Some(blockHash))
-    }
   }
 
   /**
@@ -125,7 +135,11 @@ class BlockMagnet(storage : BlockStorage, txPool : TransactionPool, txMagnet : T
     * @param last The last block to collect.
     */
   @tailrec
-  protected[chain] final def collectBlockInfos(blockInfos : ListBuffer[BlockInfo], beforeFirstHeader : BlockHeader, last : BlockInfo)(implicit db : KeyValueDatabase) : Unit = {
+  protected[chain] final def collectBlockInfos(
+      blockInfos: ListBuffer[BlockInfo],
+      beforeFirstHeader: BlockHeader,
+      last: BlockInfo
+  )(implicit db: KeyValueDatabase): Unit =
     // TODO : Need to check if our memory is enough by checking the gap of the height between beforeFirst and last
     if (beforeFirstHeader == last.blockHeader) {
       // The base case. Nothing to do.
@@ -133,14 +147,15 @@ class BlockMagnet(storage : BlockStorage, txPool : TransactionPool, txMagnet : T
       // Note that we are constructing the blockInfos so that the order of the blocks in the blockInfos is from the oldest to the newest.
       blockInfos.prepend(last)
       if (last.blockHeader.hashPrevBlock.isAllZero()) {
-        logger.error(s"collectBlockInfos : The last block is the genesis block. beforeFirst:${beforeFirstHeader}, last:${last}")
+        logger.error(
+          s"collectBlockInfos : The last block is the genesis block. beforeFirst:${beforeFirstHeader}, last:${last}"
+        )
         assert(false)
       }
-      val beforeLastOption : Option[BlockInfo] = storage.getBlockInfo(last.blockHeader.hashPrevBlock)
+      val beforeLastOption: Option[BlockInfo] = storage.getBlockInfo(last.blockHeader.hashPrevBlock)
       assert(beforeLastOption.isDefined)
       collectBlockInfos(blockInfos, beforeFirstHeader, beforeLastOption.get)
     }
-  }
 
   /**
     * Attach blocks to the best blockchain. Oldest blocks are attached first. (Attach order : Oldest -> Newest )
@@ -148,7 +163,9 @@ class BlockMagnet(storage : BlockStorage, txPool : TransactionPool, txMagnet : T
     * @param beforeFirstHeader Blocks after this block are attached to the best blockchain.
     * @param last The last block in the new best blockchain.
     */
-  protected[chain] def attachBlocksAfter(beforeFirstHeader : BlockHeader, last : BlockInfo)(implicit db : KeyValueDatabase) : Unit = {
+  protected[chain] def attachBlocksAfter(beforeFirstHeader: BlockHeader, last: BlockInfo)(implicit
+      db: KeyValueDatabase
+  ): Unit = {
     // Blocks NOT in the best blockchain does not have the BlockInfo.nextBlockHash.
     // We need to track from the last back to beforeFirst, and reverse the list.
     val blockInfos = ListBuffer[BlockInfo]()
@@ -160,21 +177,20 @@ class BlockMagnet(storage : BlockStorage, txPool : TransactionPool, txMagnet : T
     // The last block info in the list buffer should match the last block info passed to this method.
     assert(last == blockInfos.last)
 
-    blockInfos foreach { blockInfo : BlockInfo =>
+    blockInfos foreach { blockInfo: BlockInfo =>
       val blockHash = blockInfo.blockHeader.hash
       // Get the block
       val Some((readBlockInfo, readBlock)) = storage.getBlock(blockHash)
       assert(readBlockInfo == blockInfo)
 
-      attachBlock( readBlockInfo, readBlock )
+      attachBlock(readBlockInfo, readBlock)
 
       prevBlockHash = blockHash
     }
 
     // The last block should not have any next block.
-    assert( last.nextBlockHash.isEmpty )
+    assert(last.nextBlockHash.isEmpty)
   }
-
 
   /** Reorganize blocks.
     * This method is called when the new best block is not based on the original best block.
@@ -182,24 +198,23 @@ class BlockMagnet(storage : BlockStorage, txPool : TransactionPool, txMagnet : T
     * @param originalBestBlock The original best block before the new best one was found.
     * @param newBestBlock The new best block, which has greater chain work than the original best block.
     */
-  def reorganize(originalBestBlock : BlockInfo, newBestBlock : BlockInfo)(implicit db : KeyValueDatabase) : Unit = {
+  def reorganize(originalBestBlock: BlockInfo, newBestBlock: BlockInfo)(implicit db: KeyValueDatabase): Unit = {
     // TODO : BUGBUG : Need to think about RocksDB transactions.
 
-    assert( originalBestBlock.chainWork < newBestBlock.chainWork)
+    assert(originalBestBlock.chainWork < newBestBlock.chainWork)
 
     val detachedBlocks = new ListBuffer[Block]
 
     // Step 1 : Find the common block(pfork) between the current blockchain(pindexBest) and the new longer blockchain.
-    val commonBlockHeader : BlockHeader = findCommonBlock(originalBestBlock, newBestBlock)
+    val commonBlockHeader: BlockHeader = findCommonBlock(originalBestBlock, newBestBlock)
 
     // TODO : Call chainEventListener : onNewBlock, onRemoveBlock
 
     // Step 2 : Detach blocks after the common block to originalBestBlock, which is the tip of the current best blockchain.
     // TODO : BUGBUG : First need to get the list of detached blocks first, and then add transactions in the detached blocks into the transaction pool.
-    val Some((bestBlockInfo, bestBlock )) = storage.getBlock(originalBestBlock.blockHeader.hash)
+    val Some((bestBlockInfo, bestBlock)) = storage.getBlock(originalBestBlock.blockHeader.hash)
     assert(bestBlockInfo == originalBestBlock)
     detachBlocksAfter(commonBlockHeader, bestBlockInfo, bestBlock, detachedBlocks)
-
 
     // Step 3 : Attach blocks after the common block to the newBestBlock.
     attachBlocksAfter(commonBlockHeader, newBestBlock)
@@ -208,29 +223,25 @@ class BlockMagnet(storage : BlockStorage, txPool : TransactionPool, txMagnet : T
     // Note 1 : Some transactions might not be able to put into the transaction pool, because of double spending the UTXO spent by transactions on newly attached blocks.
     // Note 2 : Some transactions might not be able to put into the transaction pool, because it depends on the above double spending transactions.
     // TODO : Do we really need to reset the transaction record locator? How do we recover it when we attach the transaction again?
-    detachedBlocks foreach { block : Block =>
-      block.transactions foreach { transaction : Transaction =>
+    detachedBlocks foreach { block: Block =>
+      block.transactions foreach { transaction: Transaction =>
         val transactionHash = transaction.hash
         if (transaction.inputs(0).isCoinBaseInput()) {
           // Do nothing
-        } else {
-          try {
-            if (storage.hasTransaction(transactionHash)) {
-              // The transaction already exists.
-              // This can happen, as the newly attached block might have the same transaction. Do nothing.
-            } else {
-              txPool.addTransactionToPool(transactionHash, transaction)
-            }
-          } catch {
-            case e : ChainException => {
+        } else
+          try if (storage.hasTransaction(transactionHash)) {
+            // The transaction already exists.
+            // This can happen, as the newly attached block might have the same transaction. Do nothing.
+          } else
+            txPool.addTransactionToPool(transactionHash, transaction)
+          catch {
+            case e: ChainException =>
               e.code match {
                 case ErrorCode.TransactionOutputAlreadySpent => // do nothing. a double spending transaction
-                case ErrorCode.ParentTransactionNotFound => // do nothing. these transactions may depend on double spending transactions.
-                case _ => throw e
+                case ErrorCode.ParentTransactionNotFound     => // do nothing. these transactions may depend on double spending transactions.
+                case _                                       => throw e
               }
-            }
           }
-        }
       }
     }
 
@@ -313,7 +324,7 @@ class BlockMagnet(storage : BlockStorage, txPool : TransactionPool, txMagnet : T
       // Step 9 : add transactions in the disconnected blocks to the mempool.
 
       // Step 10 : Remove transactions in the connected blocks from the mempool.
-*/
+     */
   }
 
   /** Get the descriptor of the common ancestor of the two given blocks.
@@ -323,29 +334,29 @@ class BlockMagnet(storage : BlockStorage, txPool : TransactionPool, txMagnet : T
     * @param block2 The second given block.
     */
   @tailrec
-  final protected def findCommonBlock(block1 : BlockInfo, block2 : BlockInfo)(implicit db : KeyValueDatabase) : BlockHeader = {
-    if ( block1.height < block2.height ) {
+  final protected def findCommonBlock(block1: BlockInfo, block2: BlockInfo)(implicit
+      db: KeyValueDatabase
+  ): BlockHeader =
+    if (block1.height < block2.height) {
       // back track for block2
       assert(!block2.blockHeader.hashPrevBlock.isAllZero())
-      val prevBlock2 : BlockInfo = storage.getBlockInfo(block2.blockHeader.hashPrevBlock).get
+      val prevBlock2: BlockInfo = storage.getBlockInfo(block2.blockHeader.hashPrevBlock).get
       findCommonBlock(block1, prevBlock2)
     } else if (block1.height > block2.height) {
       // back track for block1
       assert(!block1.blockHeader.hashPrevBlock.isAllZero())
-      val prevBlock1 : BlockInfo = storage.getBlockInfo(block1.blockHeader.hashPrevBlock).get
+      val prevBlock1: BlockInfo = storage.getBlockInfo(block1.blockHeader.hashPrevBlock).get
       findCommonBlock(prevBlock1, block2)
-    } else { // block1.height == block2.height
-      if (block1.blockHeader == block2.blockHeader) { // the base case : The common block was found
-        block1.blockHeader
-      } else {
-        assert(!block1.blockHeader.hashPrevBlock.isAllZero())
-        assert(!block2.blockHeader.hashPrevBlock.isAllZero())
-        // the block height is same, but the block header does not match.
-        // back track for block1 and block2
-        val prevBlock1 : BlockInfo = storage.getBlockInfo(block1.blockHeader.hashPrevBlock).get
-        val prevBlock2 : BlockInfo = storage.getBlockInfo(block2.blockHeader.hashPrevBlock).get
-        findCommonBlock(prevBlock1, prevBlock2)
-      }
+    } else                                        // block1.height == block2.height
+    if (block1.blockHeader == block2.blockHeader) // the base case : The common block was found
+      block1.blockHeader
+    else {
+      assert(!block1.blockHeader.hashPrevBlock.isAllZero())
+      assert(!block2.blockHeader.hashPrevBlock.isAllZero())
+      // the block height is same, but the block header does not match.
+      // back track for block1 and block2
+      val prevBlock1: BlockInfo = storage.getBlockInfo(block1.blockHeader.hashPrevBlock).get
+      val prevBlock2: BlockInfo = storage.getBlockInfo(block2.blockHeader.hashPrevBlock).get
+      findCommonBlock(prevBlock1, prevBlock2)
     }
-  }
 }

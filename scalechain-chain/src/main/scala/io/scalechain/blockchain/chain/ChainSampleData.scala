@@ -11,24 +11,27 @@ import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
 class TestBlockIndex extends BlockIndex {
-  var bestBlockHash : Hash = null
-  var bestBlockHeight = -1
-  val transactions = new mutable.HashMap[Hash, Transaction]
-  val blocks = new mutable.HashMap[Hash, (BlockInfo,Block)]
+  var bestBlockHash: Hash = null
+  var bestBlockHeight     = -1
+  val transactions        = new mutable.HashMap[Hash, Transaction]
+  val blocks              = new mutable.HashMap[Hash, (BlockInfo, Block)]
 
-  def addBlock(block : Block, height : Int) : Unit = {
-    val blockHash : Hash = block.header.hash
-    blocks.put(blockHash, (
-      BlockInfo(
-        height,
-        0,    // chain work
-        None, // next block hash.
-        block.transactions.length,
-        0,
-        block.header,
-        None
-      ),
-      block)
+  def addBlock(block: Block, height: Int): Unit = {
+    val blockHash: Hash = block.header.hash
+    blocks.put(
+      blockHash,
+      (
+        BlockInfo(
+          height,
+          0,    // chain work
+          None, // next block hash.
+          block.transactions.length,
+          0,
+          block.header,
+          None
+        ),
+        block
+      )
     )
     if (bestBlockHeight < height) {
       bestBlockHash = blockHash
@@ -40,27 +43,25 @@ class TestBlockIndex extends BlockIndex {
     *
     * @param blockHash
     */
-  def getBlock(blockHash : Hash)(implicit db : KeyValueDatabase) : Option[(BlockInfo, Block)] = {
+  def getBlock(blockHash: Hash)(implicit db: KeyValueDatabase): Option[(BlockInfo, Block)] =
     blocks.get(blockHash)
-  }
 
-  def addTransaction(transactionHash : Hash, transaction : Transaction) : Unit = {
+  def addTransaction(transactionHash: Hash, transaction: Transaction): Unit =
     transactions.put(transactionHash, transaction)
-  }
 
   /** Get a transaction by its hash.
     *
     * @param transactionHash
     */
-  def getTransaction(transactionHash : Hash)(implicit db : KeyValueDatabase) : Option[Transaction] = {
+  def getTransaction(transactionHash: Hash)(implicit db: KeyValueDatabase): Option[Transaction] =
     transactions.get(transactionHash)
-  }
 }
 
 /**
   * A blockchain sample data for testing purpose only.
   */
-class ChainSampleData(chainEventListener: Option[ChainEventListener])(protected implicit val db : KeyValueDatabase) extends BlockBuildingTestTrait {
+class ChainSampleData(chainEventListener: Option[ChainEventListener])(protected implicit val db: KeyValueDatabase)
+    extends BlockBuildingTestTrait {
 
   private val blockIndex = new TestBlockIndex()
 
@@ -79,65 +80,60 @@ class ChainSampleData(chainEventListener: Option[ChainEventListener])(protected 
     val Addr2 = generateAccountAddress("Carry") // for receiving changes
   }
 
-
   object TestBlockchainView extends BlockchainView {
-    def getTransactionOutput(outPoint : OutPoint)(implicit db : KeyValueDatabase) : TransactionOutput = {
+    def getTransactionOutput(outPoint: OutPoint)(implicit db: KeyValueDatabase): TransactionOutput =
       availableOutputs.getTransactionOutput(outPoint)
-    }
-    def getIterator(height : Long)(implicit db : KeyValueDatabase) : Iterator[ChainBlock] = {
+    def getIterator(height: Long)(implicit db: KeyValueDatabase): Iterator[ChainBlock] = {
       // unused.
       assert(false)
       null
     }
-    def getBestBlockHeight() : Long = {
+    def getBestBlockHeight(): Long =
       blockIndex.bestBlockHeight
-    }
 
-    def getTransaction(transactionHash : Hash)(implicit db : KeyValueDatabase) : Option[Transaction] = {
-      blockIndex.getTransaction( transactionHash )
-    }
+    def getTransaction(transactionHash: Hash)(implicit db: KeyValueDatabase): Option[Transaction] =
+      blockIndex.getTransaction(transactionHash)
   }
-
 
   /** Add all outputs in a transaction into an output set.
     *
     * @param outputSet The output set where each output of the given transaction is added.
     * @param transactionWithName The transaction that has outputs to be added to the set.
     */
-  override def addTransaction(outputSet : TransactionOutputSet, transactionWithName : TransactionWithName ) : Unit = {
+  override def addTransaction(outputSet: TransactionOutputSet, transactionWithName: TransactionWithName): Unit = {
     super.addTransaction(outputSet, transactionWithName)
 
     val transactionHash = getTxHash(transactionWithName)
-    blockIndex.addTransaction( transactionHash, transactionWithName.transaction)
+    blockIndex.addTransaction(transactionHash, transactionWithName.transaction)
     chainEventListener.map(_.onNewTransaction(transactionHash, transactionWithName.transaction, None, None))
     //println(s"transaction(${transactionWithName.name}) added : ${transactionHash}")
   }
 
-
-  def addBlock(block: Block) : Unit = {
-    val blockHeight = blockIndex.bestBlockHeight+1
+  def addBlock(block: Block): Unit = {
+    val blockHeight = blockIndex.bestBlockHeight + 1
     blockIndex.addBlock(block, blockHeight)
     var transactionIndex = -1;
     block.transactions foreach { transaction =>
       transactionIndex += 1
-      chainEventListener.map(_.onNewTransaction(
-        transaction.hash,
-        transaction,
-        Some( ChainBlock(blockHeight, block) ),
-        Some( transactionIndex )
-      ))
+      chainEventListener.map(
+        _.onNewTransaction(
+          transaction.hash,
+          transaction,
+          Some(ChainBlock(blockHeight, block)),
+          Some(transactionIndex)
+        )
+      )
     }
   }
 
-  def newBlock(transactionsWithName : List[TransactionWithName]) : Block = {
+  def newBlock(transactionsWithName: List[TransactionWithName]): Block = {
     val block = newBlock(blockIndex.bestBlockHash, transactionsWithName)
     addBlock(block)
     block
   }
 
-
   // Test cases may override this method to check the status of blockchain.
-  def onStepFinish(stepNumber : Int): Unit = {
+  def onStepFinish(stepNumber: Int): Unit = {
     // to nothing
   }
 
@@ -152,14 +148,14 @@ class ChainSampleData(chainEventListener: Option[ChainEventListener])(protected 
   /////////////////////////////////////////////////////////////////////////////////
   // Scenario : Coin Generation Only
   // Alice mines a coin with amount 50 SC.
-  val S1_AliceGenTx = generationTransaction( "S1_AliceGenTx", CoinAmount(50), Alice.Addr1.address )
-  val S1_AliceGenTxHash = getTxHash(S1_AliceGenTx)
+  val S1_AliceGenTx       = generationTransaction("S1_AliceGenTx", CoinAmount(50), Alice.Addr1.address)
+  val S1_AliceGenTxHash   = getTxHash(S1_AliceGenTx)
   val S1_AliceGenCoin_A50 = getOutput(S1_AliceGenTx, 0)
   assert(S1_AliceGenCoin_A50.outPoint.outputIndex == 0)
 
   // Create the first block.
-  val S1_Block = newBlock(List(S1_AliceGenTx))
-  val S1_BlockHash = getBlockHash(S1_Block)
+  val S1_Block       = newBlock(List(S1_AliceGenTx))
+  val S1_BlockHash   = getBlockHash(S1_Block)
   val S1_BlockHeight = 1
 
   onStepFinish(1)
@@ -170,8 +166,8 @@ class ChainSampleData(chainEventListener: Option[ChainEventListener])(protected 
   // Block height  : 2
   // Confirmations : 2
   /////////////////////////////////////////////////////////////////////////////////
-  val S2_BobGenTx = generationTransaction( "S2_BobGenTx", CoinAmount(50), Bob.Addr1.address )
-  val S2_BobGenTxHash = getTxHash(S2_BobGenTx)
+  val S2_BobGenTx       = generationTransaction("S2_BobGenTx", CoinAmount(50), Bob.Addr1.address)
+  val S2_BobGenTxHash   = getTxHash(S2_BobGenTx)
   val S2_BobGenCoin_A50 = getOutput(S2_BobGenTx, 0)
   /////////////////////////////////////////////////////////////////////////////////
   // Scenario : Send to one address keeping change
@@ -191,8 +187,8 @@ class ChainSampleData(chainEventListener: Option[ChainEventListener])(protected 
   val S2_AliceChangeCoin1_A39 = getOutput(S2_AliceToBobTx, 1)
 
   // Create the second block.
-  val S2_Block = newBlock(List(S2_BobGenTx, S2_AliceToBobTx))
-  val S2_BlockHash = getBlockHash(S2_Block)
+  val S2_Block       = newBlock(List(S2_BobGenTx, S2_AliceToBobTx))
+  val S2_BlockHash   = getBlockHash(S2_Block)
   val S2_BlockHeight = 2
 
   onStepFinish(2)
@@ -203,8 +199,8 @@ class ChainSampleData(chainEventListener: Option[ChainEventListener])(protected 
   // Block height  : 3
   // Confirmations : 1
   /////////////////////////////////////////////////////////////////////////////////
-  val S3_CarryGenTx = generationTransaction( "S3_CarryGenTx", CoinAmount(50), Carry.Addr1.address )
-  val S3_CarryGenTxHash = getTxHash(S3_CarryGenTx)
+  val S3_CarryGenTx        = generationTransaction("S3_CarryGenTx", CoinAmount(50), Carry.Addr1.address)
+  val S3_CarryGenTxHash    = getTxHash(S3_CarryGenTx)
   val S3_CarrayGenCoin_A50 = getOutput(S3_CarryGenTx, 0)
   /////////////////////////////////////////////////////////////////////////////////
   // Scenario : Spending a coin, send to many addresses
@@ -220,14 +216,14 @@ class ChainSampleData(chainEventListener: Option[ChainEventListener])(protected 
   )
   val S3_BobToAliceAndCarrayTxHash = getTxHash(S3_BobToAliceAndCarrayTx)
 
-  val S3_AliceCoin1_A2     = getOutput(S3_BobToAliceAndCarrayTx, 0)
+  val S3_AliceCoin1_A2 = getOutput(S3_BobToAliceAndCarrayTx, 0)
   // The Carray.Addr1 has ownership.
   val S3_CarrayCoin1_A3    = getOutput(S3_BobToAliceAndCarrayTx, 1)
   val S3_BobChangeCoin1_A5 = getOutput(S3_BobToAliceAndCarrayTx, 2)
 
   // Create the second block.
-  val S3_Block = newBlock(List(S3_CarryGenTx, S3_BobToAliceAndCarrayTx))
-  val S3_BlockHash = getBlockHash(S3_Block)
+  val S3_Block       = newBlock(List(S3_CarryGenTx, S3_BobToAliceAndCarrayTx))
+  val S3_BlockHash   = getBlockHash(S3_Block)
   val S3_BlockHeight = 3
 
   onStepFinish(3)
@@ -246,7 +242,7 @@ class ChainSampleData(chainEventListener: Option[ChainEventListener])(protected 
   )
   val S4_AliceToCarryTxHash = getTxHash(S4_AliceToCarryTx)
   // The Carray.Addr2 has ownership.
-  val S4_CarryCoin2_A1     = getOutput(S4_AliceToCarryTx, 0)
+  val S4_CarryCoin2_A1 = getOutput(S4_AliceToCarryTx, 0)
   onStepFinish(4)
 
   /////////////////////////////////////////////////////////////////////////////////
@@ -262,7 +258,7 @@ class ChainSampleData(chainEventListener: Option[ChainEventListener])(protected 
     )
   )
   val S5_CarryMergeToAliceTxHash = getTxHash(S5_CarryMergeToAliceTx)
-  val S5_AliceCoin3_A4     = getOutput(S5_CarryMergeToAliceTx, 0)
+  val S5_AliceCoin3_A4           = getOutput(S5_CarryMergeToAliceTx, 0)
   onStepFinish(5)
 
 }

@@ -18,6 +18,8 @@ import HexUtil._
 import org.scalatest.matchers.HavePropertyMatcher
 
 import scala.collection.SortedSet
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 // TODO : BUGBUG : Need to check if coinbase maturity for transaction validation. Need to change test cases as well.
 
@@ -25,7 +27,7 @@ import scala.collection.SortedSet
   * Created by kangmo on 5/12/16.
   */
 //@Ignore
-class WalletSpec extends FlatSpec with WalletTestTrait with BeforeAndAfterEach with TransactionTestDataTrait with Matchers {
+class WalletSpec extends AnyFlatSpec with WalletTestTrait with BeforeAndAfterEach with TransactionTestDataTrait with Matchers {
 
   this: Suite =>
 

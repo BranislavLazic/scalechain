@@ -5,11 +5,10 @@ import io.scalechain.blockchain.storage.index.KeyValueDatabase
 import io.scalechain.blockchain.transaction.CoinAmount
 import HashSupported._
 
-
 /**
   * Created by kangmo on 6/30/16.
   */
-class TransactionSampleData()(protected implicit val db : KeyValueDatabase) extends BlockBuildingTestTrait {
+class TransactionSampleData()(protected implicit val db: KeyValueDatabase) extends BlockBuildingTestTrait {
   val Addr1 = generateAccountAddress("Address1")
   // address 1
   val Addr2 = generateAccountAddress("Address2")
@@ -27,7 +26,7 @@ class TransactionSampleData()(protected implicit val db : KeyValueDatabase) exte
 
     val TX03 = normalTransaction(
       "TX03",
-      spendingOutputs = List( getOutput(GEN01,0) ),
+      spendingOutputs = List(getOutput(GEN01, 0)),
       newOutputs = List(
         NewOutput(CoinAmount(49), Addr2.address)
         // We have very expensive fee, 1 SC
@@ -37,10 +36,9 @@ class TransactionSampleData()(protected implicit val db : KeyValueDatabase) exte
     // UTXO : GEN03 : 0
     // UTXO : TX03 : 0
 
-
     val TX04_01 = normalTransaction(
       "TX04_01",
-      spendingOutputs = List( getOutput(GEN02,0) ),
+      spendingOutputs = List(getOutput(GEN02, 0)),
       newOutputs = List(
         NewOutput(CoinAmount(49), Addr2.address)
         // We have very expensive fee, 1 SC
@@ -51,10 +49,9 @@ class TransactionSampleData()(protected implicit val db : KeyValueDatabase) exte
     // UTXO : TX03 : 0
     // UTXO : TX04_01 : 0
 
-
     val TX04_02 = normalTransaction(
       "TX04_02",
-      spendingOutputs = List( getOutput(TX04_01,0) ),
+      spendingOutputs = List(getOutput(TX04_01, 0)),
       newOutputs = List(
         NewOutput(CoinAmount(20), Addr1.address),
         NewOutput(CoinAmount(27), Addr3.address)
@@ -66,10 +63,9 @@ class TransactionSampleData()(protected implicit val db : KeyValueDatabase) exte
     // UTXO : TX03 : 0
     // UTXO : TX04_02 : 0,1
 
-
     val TX04_03 = normalTransaction(
       "TX04_03",
-      spendingOutputs = List( getOutput(TX04_02,1) ),
+      spendingOutputs = List(getOutput(TX04_02, 1)),
       newOutputs = List(
         NewOutput(CoinAmount(10), Addr2.address),
         NewOutput(CoinAmount(13), Addr3.address)
@@ -84,7 +80,7 @@ class TransactionSampleData()(protected implicit val db : KeyValueDatabase) exte
 
     val TX04_04 = normalTransaction(
       "TX04_04",
-      spendingOutputs = List( getOutput(TX03,0), getOutput(TX04_03, 1)),
+      spendingOutputs = List(getOutput(TX03, 0), getOutput(TX04_03, 1)),
       newOutputs = List(
         NewOutput(CoinAmount(10), Addr1.address),
         NewOutput(CoinAmount(10), Addr2.address),
@@ -100,10 +96,9 @@ class TransactionSampleData()(protected implicit val db : KeyValueDatabase) exte
     // UTXO : TX04_03 : 0
     // UTXO : TX04_04 : 0,1,2,3,4
 
-
     val TX04_05_01 = normalTransaction(
       "TX04_05_01",
-      spendingOutputs = List( getOutput(TX04_04,0) ),
+      spendingOutputs = List(getOutput(TX04_04, 0)),
       newOutputs = List(
         NewOutput(CoinAmount(2), Addr1.address)
         // We have very expensive fee, 8 SC
@@ -116,7 +111,7 @@ class TransactionSampleData()(protected implicit val db : KeyValueDatabase) exte
 
     val TX04_05_02 = normalTransaction(
       "TX04_05_02",
-      spendingOutputs = List( getOutput(TX04_04,1) ),
+      spendingOutputs = List(getOutput(TX04_04, 1)),
       newOutputs = List(
         NewOutput(CoinAmount(4), Addr1.address)
         // We have very expensive fee, 6 SC
@@ -129,7 +124,7 @@ class TransactionSampleData()(protected implicit val db : KeyValueDatabase) exte
 
     val TX04_05_03 = normalTransaction(
       "TX04_05_03",
-      spendingOutputs = List( getOutput(TX04_04,4) ),
+      spendingOutputs = List(getOutput(TX04_04, 4)),
       newOutputs = List(
         NewOutput(CoinAmount(6), Addr1.address)
         // We have very expensive fee, 4 SC
@@ -142,7 +137,7 @@ class TransactionSampleData()(protected implicit val db : KeyValueDatabase) exte
 
     val TX04_05_04 = normalTransaction(
       "TX04_05_04",
-      spendingOutputs = List( getOutput(TX04_04,3) ),
+      spendingOutputs = List(getOutput(TX04_04, 3)),
       newOutputs = List(
         NewOutput(CoinAmount(8), Addr1.address)
         // We have very expensive fee, 2 SC
@@ -155,7 +150,7 @@ class TransactionSampleData()(protected implicit val db : KeyValueDatabase) exte
 
     val TX04_05_05 = normalTransaction(
       "TX04_05_05",
-      spendingOutputs = List( getOutput(TX04_04,2) ),
+      spendingOutputs = List(getOutput(TX04_04, 2)),
       newOutputs = List(
         NewOutput(CoinAmount(10), Addr1.address)
         // We have very expensive fee, 0 SC
@@ -172,6 +167,5 @@ class TransactionSampleData()(protected implicit val db : KeyValueDatabase) exte
     val BLK02 = doMining(newBlock(BLK01.header.hash, List(Tx.GEN02)), 4)
     val BLK03 = doMining(newBlock(BLK02.header.hash, List(Tx.GEN03, Tx.TX03)), 4)
   }
-
 
 }

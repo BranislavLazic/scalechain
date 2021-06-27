@@ -1,10 +1,10 @@
 package io.scalechain.blockchain.net.handler
 
 import com.typesafe.scalalogging.Logger
-import io.scalechain.blockchain.{ErrorCode, NetException}
-import io.scalechain.blockchain.chain.{BlockLocatorHashes, Blockchain, BlockLocator}
+import io.scalechain.blockchain.{ ErrorCode, NetException }
+import io.scalechain.blockchain.chain.{ BlockLocator, BlockLocatorHashes, Blockchain }
 import io.scalechain.blockchain.chain.processor.BlockProcessor
-import io.scalechain.blockchain.net.message.{HeadersFactory, InvFactory}
+import io.scalechain.blockchain.net.message.{ HeadersFactory, InvFactory }
 import io.scalechain.blockchain.proto._
 import org.slf4j.LoggerFactory
 
@@ -16,10 +16,9 @@ import org.slf4j.LoggerFactory
   * 2. getheaders responds with "headers" message, whereas getblocks responds with "inv" message.
   * 3. The "headers" message contains a list of (block header and a byte zero indicating 0 transactions), whereas "inv" message has the hash of the block header.
   * 4. getheaders sends the hashStop, whereas getblocks does not send the hashStop.
-  *
   */
 object GetHeadersMessageHandler {
-  private lazy val logger = Logger( LoggerFactory.getLogger(GetHeadersMessageHandler.getClass) )
+  private lazy val logger = Logger(LoggerFactory.getLogger(GetHeadersMessageHandler.getClass))
 
   /** Handle GetHeaders message.
     *
@@ -27,12 +26,11 @@ object GetHeadersMessageHandler {
     * @param getHeaders The GetHeaders message to handle.
     * @return Some(message) if we need to respond to the peer with the message.
     */
-  def handle( context : MessageHandlerContext, getHeaders : GetHeaders ) : Unit = {
+  def handle(context: MessageHandlerContext, getHeaders: GetHeaders): Unit =
     // We don't support the headers first approach yet.
     logger.warn("GetHeaders message is not supported yet.")
 
-
-    /*
+  /*
       // TODO : Investigate : Need to request block data for headers we got?
       // TODO : Investigate : Need to understand : GetDistanceBack
 
@@ -72,6 +70,5 @@ object GetHeadersMessageHandler {
         val headersMessage = HeadersFactory.create(blockHeaders)
         context.peer.send(headersMessage)
       }
-    */
-  }
+   */
 }

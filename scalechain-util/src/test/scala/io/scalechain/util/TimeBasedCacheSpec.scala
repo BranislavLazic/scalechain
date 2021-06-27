@@ -3,11 +3,12 @@ package io.scalechain.util
 import java.io.File
 import java.util.concurrent.TimeUnit
 
-import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers, Suite}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.BeforeAndAfterEach
 
-class TimeBasedCacheSpec extends FlatSpec with BeforeAndAfterEach with Matchers {
+class TimeBasedCacheSpec extends AnyFlatSpec with BeforeAndAfterEach with Matchers {
 
-  this: Suite =>
 
   val testPath = new File("./target/unittests-IncompleteBlockCacheSpec-storage/")
 

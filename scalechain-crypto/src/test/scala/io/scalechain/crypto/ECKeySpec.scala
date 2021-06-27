@@ -4,11 +4,13 @@ import java.math.BigInteger
 
 import io.scalechain.util.HexUtil
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
   * Created by kangmo on 11/2/15.
   */
-class ECKeySpec extends FlatSpec with BeforeAndAfterEach with ShouldMatchers {
+class ECKeySpec extends AnyFlatSpec with BeforeAndAfterEach with Matchers {
   this: Suite =>
 
   override def beforeEach() {

@@ -6,13 +6,11 @@ import io.scalechain.blockchain.{ErrorCode, ScriptEvalException}
 import io.scalechain.blockchain.script.ops._
 import org.scalatest._
 import org.scalatest.prop.TableDrivenPropertyChecks._
-
+import org.scalatest.flatspec.AnyFlatSpec
 /** Test arithmetic operations in Arithmetic.scala
  *
  */
-class ArithmeticSpec extends FlatSpec with BeforeAndAfterEach with OperationTestTrait {
-
-  this: Suite =>
+class ArithmeticSpec extends AnyFlatSpec with BeforeAndAfterEach with OperationTestTrait {
 
   override def beforeEach() {
     // set-up code

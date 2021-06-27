@@ -1,7 +1,7 @@
 package io.scalechain.blockchain.api.command.blockchain.p2
 
 import io.scalechain.blockchain.api.command.RpcCommand
-import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
+import io.scalechain.blockchain.api.domain.{ RpcError, RpcRequest, RpcResult }
 
 /*
   CLI command :
@@ -22,7 +22,7 @@ import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
       "error": null,
       "id": "curltest"
     }
-*/
+ */
 
 /** GetMemPoolInfo: returns information about the node’s current transaction memory pool.
   *
@@ -31,12 +31,12 @@ import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
   * https://bitcoin.org/en/developer-reference#getmempoolinfo
   */
 object GetMemPoolInfo extends RpcCommand {
-  def invoke(request : RpcRequest) : Either[RpcError, Option[RpcResult]] = {
+  def invoke(request: RpcRequest): Either[RpcError, Option[RpcResult]] = {
     // TODO : Implement
     assert(false)
     Right(None)
   }
-  def help() : String =
+  def help(): String =
     """getmempoolinfo
       |
       |Returns details on the active state of the TX memory pool.
@@ -56,5 +56,3 @@ object GetMemPoolInfo extends RpcCommand {
       |
     """.stripMargin
 }
-
-

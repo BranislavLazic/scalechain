@@ -5,13 +5,12 @@ import io.scalechain.blockchain.script.ops._
 import org.scalatest._
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
+import org.scalatest.flatspec.AnyFlatSpec
 
 /** Test stack operations in Stack.scala
   *
   */
-class StackSpec extends FlatSpec with BeforeAndAfterEach with OperationTestTrait {
-
-  this: Suite =>
+class StackSpec extends AnyFlatSpec with BeforeAndAfterEach with OperationTestTrait {
 
   override def beforeEach() {
     // set-up code

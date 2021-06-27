@@ -1,9 +1,9 @@
 package io.scalechain.blockchain.chain
 
 import io.scalechain.blockchain.script.ScriptSerializer
-import io.scalechain.blockchain.script.ops.{OpPush, OpReturn}
+import io.scalechain.blockchain.script.ops.{ OpPush, OpReturn }
 import io.scalechain.blockchain.storage.index.KeyValueDatabase
-import io.scalechain.blockchain.{ErrorCode, GeneralException}
+import io.scalechain.blockchain.{ ErrorCode, GeneralException }
 import io.scalechain.blockchain.proto._
 import io.scalechain.blockchain.transaction._
 import io.scalechain.util.HexUtil
@@ -11,28 +11,28 @@ import io.scalechain.util.HexUtil
 import scala.collection.mutable.ListBuffer
 
 object TransactionBuilder {
+
   /** create a new transaction builder.
     *
     * @return The transaction builder.
     */
   def newBuilder() = new TransactionBuilder()
 
-  def newGenerationTransaction(coinbaseData : CoinbaseData, minerAddress : CoinAddress) : Transaction = {
-    TransactionBuilder.newBuilder()
+  def newGenerationTransaction(coinbaseData: CoinbaseData, minerAddress: CoinAddress): Transaction =
+    TransactionBuilder
+      .newBuilder()
       .addGenerationInput(coinbaseData)
       .addOutput(CoinAmount(50), minerAddress)
       .build()
-  }
 }
-
 
 /**
   * Build a transaction by using inputs and outputs provided.
   * Note that the builder does not check if this is a double spending transaction.
   * IOW, it does not check if the outputs pointed by inputs are already spent.
-  *
   */
 class TransactionBuilder() {
+
   /** The outputs spent by inputs. The order of spendingOutputs matches inputs.
     */
   val spendingOutputs = new ListBuffer[TransactionOutput]
@@ -50,13 +50,13 @@ class TransactionBuilder() {
     * @param coinbaseData The coinbase data to embed into the generation transaction input.
     * @param sequenceNumber The sequence number in the generation transaction input.
     */
-  def addGenerationInput(coinbaseData : CoinbaseData, sequenceNumber : Long = 0) : TransactionBuilder = {
+  def addGenerationInput(coinbaseData: CoinbaseData, sequenceNumber: Long = 0): TransactionBuilder = {
     // TODO : Need to move to a singleton to avoid writing the same code over and over.
-    val allZeroHash = Hash( HexUtil.bytes("0"*64) )
+    val allZeroHash = Hash(HexUtil.bytes("0" * 64))
     // TODO : Need to make sure that the output index is serialized correctly for the generation transaction
-    val outputIndex : Long = 0xFFFFFF
+    val outputIndex: Long = 0xffffff
 
-    inputs.append( GenerationTransactionInput(allZeroHash, outputIndex, coinbaseData, sequenceNumber) )
+    inputs.append(GenerationTransactionInput(allZeroHash, outputIndex, coinbaseData, sequenceNumber))
     this
   }
 
@@ -71,17 +71,22 @@ class TransactionBuilder() {
     * @param sequenceNumberOption The sequence number.
     *                             If None is passed we will use the default value zero.
     *                             If Some(sequence) is passed, we will use the given value.
-    *
     */
-  def addInput(coinsView : CoinsView, outPoint : OutPoint, unlockingScriptOption : Option[UnlockingScript] = None, sequenceNumberOption : Option[Long] = None)(implicit db : KeyValueDatabase) : TransactionBuilder = {
+  def addInput(
+      coinsView: CoinsView,
+      outPoint: OutPoint,
+      unlockingScriptOption: Option[UnlockingScript] = None,
+      sequenceNumberOption: Option[Long] = None
+  )(implicit db: KeyValueDatabase): TransactionBuilder = {
     // TODO : Check if the sequenceNumberOption.get is the maximum of unsigned integer.
     val input = NormalTransactionInput(
       Hash(outPoint.transactionHash.value),
       outPoint.outputIndex,
       unlockingScriptOption.getOrElse(UnlockingScript(Array[Byte]())),
-      sequenceNumberOption.getOrElse(0L) )
+      sequenceNumberOption.getOrElse(0L)
+    )
 
-    inputs.append( input )
+    inputs.append(input)
 
     spendingOutputs.append(
       coinsView.getTransactionOutput(input.getOutPoint())
@@ -94,10 +99,10 @@ class TransactionBuilder() {
     * @param amount The amount of coins .
     * @param publicKeyHash The public key hash to put into the locking script.
     */
-  def addOutput(amount : CoinAmount, publicKeyHash : Hash) : TransactionBuilder = {
+  def addOutput(amount: CoinAmount, publicKeyHash: Hash): TransactionBuilder = {
     val pubKeyScript = ParsedPubKeyScript.from(publicKeyHash.value.array)
-    val output = TransactionOutput( amount.coinUnits, pubKeyScript.lockingScript() )
-    newOutputs.append( output )
+    val output       = TransactionOutput(amount.coinUnits, pubKeyScript.lockingScript())
+    newOutputs.append(output)
     this
   }
 
@@ -106,9 +111,9 @@ class TransactionBuilder() {
     * @param amount The amount of coins.
     * @param outputOwnership The output ownership that owns the output.
     */
-  def addOutput(amount : CoinAmount, outputOwnership : OutputOwnership) : TransactionBuilder = {
-    val output = TransactionOutput( amount.coinUnits, outputOwnership.lockingScript() )
-    newOutputs.append( output )
+  def addOutput(amount: CoinAmount, outputOwnership: OutputOwnership): TransactionBuilder = {
+    val output = TransactionOutput(amount.coinUnits, outputOwnership.lockingScript())
+    newOutputs.append(output)
     this
   }
 
@@ -120,15 +125,18 @@ class TransactionBuilder() {
     * @param data
     * @return
     */
-  def addOutput(data : Array[Byte]) : TransactionBuilder = {
-    val lockingScriptOps = List( OpReturn(), OpPush.from(data) )
+  def addOutput(data: Array[Byte]): TransactionBuilder = {
+    val lockingScriptOps  = List(OpReturn(), OpPush.from(data))
     val lockingScriptData = ScriptSerializer.serialize(lockingScriptOps)
-    val output = TransactionOutput( 0L, LockingScript(lockingScriptData))
+    val output            = TransactionOutput(0L, LockingScript(lockingScriptData))
     newOutputs.append(output)
     this
   }
 
-  protected[chain] def calculateFee(spendingOutputs : Seq[TransactionOutput], newOutputs : Seq[TransactionOutput]) : CoinAmount = {
+  protected[chain] def calculateFee(
+      spendingOutputs: ListBuffer[TransactionOutput],
+      newOutputs: ListBuffer[TransactionOutput]
+  ): CoinAmount = {
     val fee = spendingOutputs.foldLeft(0L)(_ + _.value) - newOutputs.foldLeft(0L)(_ + _.value)
     CoinAmount.from(fee)
   }
@@ -137,30 +145,26 @@ class TransactionBuilder() {
     */
   protected[chain] def checkValidity(): Unit = {
     // Step 1 : Check if we have at least one input.
-    if ( inputs.length == 0 )
+    if (inputs.length == 0)
       throw new GeneralException(ErrorCode.NotEnoughTransactionInput)
 
     // Step 2 : Check if we have at least one output.
     if (newOutputs.length == 0)
-    throw new GeneralException(ErrorCode.NotEnoughTransactionOutput)
+      throw new GeneralException(ErrorCode.NotEnoughTransactionOutput)
 
     // Step 3 : Check if we have other inputs when we have a generation input.
-    if (inputs(0).isCoinBaseInput()) {
+    if (inputs(0).isCoinBaseInput())
       if (inputs.length != 1)
         throw new GeneralException(ErrorCode.GenerationInputWithOtherInputs)
-    }
 
-    for ( i <- 1 until inputs.length) {
+    for (i <- 1 until inputs.length)
       if (inputs(i).isCoinBaseInput())
         throw new GeneralException(ErrorCode.GenerationInputWithOtherInputs)
-    }
 
     // Step 4 : Check if sum of input values is greater than or equal to the sum of output values.
-    if (!inputs(0).isCoinBaseInput()) {
-      if (calculateFee(spendingOutputs, newOutputs).value < 0) {
+    if (!inputs(0).isCoinBaseInput())
+      if (calculateFee(spendingOutputs, newOutputs).value < 0)
         throw new GeneralException(ErrorCode.NotEnoughInputAmounts)
-      }
-    }
   }
 
   /** Get the built transaction.
@@ -169,7 +173,7 @@ class TransactionBuilder() {
     * @param version The version of the transaction.
     * @return The built transaction.
     */
-  def build(lockTime : Long = 0, version : Int = ChainEnvironment.get.DefaultTransactionVersion) : Transaction = {
+  def build(lockTime: Long = 0, version: Int = ChainEnvironment.get.DefaultTransactionVersion): Transaction = {
     checkValidity()
 
     Transaction(

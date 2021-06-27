@@ -9,12 +9,13 @@ import io.scalechain.blockchain.storage.record.{BlockRecordStorage, RecordStorag
 import io.scalechain.blockchain.storage.test.TestData
 import org.apache.commons.io.FileUtils
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
   * Created by kangmo on 11/2/15.
   */
-class BlockWriterSpec extends FlatSpec with BeforeAndAfterEach with ShouldMatchers {
-  this: Suite =>
+class BlockWriterSpec extends AnyFlatSpec with BeforeAndAfterEach with Matchers {
 
   import TestData._
 

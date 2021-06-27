@@ -2,9 +2,9 @@ package io.scalechain.blockchain.storage
 
 import com.typesafe.scalalogging.Logger
 import io.scalechain.blockchain.proto.codec.primitive.CStringPrefixed
-import io.scalechain.blockchain.proto.codec.{LongValueCodec, OneByteCodec, TransactionPoolEntryCodec, HashCodec}
-import io.scalechain.blockchain.proto.{LongValue, OneByte, TransactionPoolEntry, Hash}
-import io.scalechain.blockchain.storage.index.{DatabaseTablePrefixes, KeyValueDatabase}
+import io.scalechain.blockchain.proto.codec.{ HashCodec, LongValueCodec, OneByteCodec, TransactionPoolEntryCodec }
+import io.scalechain.blockchain.proto.{ Hash, LongValue, OneByte, TransactionPoolEntry }
+import io.scalechain.blockchain.storage.index.{ DatabaseTablePrefixes, KeyValueDatabase }
 import io.scalechain.util.Base58Util
 import io.scalechain.util.Using._
 import org.slf4j.LoggerFactory
@@ -12,16 +12,16 @@ import org.slf4j.LoggerFactory
 import scala.collection.mutable.ListBuffer
 
 object TransactionTimeIndex {
-  val maxBase58EncodedLength = Base58Util.encode( LongValueCodec.serialize( LongValue( Long.MaxValue ) ) ).length
+  val maxBase58EncodedLength = Base58Util.encode(LongValueCodec.serialize(LongValue(Long.MaxValue))).length
 
-  def timeToString(nanoSeconds : Long) : String = {
-    val encodedString = Base58Util.encode( LongValueCodec.serialize( LongValue( nanoSeconds) ) )
-    if (encodedString.length > maxBase58EncodedLength ) {
+  def timeToString(nanoSeconds: Long): String = {
+    val encodedString = Base58Util.encode(LongValueCodec.serialize(LongValue(nanoSeconds)))
+    if (encodedString.length > maxBase58EncodedLength) {
       assert(false)
       ""
-    } else if (encodedString.length == maxBase58EncodedLength ) {
+    } else if (encodedString.length == maxBase58EncodedLength)
       encodedString
-    } else {
+    else {
       // Prefix the base58 encoded string with "1", to make the encoded string take the maxBase58EncodedLength bytes.
       // This is necessary to sort transactions by transaction time.
       val prefix = "1" * (maxBase58EncodedLength - encodedString.length)
@@ -29,29 +29,31 @@ object TransactionTimeIndex {
     }
   }
 }
+
 /**
   * Maintains an index from the creation time of a transaction to the transaction hash.
   */
 trait TransactionTimeIndex {
-  private val logger = Logger( LoggerFactory.getLogger(classOf[TransactionTimeIndex]) )
+  private val logger = Logger(LoggerFactory.getLogger(classOf[TransactionTimeIndex]))
 
   import TransactionTimeIndex._
   import DatabaseTablePrefixes._
-  private implicit val hashCodec = HashCodec
+  private implicit val hashCodec    = HashCodec
   private implicit val oneByteCodec = OneByteCodec
 
   protected val TimeIndexPrefix = TRANSACTION_TIME
+
   /** Put a transaction into the transaction time index.
     *
     * @param creationTime The time when the transaction was created (in nano seconds)
     * @param txHash The hash of the transaction to add
     */
-  def putTransactionTime(creationTime : Long, txHash : Hash)(implicit db : KeyValueDatabase) : Unit = {
+  def putTransactionTime(creationTime: Long, txHash: Hash)(implicit db: KeyValueDatabase): Unit = {
     //logger.trace(s"putTransactionDescriptor : ${txHash}")
 
     val keyPrefix = timeToString(creationTime)
 
-    db.putPrefixedObject(TimeIndexPrefix, keyPrefix, txHash, OneByte('\0') )
+    db.putPrefixedObject(TimeIndexPrefix, keyPrefix, txHash, OneByte('\u0000'))
   }
 
   /** Get a transaction from the transaction pool.
@@ -59,20 +61,19 @@ trait TransactionTimeIndex {
     * @param count The number of hashes to get.
     * @return The transaction which matches the given transaction hash.
     */
-  def getOldestTransactionHashes(count : Int)(implicit db : KeyValueDatabase) : List[CStringPrefixed[Hash]] = {
+  def getOldestTransactionHashes(count: Int)(implicit db: KeyValueDatabase): List[CStringPrefixed[Hash]] = {
     assert(count > 0)
     //logger.trace(s"getTransactionFromPool : ${txHash}")
 
-    using( db.seekPrefixedObject(TimeIndexPrefix)(HashCodec, OneByteCodec) ) in {
-      iter =>
-        val buffer = new ListBuffer[CStringPrefixed[Hash]]
-        var copied = 0
-        while(copied < count && iter.hasNext) {
-          val (key, _) = iter.next()
-          buffer.append(key)
-          copied += 1
-        }
-        buffer.toList
+    using(db.seekPrefixedObject(TimeIndexPrefix)(HashCodec, OneByteCodec)) in { iter =>
+      val buffer = new ListBuffer[CStringPrefixed[Hash]]
+      var copied = 0
+      while (copied < count && iter.hasNext) {
+        val (key, _) = iter.next()
+        buffer.append(key)
+        copied += 1
+      }
+      buffer.toList
     }
   }
 
@@ -81,16 +82,15 @@ trait TransactionTimeIndex {
     * @param creationTime The time when the transaction was created (in nano seconds)
     * @param txHash The hash of the transaction to remove
     */
-  def delTransactionTime(creationTime: Long, txHash : Hash)(implicit db : KeyValueDatabase) : Unit = {
+  def delTransactionTime(creationTime: Long, txHash: Hash)(implicit db: KeyValueDatabase): Unit = {
 
     val keyPrefix = timeToString(creationTime)
 
-    db.delPrefixedObject(TimeIndexPrefix, keyPrefix, txHash )
- //   assert(db.getPrefixedObject(TimeIndexPrefix, keyPrefix, txHash)(HashCodec, OneByteCodec).isEmpty)
+    db.delPrefixedObject(TimeIndexPrefix, keyPrefix, txHash)
+    //   assert(db.getPrefixedObject(TimeIndexPrefix, keyPrefix, txHash)(HashCodec, OneByteCodec).isEmpty)
   }
 
-  def delTransactionTime(key : CStringPrefixed[Hash])(implicit db : KeyValueDatabase) : Unit = {
-    db.delPrefixedObject(TimeIndexPrefix, key )
-  }
+  def delTransactionTime(key: CStringPrefixed[Hash])(implicit db: KeyValueDatabase): Unit =
+    db.delPrefixedObject(TimeIndexPrefix, key)
 
 }

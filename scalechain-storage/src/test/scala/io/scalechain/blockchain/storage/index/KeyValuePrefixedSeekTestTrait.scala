@@ -6,11 +6,13 @@ import io.scalechain.blockchain.proto.codec.{RecordLocatorCodec, FileNumberCodec
 import io.scalechain.util.Using
 import org.scalatest._
 import Using._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
   * Test putPrefixedObject, getPrefixedObject, delPrefixedObject, seekPrefixedObject method of KeyValueDatabase.
   */
-trait KeyValuePrefixedSeekTestTrait extends FlatSpec with KeyValueCommonTrait with ShouldMatchers {
+trait KeyValuePrefixedSeekTestTrait extends AnyFlatSpec with KeyValueCommonTrait with Matchers {
   var db: KeyValueDatabase
 
   "getPrefixedObject(objectKey)" should "return a value which was put" in {

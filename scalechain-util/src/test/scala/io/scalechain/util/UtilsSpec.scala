@@ -4,8 +4,10 @@ import java.math.BigInteger
 import java.security.SecureRandom
 
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
-class UtilsSpec extends FlatSpec with BeforeAndAfterEach with ShouldMatchers {
+class UtilsSpec extends AnyFlatSpec with BeforeAndAfterEach with Matchers {
   this: Suite =>
 
   override def beforeEach() {

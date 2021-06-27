@@ -1,8 +1,8 @@
 package io.scalechain.blockchain.api.command.mining
 
-import io.scalechain.blockchain.{UnsupportedFeature, ErrorCode, RpcException}
-import io.scalechain.blockchain.api.command.{RpcCommand}
-import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
+import io.scalechain.blockchain.{ ErrorCode, RpcException, UnsupportedFeature }
+import io.scalechain.blockchain.api.command.{ RpcCommand }
+import io.scalechain.blockchain.api.domain.{ RpcError, RpcRequest, RpcResult }
 import spray.json._
 import spray.json.DefaultJsonProtocol._
 
@@ -33,7 +33,7 @@ import spray.json.DefaultJsonProtocol._
       "error": null,
       "id": "curltest"
     }
-*/
+ */
 
 /** SubmitBlock: accepts a block, verifies it is a valid addition to the block chain, and
   * broadcasts it to the network.
@@ -58,14 +58,18 @@ import spray.json.DefaultJsonProtocol._
   * https://bitcoin.org/en/developer-reference#submitblock
   */
 object SubmitBlock extends RpcCommand {
-  def invoke(request : RpcRequest) : Either[RpcError, Option[RpcResult]] = {
+  def invoke(request: RpcRequest): Either[RpcError, Option[RpcResult]] =
     handlingException {
-      val serializedBlock : String  = request.params.get[String]("Block", 0)
-      val parameters      : JsObject = request.params.paramValues(1) match {
-        case jsObject : JsObject => jsObject
-        case _ => throw new RpcException(ErrorCode.RpcParameterTypeConversionFailure, "The Parameters should be JsObject, but it is not" )
+      val serializedBlock: String = request.params.get[String]("Block", 0)
+      val parameters: JsObject = request.params.paramValues(1) match {
+        case jsObject: JsObject => jsObject
+        case _ =>
+          throw new RpcException(
+            ErrorCode.RpcParameterTypeConversionFailure,
+            "The Parameters should be JsObject, but it is not"
+          )
       }
-/*
+      /*
       // Step 1 : decode the block
       val block = BlockDecoder.decodeBlock(serializedBlock)
 
@@ -82,17 +86,16 @@ object SubmitBlock extends RpcCommand {
         } else {
           None
         }
-*/
-/*
+       */
+      /*
       // TODO : Implement
       val errorMessageOption = Some("duplicate")
       val resultOption = errorMessageOption.map(StringResult(_))
       Right(resultOption)
-*/
+       */
       throw new UnsupportedFeature(ErrorCode.UnsupportedFeature)
     }
-  }
-  def help() : String =
+  def help(): String =
     """submitblock "hexdata" ( "jsonparametersobject" )
       |
       |Attempts to submit new block to network.
@@ -113,5 +116,3 @@ object SubmitBlock extends RpcCommand {
       |> curl --user myusername --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "submitblock", "params": ["mydata"] }' -H 'content-type: text/plain;' http://127.0.0.1:8332/
     """.stripMargin
 }
-
-

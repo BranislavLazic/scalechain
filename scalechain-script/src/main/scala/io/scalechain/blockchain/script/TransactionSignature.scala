@@ -5,12 +5,13 @@ import java.util
 import io.scalechain.blockchain.proto.codec.TransactionCodec
 import io.scalechain.blockchain.proto._
 import io.scalechain.blockchain.script.ops.OpCodeSparator
-import io.scalechain.blockchain.{ErrorCode, TransactionVerificationException}
-import io.scalechain.crypto.{Hash256, HashFunctions, TransactionSigHash}
+import io.scalechain.blockchain.{ ErrorCode, TransactionVerificationException }
+import io.scalechain.crypto.{ Hash256, HashFunctions, TransactionSigHash }
 import io.scalechain.io.BlockDataOutputStream
 import io.scalechain.util.Utils
 
 object TransactionSignature {
+
   /** Get the script for verifying if a signature is valid.
     * Also it gets rid of signatures from the given script.
     *
@@ -19,19 +20,18 @@ object TransactionSignature {
     * @param rawSignatures The signatures we are going to remove. To support OP_CHECKMULTISIG, it accepts multiple signatures.
     * @return The script for verifying if a signature is valid.
     */
-  def getScriptForCheckSig(rawScript:Array[Byte], startOffset:Int, rawSignatures : Array[ScriptValue]) : Array[Byte] = {
+  def getScriptForCheckSig(rawScript: Array[Byte], startOffset: Int, rawSignatures: Array[ScriptValue]): Array[Byte] = {
     // Step 1 : Copy the region of the raw script starting from startOffset
     val scriptFromStartOffset =
-      if (startOffset>0)
+      if (startOffset > 0)
         util.Arrays.copyOfRange(rawScript, startOffset, rawScript.length)
       else
         rawScript // In most cases, startOffset is 0. Do not copy anything.
 
     // Step 2 : Remove the signatures from the script if any.
-    var signatureRemoved : Array[Byte] = scriptFromStartOffset
-    for (rawSignature : ScriptValue <- rawSignatures) {
+    var signatureRemoved: Array[Byte] = scriptFromStartOffset
+    for (rawSignature: ScriptValue <- rawSignatures)
       signatureRemoved = Utils.removeAllInstancesOf(signatureRemoved, rawSignature.value)
-    }
 
     // Step 3 : Remove OP_CODESEPARATOR if any.
     Utils.removeAllInstancesOfOp(signatureRemoved, OpCodeSparator().opCode().code)
@@ -50,11 +50,18 @@ object TransactionSignature {
     *                  The value should be one of values in Transaction.SigHash
     * @return The calculated hash value.
     */
-  def calculateHash(transaction : Transaction, transactionInputIndex : Int, scriptData : Array[Byte], howToHash : Int) : Hash256 = {
+  def calculateHash(
+      transaction: Transaction,
+      transactionInputIndex: Int,
+      scriptData: Array[Byte],
+      howToHash: Int
+  ): Hash256 = {
     // Step 1 : Check if the transactionInputIndex is valid.
-    if (transactionInputIndex < 0 || transactionInputIndex >= transaction.inputs.length) {
-      throw new TransactionVerificationException(ErrorCode.InvalidInputIndex, "calculateHash: invalid transaction input")
-    }
+    if (transactionInputIndex < 0 || transactionInputIndex >= transaction.inputs.length)
+      throw new TransactionVerificationException(
+        ErrorCode.InvalidInputIndex,
+        "calculateHash: invalid transaction input"
+      )
 
     // Step 2 : For each hash type, mutate the transaction.
     val alteredTransaction = alter(transaction, transactionInputIndex, scriptData, howToHash)
@@ -72,25 +79,28 @@ object TransactionSignature {
     * @param scriptData See hashForSignature
     * @param howToHash See hashForSignature
     */
-  protected def alter(transaction : Transaction, transactionInputIndex : Int, scriptData : Array[Byte], howToHash : Int) : Transaction = {
+  protected def alter(
+      transaction: Transaction,
+      transactionInputIndex: Int,
+      scriptData: Array[Byte],
+      howToHash: Int
+  ): Transaction = {
 
     var currentInputIndex = -1
     val newInputs = transaction.inputs.map { input =>
       currentInputIndex += 1
       input match {
-        case normalTx : NormalTransactionInput => {
+        case normalTx: NormalTransactionInput =>
           val newUnlockingScript =
-            if (currentInputIndex == transactionInputIndex) {
+            if (currentInputIndex == transactionInputIndex)
               UnlockingScript(scriptData)
-            } else {
+            else
               UnlockingScript(Array[Byte]())
-            }
           normalTx.copy(
             unlockingScript = newUnlockingScript
           )
-        }
         // No need to change the generation transaction
-        case generationTx : GenerationTransactionInput => generationTx
+        case generationTx: GenerationTransactionInput => generationTx
       }
     }
 
@@ -105,7 +115,7 @@ object TransactionSignature {
     * @param howToHash The hash type. A value of Transaction.SigHash.
     * @return The calcuated hash.
     */
-  protected def calculateHash(transaction : Transaction, howToHash : Int) : Hash256 = {
+  protected def calculateHash(transaction: Transaction, howToHash: Int): Hash256 = {
 
     val bout = new ByteArrayOutputStream()
     val dout = new BlockDataOutputStream(bout)
@@ -115,9 +125,7 @@ object TransactionSignature {
       dout.writeBytes(serializedBytes)
       // Step 2 : Write hash type
       Utils.uint32ToByteStreamLE(0x000000ff & howToHash, dout);
-    } finally {
-      dout.close()
-    }
+    } finally dout.close()
     // Step 3 : Calculate hash
     HashFunctions.hash256(bout.toByteArray)
   }

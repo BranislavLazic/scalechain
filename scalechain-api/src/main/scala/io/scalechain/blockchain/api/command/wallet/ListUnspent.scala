@@ -2,12 +2,12 @@ package io.scalechain.blockchain.api.command.wallet
 
 import io.scalechain.blockchain.chain.Blockchain
 import io.scalechain.blockchain.transaction.CoinAddress
-import io.scalechain.blockchain.{ErrorCode, UnsupportedFeature}
+import io.scalechain.blockchain.{ ErrorCode, UnsupportedFeature }
 import io.scalechain.blockchain.api.command.RpcCommand
 import io.scalechain.blockchain.api.command.rawtx.GetRawTransaction._
-import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
-import io.scalechain.blockchain.proto.{HashFormat, Hash}
-import io.scalechain.wallet.{UnspentCoinDescriptor, Wallet}
+import io.scalechain.blockchain.api.domain.{ RpcError, RpcRequest, RpcResult }
+import io.scalechain.blockchain.proto.{ Hash, HashFormat }
+import io.scalechain.wallet.{ UnspentCoinDescriptor, Wallet }
 
 import spray.json.DefaultJsonProtocol._
 
@@ -43,9 +43,9 @@ import spray.json.DefaultJsonProtocol._
       "error": null,
       "id": "curltest"
     }
-*/
+ */
 
-case class ListUnspentResult( unspentCoins : List[UnspentCoinDescriptor] )  extends RpcResult
+case class ListUnspentResult(unspentCoins: List[UnspentCoinDescriptor]) extends RpcResult
 
 /** ListUnspent: returns an array of unspent transaction outputs belonging to this wallet.
   *
@@ -63,7 +63,7 @@ case class ListUnspentResult( unspentCoins : List[UnspentCoinDescriptor] )  exte
   *   If present, only outputs which pay an address in this array will be returned.
   *
   *   Array item : (String;base58)
-  *     	A P2PKH or P2SH address.
+  *      A P2PKH or P2SH address.
   *
   * Result: (Array)
   *   An array of objects each describing an unspent output. May be empty.
@@ -71,19 +71,22 @@ case class ListUnspentResult( unspentCoins : List[UnspentCoinDescriptor] )  exte
   * https://bitcoin.org/en/developer-reference#listunspent
   */
 object ListUnspent extends RpcCommand {
-  def invoke(request : RpcRequest) : Either[RpcError, Option[RpcResult]] = {
-
+  def invoke(request: RpcRequest): Either[RpcError, Option[RpcResult]] =
     handlingException {
-      val minimumConfirmations  : Long                = request.params.getOption[Long]("Minimum Confirmations", 0).getOrElse(1L)
-      val maximumConfirmations  : Long                = request.params.getOption[Long]("Maximum Confirmations", 1).getOrElse(Long.MaxValue)
-      val addressStringsOption : Option[List[String]] = request.params.getListOption[String]("Addresses", 2)
+      val minimumConfirmations: Long = request.params.getOption[Long]("Minimum Confirmations", 0).getOrElse(1L)
+      val maximumConfirmations: Long =
+        request.params.getOption[Long]("Maximum Confirmations", 1).getOrElse(Long.MaxValue)
+      val addressStringsOption: Option[List[String]] = request.params.getListOption[String]("Addresses", 2)
 
-      val coinAddressesOption = addressStringsOption.map{ addressStrings =>
-        addressStrings.map( CoinAddress.from( _ ) )
+      val coinAddressesOption = addressStringsOption.map { addressStrings =>
+        addressStrings.map(CoinAddress.from(_))
       }
 
-      val unspentCoins : List[UnspentCoinDescriptor] = Wallet.get.listUnspent(
-        Blockchain.get, minimumConfirmations, maximumConfirmations, coinAddressesOption
+      val unspentCoins: List[UnspentCoinDescriptor] = Wallet.get.listUnspent(
+        Blockchain.get,
+        minimumConfirmations,
+        maximumConfirmations,
+        coinAddressesOption
       )(Blockchain.get.db)
 
       // unspentCoins is a list of objects each describing an unspent output. May be empty
@@ -103,12 +106,11 @@ object ListUnspent extends RpcCommand {
             spendable = true
           )
         )
-      */
+       */
       Right(Some(ListUnspentResult(unspentCoins)))
     }
-  }
 
-  def help() : String =
+  def help(): String =
     """listunspent ( minconf maxconf  ["address",...] )
       |
       |Returns array of unspent transaction outputs
@@ -146,5 +148,3 @@ object ListUnspent extends RpcCommand {
       |> curl --user myusername --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "listunspent", "params": [6, 9999999 "[\"1PGFqEzfmQch1gKD3ra4k18PNj3tTUUSqg\",\"1LtvqCaApEdUGFkpKMM4MstjcaL4dKg8SP\"]"] }' -H 'content-type: text/plain;' http://127.0.0.1:8332/
     """.stripMargin
 }
-
-

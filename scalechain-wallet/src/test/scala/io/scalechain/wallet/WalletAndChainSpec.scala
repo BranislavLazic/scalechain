@@ -9,13 +9,15 @@ import io.scalechain.blockchain.storage.index.{RocksDatabase, KeyValueDatabase}
 import io.scalechain.blockchain.storage.{DiskBlockStorage, Storage}
 import io.scalechain.blockchain.transaction.{ChainBlock, TransactionTestDataTrait}
 import org.apache.commons.io.FileUtils
-import org.scalatest.{Suite, Matchers, BeforeAndAfterEach, FlatSpec}
 import HashSupported._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.matchers.should.Matchers
 /**
   * Test if Wallet returns expected data during block reorganization.
   */
-class WalletAndChainSpec extends FlatSpec with WalletTestTrait with BeforeAndAfterEach with TransactionTestDataTrait with Matchers {
-  this: Suite =>
+class WalletAndChainSpec extends AnyFlatSpec with WalletTestTrait with BeforeAndAfterEach with TransactionTestDataTrait with Matchers {
+
 
   val testPath = new File("./target/unittests-WalletAndChainSpec-storage/")
 

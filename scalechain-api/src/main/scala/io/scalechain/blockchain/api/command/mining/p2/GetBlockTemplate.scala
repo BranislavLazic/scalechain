@@ -1,7 +1,7 @@
 package io.scalechain.blockchain.api.command.mining.p2
 
 import io.scalechain.blockchain.api.command.RpcCommand
-import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
+import io.scalechain.blockchain.api.domain.{ RpcError, RpcRequest, RpcResult }
 
 /*
   CLI command :
@@ -37,19 +37,19 @@ import io.scalechain.blockchain.api.domain.{RpcError, RpcRequest, RpcResult}
       "error": null,
       "id": "curltest"
     }
-*/
+ */
 
 /** GetBlockTemplate: gets a block template or proposal for use with mining software.
   *
   * https://bitcoin.org/en/developer-reference#getblocktemplate
   */
 object GetBlockTemplate extends RpcCommand {
-  def invoke(request : RpcRequest) : Either[RpcError, Option[RpcResult]] = {
+  def invoke(request: RpcRequest): Either[RpcError, Option[RpcResult]] = {
     // TODO : Implement
     assert(false)
     Right(None)
   }
-  def help() : String =
+  def help(): String =
     """getblocktemplate ( "jsonrequestobject" )
       |
       |If the request parameters include a 'mode' key, that is used to explicitly select between the default 'template' request or a 'proposal'.
@@ -109,5 +109,3 @@ object GetBlockTemplate extends RpcCommand {
       |> curl --user myusername --data-binary '{"jsonrpc": "1.0", "id":"curltest", "method": "getblocktemplate", "params": [] }' -H 'content-type: text/plain;' http://127.0.0.1:8332/
     """.stripMargin
 }
-
-

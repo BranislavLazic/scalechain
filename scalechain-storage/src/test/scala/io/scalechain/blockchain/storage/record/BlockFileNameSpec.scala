@@ -2,11 +2,13 @@ package io.scalechain.blockchain.storage.record
 
 import io.scalechain.blockchain.storage.Storage
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
   * Created by kangmo on 11/2/15.
   */
-class BlockFileNameSpec extends FlatSpec with BeforeAndAfterEach with ShouldMatchers {
+class BlockFileNameSpec extends AnyFlatSpec with BeforeAndAfterEach with Matchers {
   this: Suite =>
 
   Storage.initialize()

@@ -6,12 +6,14 @@ import java.util
 
 import io.scalechain.util.Base58Util
 import org.scalatest._
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.flatspec.AnyFlatSpec
 
 /**
   * Source code copied from : https://github.com/ACINQ/bitcoin-lib/blob/master/src/test/scala/fr/acinq/bitcoin/Base58Spec.scala
   * License : Apache v2.
   */
-class Base58CheckSpec extends FlatSpec with BeforeAndAfterEach with ShouldMatchers {
+class Base58CheckSpec extends AnyFlatSpec with BeforeAndAfterEach with Matchers {
   this: Suite =>
 
   override def beforeEach() {

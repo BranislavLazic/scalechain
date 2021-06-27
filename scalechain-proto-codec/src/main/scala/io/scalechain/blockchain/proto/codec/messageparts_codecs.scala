@@ -2,27 +2,26 @@ package io.scalechain.blockchain.proto.codec
 
 import java.nio.ByteBuffer
 
-import io.scalechain.blockchain.{ErrorCode, ProtocolCodecException}
+import io.scalechain.blockchain.{ ErrorCode, ProtocolCodecException }
 import io.scalechain.blockchain.proto._
 import io.scalechain.blockchain.proto.codec.primitive._
 import io.scalechain.io.InputOutputStream
-import io.scalechain.util.{ByteArray, ByteArrayAndVectorConverter}
-import scodec.{DecodeResult, Attempt, Codec}
-import scodec.bits.{BitVector, ByteVector}
+import io.scalechain.util.{ ByteArray, ByteArrayAndVectorConverter }
+import scodec.{ Attempt, Codec, DecodeResult }
+import scodec.bits.{ BitVector, ByteVector }
 import scodec.codecs._
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 
-
 trait SerializeParseUtil[T] {
-  val codec : Codec[T]
+  val codec: Codec[T]
 
-  def serialize(obj : T) : Array[Byte] = {
+  def serialize(obj: T): Array[Byte] = {
 
     val bitVector = codec.encode(obj).require
 
-    val len : Int = bitVector.length.toInt
+    val len: Int = bitVector.length.toInt
     // Make sure we have bit length aligned to bytes.
     assert((len & 0x00000007) == 0)
     val byteLen = len >> 3
@@ -49,52 +48,44 @@ trait SerializeParseUtil[T] {
     }*/
   }
 
-  def parse(data: Array[Byte]) : T = {
+  def parse(data: Array[Byte]): T = {
     val bitVector: BitVector = BitVector.view(data)
 
     codec.decode(bitVector) match {
-      case Attempt.Successful(DecodeResult(decoded, remainder)) => {
-        if ( remainder.isEmpty ) {
+      case Attempt.Successful(DecodeResult(decoded, remainder)) =>
+        if (remainder.isEmpty)
           decoded
-        } else {
+        else
           throw new ProtocolCodecException(ErrorCode.RemainingNotEmptyAfterDecoding)
-        }
-      }
-      case Attempt.Failure(err) => {
+      case Attempt.Failure(err) =>
         throw new ProtocolCodecException(ErrorCode.DecodeFailure, err.toString)
-      }
     }
   }
 
   @tailrec
-  final def parseManyInternal(bitVector:BitVector, decodedItems : ListBuffer[T]) : Unit = {
+  final def parseManyInternal(bitVector: BitVector, decodedItems: ListBuffer[T]): Unit =
     codec.decode(bitVector) match {
-      case Attempt.Successful(DecodeResult(decoded, remainder)) => {
+      case Attempt.Successful(DecodeResult(decoded, remainder)) =>
         decodedItems.append(decoded)
-        if ( !remainder.isEmpty ) {
+        if (!remainder.isEmpty)
           parseManyInternal(remainder, decodedItems)
-          // throw new ProtocolCodecException(ErrorCode.RemainingNotEmptyAfterDecoding)
-        }
-      }
-      case Attempt.Failure(err) => {
+      // throw new ProtocolCodecException(ErrorCode.RemainingNotEmptyAfterDecoding)
+      case Attempt.Failure(err) =>
         throw new ProtocolCodecException(ErrorCode.DecodeFailure, err.toString)
-      }
     }
-  }
 
-  def parseMany(data: Array[Byte]) : List[T] = {
-    val decodedItems = new ListBuffer[T]()
+  def parseMany(data: Array[Byte]): List[T] = {
+    val decodedItems         = new ListBuffer[T]()
     val bitVector: BitVector = BitVector.view(data)
     parseManyInternal(bitVector, decodedItems)
     decodedItems.toList
   }
 }
 
-trait MessagePartCodec[T <: ProtocolMessage] extends SerializeParseUtil[T] {
-}
+trait MessagePartCodec[T <: ProtocolMessage] extends SerializeParseUtil[T] {}
 
 object HashCodec extends MessagePartCodec[Hash] {
-  val codec : Codec[Hash] = {
+  val codec: Codec[Hash] = {
     ("value" | FixedByteArray.reverseCodec(32))
   }.as[Hash]
 }
@@ -106,20 +97,19 @@ object CoinbaseDataCodec extends MessagePartCodec[CoinbaseData] {
     ("coinbase_data" | VarByteArray.codec)
   }.as[CoinbaseData]
 }
-*/
+ */
 
 object LockingScriptCodec extends MessagePartCodec[LockingScript] {
-  val codec : Codec[LockingScript] = {
+  val codec: Codec[LockingScript] = {
     ("locking_script" | VarByteArray.codec)
   }.as[LockingScript]
 }
 
 object UnlockingScriptCodec extends MessagePartCodec[UnlockingScript] {
-  val codec : Codec[UnlockingScript] = {
+  val codec: Codec[UnlockingScript] = {
     ("unlocking_script" | VarByteArray.codec)
   }.as[UnlockingScript]
 }
-
 
 /**
   * [Description]
@@ -145,11 +135,11 @@ object UnlockingScriptCodec extends MessagePartCodec[UnlockingScript] {
   *  ffffffff ................................. Sequence number: UINT32_MAX
   */
 object NormalTransactionInputCodec extends MessagePartCodec[NormalTransactionInput] {
-  val codec : Codec[NormalTransactionInput] = {
-    ( "outpoint_transaction_hash"  | HashCodec.codec            ) ::
-    ( "outpoint_transaction_index" | uint32L                    ) ::
-    ( "unlocking_script"           | UnlockingScriptCodec.codec ) ::
-    ( "sequence_number"            | uint32L                    )
+  val codec: Codec[NormalTransactionInput] = {
+    ("outpoint_transaction_hash" | HashCodec.codec) ::
+    ("outpoint_transaction_index" | uint32L) ::
+    ("unlocking_script" | UnlockingScriptCodec.codec) ::
+    ("sequence_number" | uint32L)
   }.as[NormalTransactionInput]
 }
 
@@ -190,6 +180,7 @@ object NormalTransactionInputCodec extends MessagePartCodec[NormalTransactionInp
   * ff ff ff ff                                      .... Sequence Number ( 4 bytes. Set to 0xFFFFFFFF )
   */
 object TransactionInputCodec extends MessagePartCodec[TransactionInput] {
+
   /** See if the transaction input data represents the generation transaction input.
     *
     * Generation transaction's UTXO hash has all bits set to zero,
@@ -198,14 +189,13 @@ object TransactionInputCodec extends MessagePartCodec[TransactionInput] {
     * @param txInput The transaction input to investigate.
     * @return true if the give transaction input is the generation transaction. false otherwise.
     */
-  private def isGenerationTransaction(txInput : TransactionInput) = {
+  private def isGenerationTransaction(txInput: TransactionInput) =
     // BUGBUG : Need to check if outputIndex is 0xFFFFFFFF.
     //println(s"${txInput.outputIndex}")
     txInput.outputTransactionHash.isAllZero() //&& (txInput.outputIndex == -1L)
-  }
 
-  private def normalTxToGenerationOrNormal(normalTxInput: NormalTransactionInput) : TransactionInput = {
-    if (isGenerationTransaction(normalTxInput)) {
+  private def normalTxToGenerationOrNormal(normalTxInput: NormalTransactionInput): TransactionInput =
+    if (isGenerationTransaction(normalTxInput))
       // Generation Transaction
       // Convert to GenerationTransactionInput
       GenerationTransactionInput(
@@ -214,34 +204,30 @@ object TransactionInputCodec extends MessagePartCodec[TransactionInput] {
         CoinbaseData(normalTxInput.unlockingScript.data),
         normalTxInput.sequenceNumber
       )
-    } else {
+    else
       normalTxInput
-    }
-  }
 
-  private def generationOrNormalToNormalTx(txInput : TransactionInput) : NormalTransactionInput = {
+  private def generationOrNormalToNormalTx(txInput: TransactionInput): NormalTransactionInput =
     txInput match {
-      case generationTxInput : GenerationTransactionInput => {
+      case generationTxInput: GenerationTransactionInput =>
         //assert(isGenerationTransaction(txInput))
         // Covert back to NormalTransactionInput
         NormalTransactionInput(
           generationTxInput.outputTransactionHash,
           generationTxInput.outputIndex,
           UnlockingScript(generationTxInput.coinbaseData.data),
-          generationTxInput.sequenceNumber)
-      }
-      case normalTxInput : NormalTransactionInput => {
+          generationTxInput.sequenceNumber
+        )
+      case normalTxInput: NormalTransactionInput =>
         //assert(!isGenerationTransaction(txInput))
         normalTxInput
-      }
     }
-  }
 
-  val codec : Codec[TransactionInput] = NormalTransactionInputCodec.codec.xmap(
-    normalTxToGenerationOrNormal _, generationOrNormalToNormalTx _
+  val codec: Codec[TransactionInput] = NormalTransactionInputCodec.codec.xmap(
+    normalTxToGenerationOrNormal _,
+    generationOrNormalToNormalTx _
   );
 }
-
 
 /**
   * [Description]
@@ -265,42 +251,41 @@ object TransactionInputCodec extends MessagePartCodec[TransactionInput] {
   *  | ac ..................................... OP_CHECKSIG
   */
 object TransactionOutputCodec extends MessagePartCodec[TransactionOutput] {
-  val codec : Codec[TransactionOutput] = {
-    ("value"          | int64L                   ) ::
-    ("locking_script" | LockingScriptCodec.codec )
+  val codec: Codec[TransactionOutput] = {
+    ("value" | int64L) ::
+    ("locking_script" | LockingScriptCodec.codec)
   }.as[TransactionOutput]
 }
 
 // TODO : Add a test case
-object BlockHeaderCodec extends MessagePartCodec[BlockHeader]{
-  val codec : Codec[BlockHeader] = {
-    ("version"               | int32L                                 ) ::
-    ("previous_block_hash"   | HashCodec.codec                        ) ::
-    ("merkle_root_hash"      | HashCodec.codec                        ) ::
-    ("timestamp"             | uint32L                                ) ::
-    ("diffculty_target_bits" | uint32L                                ) ::
-    ("nonce"                 | uint32L                                )
+object BlockHeaderCodec extends MessagePartCodec[BlockHeader] {
+  val codec: Codec[BlockHeader] = {
+    ("version" | int32L) ::
+    ("previous_block_hash" | HashCodec.codec) ::
+    ("merkle_root_hash" | HashCodec.codec) ::
+    ("timestamp" | uint32L) ::
+    ("diffculty_target_bits" | uint32L) ::
+    ("nonce" | uint32L)
   }.as[BlockHeader]
 }
 
 // TODO : Add a test case
-object IPv6AddressCodec extends MessagePartCodec[IPv6Address]{
-  val codec : Codec[IPv6Address] = {
-    ("address" | FixedByteArray.codec(16) )
+object IPv6AddressCodec extends MessagePartCodec[IPv6Address] {
+  val codec: Codec[IPv6Address] = {
+    ("address" | FixedByteArray.codec(16))
   }.as[IPv6Address]
 }
 
-object NetworkAddressCodec extends MessagePartCodec[NetworkAddress]{
-  val codec : Codec[NetworkAddress] = {
+object NetworkAddressCodec extends MessagePartCodec[NetworkAddress] {
+  val codec: Codec[NetworkAddress] = {
     ("services" | BigIntForLongCodec.codec) ::
     ("ipv6" | IPv6AddressCodec.codec) ::
     ("port" | uint16) // Note, port is encoded with big endian, not little endian
   }.as[NetworkAddress]
 }
 
-
-object NetworkAddressWithTimestampCodec extends MessagePartCodec[NetworkAddressWithTimestamp]{
-  val codec : Codec[NetworkAddressWithTimestamp] = {
+object NetworkAddressWithTimestampCodec extends MessagePartCodec[NetworkAddressWithTimestamp] {
+  val codec: Codec[NetworkAddressWithTimestamp] = {
     ("timestamp" | uint32L) ::
     ("network_address" | NetworkAddressCodec.codec)
   }.as[NetworkAddressWithTimestamp]

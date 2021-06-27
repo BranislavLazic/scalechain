@@ -6,11 +6,13 @@ import io.scalechain.blockchain.storage.index.KeyValueDatabase
 import io.scalechain.blockchain.storage.test.TestData
 import TestData._
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
   * Created by kangmo on 3/23/16.
   */
-trait BlockStorageTestTrait extends FlatSpec with ShouldMatchers {
+trait BlockStorageTestTrait extends AnyFlatSpec with Matchers {
   var storage : BlockStorage
   implicit var db : KeyValueDatabase
 

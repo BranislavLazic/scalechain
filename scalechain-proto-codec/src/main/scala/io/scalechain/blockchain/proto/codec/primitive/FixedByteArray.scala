@@ -7,13 +7,11 @@ import scodec.codecs._
 
 object FixedByteArray {
 
-  def reverseCodec(length:Int) : Codec[ByteArray] = {
-    def byteVectorToByteArray(byteVector : ByteVector) = {
+  def reverseCodec(length: Int): Codec[ByteArray] = {
+    def byteVectorToByteArray(byteVector: ByteVector) =
       byteVector.reverse.toArray
-    }
-    def byteArrayToByteVector(byteArray : ByteArray) = {
+    def byteArrayToByteVector(byteArray: ByteArray) =
       ByteVector(byteArray.array.reverse)
-    }
 
     bytes(length).xmap(
       byteVectorToByteArray _,
@@ -21,14 +19,11 @@ object FixedByteArray {
     )
   }
 
-
-  def codec(length:Int) : Codec[ByteArray] = {
-    def byteVectorToByteArray(byteVector : ByteVector) = {
+  def codec(length: Int): Codec[ByteArray] = {
+    def byteVectorToByteArray(byteVector: ByteVector) =
       byteVector.toArray
-    }
-    def byteArrayToByteVector(byteArray : ByteArray) = {
+    def byteArrayToByteVector(byteArray: ByteArray) =
       ByteVector(byteArray.array)
-    }
 
     bytes(length).xmap(
       byteVectorToByteArray _,
@@ -36,19 +31,16 @@ object FixedByteArray {
     )
   }
 
-  def codec() : Codec[ByteArray] = {
-    def byteVectorToByteArray(byteVector : ByteVector) = {
+  def codec(): Codec[ByteArray] = {
+    def byteVectorToByteArray(byteVector: ByteVector) =
       byteVector.toArray
-    }
-    def byteArrayToByteVector(byteArray : ByteArray) = {
+    def byteArrayToByteVector(byteArray: ByteArray) =
       ByteVector(byteArray.array)
-    }
 
     bytes.xmap(
       byteVectorToByteArray _,
       byteArrayToByteVector _
     )
   }
-
 
 }

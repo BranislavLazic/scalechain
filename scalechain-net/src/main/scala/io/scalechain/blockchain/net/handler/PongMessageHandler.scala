@@ -1,14 +1,14 @@
 package io.scalechain.blockchain.net.handler
 
 import com.typesafe.scalalogging.Logger
-import io.scalechain.blockchain.proto.{ProtocolMessage, Pong}
+import io.scalechain.blockchain.proto.{ Pong, ProtocolMessage }
 import org.slf4j.LoggerFactory
 
 /**
   * The message handler for Pong message.
   */
 object PongMessageHandler {
-  private lazy val logger = Logger( LoggerFactory.getLogger(PongMessageHandler.getClass) )
+  private lazy val logger = Logger(LoggerFactory.getLogger(PongMessageHandler.getClass))
 
   /** Handle Pong message.
     *
@@ -16,7 +16,7 @@ object PongMessageHandler {
     * @param pong The Pong message to handle.
     * @return Some(message) if we need to respond to the peer with the message.
     */
-  def handle( context : MessageHandlerContext, pong : Pong ) : Unit = {
+  def handle(context: MessageHandlerContext, pong: Pong): Unit = {
     // TODO : Implement
   }
 }

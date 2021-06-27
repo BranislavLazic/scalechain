@@ -5,11 +5,11 @@ import io.scalechain.blockchain.script.ops._
 import org.scalatest._
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.prop.Tables.Table
-
+import org.scalatest.flatspec.AnyFlatSpec
 /** Test pseudo word operations in PseudoWord.scala
   *
   */
-class ConstantSpec extends FlatSpec with BeforeAndAfterEach with OperationTestTrait {
+class ConstantSpec extends AnyFlatSpec with BeforeAndAfterEach with OperationTestTrait {
 
   this: Suite =>
 

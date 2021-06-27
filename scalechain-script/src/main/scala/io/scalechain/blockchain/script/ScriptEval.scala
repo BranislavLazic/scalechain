@@ -2,13 +2,13 @@ package io.scalechain.blockchain.script
 
 import io.scalechain.blockchain.proto.Transaction
 import io.scalechain.blockchain.script.ops._
-import io.scalechain.blockchain.{ScriptEvalException, FatalException, ErrorCode}
+import io.scalechain.blockchain.{ ErrorCode, FatalException, ScriptEvalException }
 
 import scala.collection.immutable.HashMap
 
 object ScriptOperations {
-  val SCRIPT_OPS : Map[Short, ScriptOp] = Map(
-    (0x00,Op0()),
+  val SCRIPT_OPS: Map[Short, ScriptOp] = Map(
+    (0x00, Op0()),
     /*
       OpPush(1) ~ OpPush(75) was generated with this code.
       Reason : I don't want my source complicated by writing a for loop
@@ -18,7 +18,7 @@ object ScriptOperations {
       for (i : Int <- 1 to 75 ) {
          println(s"(0x${Integer.toHexString(i)}, OpPush($i)),")
       }
-    */
+     */
     (0x01, OpPush(1)),
     (0x02, OpPush(2)),
     (0x03, OpPush(3)),
@@ -209,58 +209,60 @@ object ScriptOperations {
     (0xb8, OpNopN(9)),
     (0xb9, OpNopN(10))
   )
+
   /** Return the ScriptOp object that implements a specific operation code of the script.
-   *
-   * @param opCode The op code of a script word.
-   * @return
-   */
-  def get(opCode : Short) : Option[ScriptOp] = {
+    *
+    * @param opCode The op code of a script word.
+    * @return
+    */
+  def get(opCode: Short): Option[ScriptOp] = {
     val scriptOp = SCRIPT_OPS.get(opCode)
     scriptOp
   }
 }
 
-class ScriptEnvironment(val transaction : Transaction, val transactionInputIndex : Option[Int]) {
+class ScriptEnvironment(val transaction: Transaction, val transactionInputIndex: Option[Int]) {
+
   /** Alternative constructor : pass null for transaction and tranasctionInput.
-   * These two parameters are necessary only for OP_CHECKSIG, OP_CHECKSIGVERIFY, OP_CHECKMULTISIG, OP_CHECKMULTISIGVERIFY.
-   */
+    * These two parameters are necessary only for OP_CHECKSIG, OP_CHECKSIGVERIFY, OP_CHECKMULTISIG, OP_CHECKMULTISIGVERIFY.
+    */
   def this() = this(null, null)
 
   // BUGBUG : if OP_CHECKSIG or OP_CHECKMULTISIG runs without OP_CODESEPARATOR,
   //          can we keep signatureOffset as zero?
   // The offset in the raw script where the data for checking signature starts.
-  protected var sigCheckOffset : Int = 0
+  protected var sigCheckOffset: Int = 0
 
   /** Set the offset of raw script where the data for checking signature starts.
-   *
-   * @param offset the offset of raw script
-   */
-  def setSigCheckOffset(offset : Int) : Unit = sigCheckOffset = offset
+    *
+    * @param offset the offset of raw script
+    */
+  def setSigCheckOffset(offset: Int): Unit = sigCheckOffset = offset
 
   /** Get the offset of raw script where the data for checking signature starts.
     *
     * @return The offset.
     */
-  def getSigCheckOffset() : Int = sigCheckOffset
+  def getSigCheckOffset(): Int = sigCheckOffset
 
   val stack = new ScriptStack()
   // The altStack is necessary to support OP_TOALTSTACK and OP_FROMALTSTACK,
   // which moves items on top of the stack and the alternative stack.
   val altStack = new ScriptStack()
 
-
 }
 
 /**
- * Created by kangmo on 11/6/15.
- */
+  * Created by kangmo on 11/6/15.
+  */
 object ScriptInterpreter {
+
   /** Execute a parsed script. Return the value on top of the stack after the script execution.
-   *
-   * @param scriptOps A chunk of byte array after we get from ScriptParser.
-   * @return the value on top of the stack after the script execution.
-   */
-  def eval(scriptOps : ScriptOpList) : ScriptValue = {
+    *
+    * @param scriptOps A chunk of byte array after we get from ScriptParser.
+    * @return the value on top of the stack after the script execution.
+    */
+  def eval(scriptOps: ScriptOpList): ScriptValue = {
     val env = new ScriptEnvironment()
 
     eval_internal(env, scriptOps)
@@ -276,10 +278,7 @@ object ScriptInterpreter {
     * @param env The script execution environment.
     * @param scriptOps The list of script operations to execute.
     */
-  def eval_internal(env : ScriptEnvironment, scriptOps : ScriptOpList) = {
-    for (operation : ScriptOp <- scriptOps.operations) {
+  def eval_internal(env: ScriptEnvironment, scriptOps: ScriptOpList) =
+    for (operation: ScriptOp <- scriptOps.operations)
       operation.execute(env)
-    }
-  }
 }
-

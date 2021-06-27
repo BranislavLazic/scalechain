@@ -5,11 +5,13 @@ import io.scalechain.blockchain.proto.codec.{RecordLocatorCodec, FileNumberCodec
 import io.scalechain.util.Using
 import org.scalatest._
 import Using._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
   * Test seek, seekObject(rawKey), seekObject(prefix, key) method of KeyValueDatabase.
   */
-trait KeyValueSeekTestTrait extends FlatSpec with KeyValueCommonTrait with ShouldMatchers {
+trait KeyValueSeekTestTrait extends AnyFlatSpec with KeyValueCommonTrait with Matchers {
   var db: KeyValueDatabase
 
   "seek(None)" should "iterate nothing if not key exists" in {

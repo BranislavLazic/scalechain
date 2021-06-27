@@ -1,23 +1,22 @@
 package io.scalechain.util
 
-import java.io.{BufferedReader, InputStream, InputStreamReader}
-import java.net.{URL, URLConnection, HttpURLConnection}
+import java.io.{ BufferedReader, InputStream, InputStreamReader }
+import java.net.{ HttpURLConnection, URL, URLConnection }
 
-import io.scalechain.blockchain.{UnsupportedFeature, ErrorCode, HttpRequestException}
+import io.scalechain.blockchain.{ ErrorCode, HttpRequestException, UnsupportedFeature }
 
 object HttpRequester {
-  def inputStreamAsString(is : InputStream) : String = {
-    val sb: StringBuilder = new StringBuilder();
+  def inputStreamAsString(is: InputStream): String = {
+    val sb: StringBuilder  = new StringBuilder();
     val br: BufferedReader = new BufferedReader(new InputStreamReader(is));
 
     var read: String = null
 
     do {
       read = br.readLine()
-      if (read != null) {
+      if (read != null)
         //System.out.println(read);
         sb.append(read)
-      }
     } while (read != null)
 
     br.close()
@@ -33,10 +32,10 @@ object HttpRequester {
     * @param password
     * @return
     */
-  def post(uri : String, postData : String, user : String, password : String) : String = {
-    val url : URL = new URL(uri);
-    val con : URLConnection = url.openConnection();
-    val http : HttpURLConnection = con.asInstanceOf[HttpURLConnection];
+  def post(uri: String, postData: String, user: String, password: String): String = {
+    val url: URL                = new URL(uri);
+    val con: URLConnection      = url.openConnection();
+    val http: HttpURLConnection = con.asInstanceOf[HttpURLConnection];
     http.setRequestMethod("POST") // PUT is another valid option
     http.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
     val bytesToSend = postData.getBytes
@@ -48,13 +47,11 @@ object HttpRequester {
     os.close
 
     val responseCode = http.getResponseCode();
-    val response = inputStreamAsString( http.getInputStream() )
-    if (responseCode == HttpURLConnection.HTTP_OK) {
+    val response     = inputStreamAsString(http.getInputStream())
+    if (responseCode == HttpURLConnection.HTTP_OK)
 //      println(s"output : ${response}")
       response
-    } else {
+    else
       throw new HttpRequestException(ErrorCode.HttpRequestFailure, responseCode, response)
-    }
   }
 }
-

@@ -13,11 +13,13 @@ import io.scalechain.blockchain.storage.index.{RocksDatabase, BlockDatabase}
 import io.scalechain.blockchain.storage.test.TestData
 import org.apache.commons.io.FileUtils
 import org.scalatest._
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
   * Created by kangmo on 11/2/15.
   */
-class BlockRecordStorageSpec extends FlatSpec with BeforeAndAfterEach with ShouldMatchers {
+class BlockRecordStorageSpec extends AnyFlatSpec with BeforeAndAfterEach with Matchers {
   this: Suite =>
 
   Storage.initialize()

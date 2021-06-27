@@ -6,11 +6,13 @@ import io.scalechain.blockchain.script.ops.{OpCheckSig, OpPushData, OpEqual}
 import io.scalechain.util.HexUtil
 import org.scalatest._
 import sun.font.Script
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should.Matchers
 
 /**
   * Created by kangmo on 5/18/16.
   */
-class ParsedPubKeyScriptSpec extends FlatSpec with BeforeAndAfterEach with TransactionTestDataTrait with ChainTestTrait with ShouldMatchers {
+class ParsedPubKeyScriptSpec extends AnyFlatSpec with BeforeAndAfterEach with TransactionTestDataTrait with ChainTestTrait with Matchers {
   this: Suite =>
 
   override def beforeEach() {

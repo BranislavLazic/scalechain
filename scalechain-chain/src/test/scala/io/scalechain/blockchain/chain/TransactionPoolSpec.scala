@@ -10,11 +10,12 @@ import io.scalechain.blockchain.script.HashSupported
 import io.scalechain.blockchain.transaction.TransactionTestDataTrait
 import org.scalatest._
 import HashSupported._
+import org.scalatest.matchers.should.Matchers
 
 /**
   * Created by kangmo on 6/16/16.
   */
-class TransactionPoolSpec extends BlockchainTestTrait with TransactionTestDataTrait with ShouldMatchers {
+class TransactionPoolSpec extends BlockchainTestTrait with TransactionTestDataTrait with Matchers {
 
   this: Suite =>
 

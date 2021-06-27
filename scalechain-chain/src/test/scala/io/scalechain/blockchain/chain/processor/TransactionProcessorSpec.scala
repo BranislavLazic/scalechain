@@ -9,10 +9,10 @@ import io.scalechain.blockchain.storage.index.KeyValueDatabase
 import io.scalechain.blockchain.transaction.TransactionTestDataTrait
 import HashSupported._
 import org.scalatest._
+import org.scalatest.matchers.should.Matchers
 
-class TransactionProcessorSpec extends BlockchainTestTrait with TransactionTestDataTrait with ShouldMatchers {
+class TransactionProcessorSpec extends BlockchainTestTrait with TransactionTestDataTrait with Matchers {
 
-  this: Suite =>
 
   val testPath = new File("./target/unittests-TransactionProcessorSpec/")
   var t : TransactionProcessor = null

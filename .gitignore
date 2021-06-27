@@ -13,6 +13,7 @@ target/
 lib_managed/
 src_managed/
 project/boot/
+project/project/
 project/plugins/project/
 
 # Scala-IDE specific
@@ -24,3 +25,7 @@ project/plugins/project/
 config/currentView
 initial-split-transaction.txt
 transaction-group-*.txt
+.metals
+.vscode
+.bloop
+.bsp

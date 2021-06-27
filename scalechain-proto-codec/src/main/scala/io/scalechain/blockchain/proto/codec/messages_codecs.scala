@@ -1,15 +1,14 @@
 package io.scalechain.blockchain.proto.codec
 
-import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
+import java.io.{ ByteArrayInputStream, ByteArrayOutputStream }
 
-import io.scalechain.blockchain.{ErrorCode, ProtocolCodecException}
+import io.scalechain.blockchain.{ ErrorCode, ProtocolCodecException }
 import io.scalechain.blockchain.proto._
 import io.scalechain.blockchain.proto.codec.primitive._
-import io.scalechain.io.{BlockDataInputStream, BlockDataOutputStream}
-import scodec.bits.{ByteVector, BitVector}
-import scodec.{DecodeResult, Attempt, Codec}
+import io.scalechain.io.{ BlockDataInputStream, BlockDataOutputStream }
+import scodec.bits.{ BitVector, ByteVector }
+import scodec.{ Attempt, Codec, DecodeResult }
 import scodec.codecs._
-
 
 /**
   * [Description]
@@ -48,22 +47,21 @@ import scodec.codecs._
   */
 object VersionCodec extends ProtocolMessageCodec[Version] {
   val command = "version"
-  val clazz = classOf[Version]
+  val clazz   = classOf[Version]
 
   // TODO : Implement
-  val codec : Codec[Version] = {
-    ("version"       | int32L                    ) ::
-    ("services"      | BigIntForLongCodec.codec   ) ::
-    ("timestamp"     | int64L                    ) ::
-    ("destAddress"   | NetworkAddressCodec.codec ) ::
-    ("sourceAddress" | NetworkAddressCodec.codec ) :: // version ≥ 106
-    ("nonce"         | BigIntForLongCodec.codec   ) :: // version ≥ 106
-    ("userAgent"     | VarStr.codec              ) :: // version ≥ 106
-    ("startHeight"   | int32L                    ) :: // version ≥ 106
-    ("relay"         | Bool.codec                )    // version ≥ 70001
+  val codec: Codec[Version] = {
+    ("version" | int32L) ::
+    ("services" | BigIntForLongCodec.codec) ::
+    ("timestamp" | int64L) ::
+    ("destAddress" | NetworkAddressCodec.codec) ::
+    ("sourceAddress" | NetworkAddressCodec.codec) :: // version ≥ 106
+    ("nonce" | BigIntForLongCodec.codec) ::          // version ≥ 106
+    ("userAgent" | VarStr.codec) ::                  // version ≥ 106
+    ("startHeight" | int32L) ::                      // version ≥ 106
+    ("relay" | Bool.codec)                           // version ≥ 70001
   }.as[Version]
 }
-
 
 /**
   * [Description]
@@ -78,11 +76,10 @@ object VersionCodec extends ProtocolMessageCodec[Version] {
   */
 object VerackCodec extends ProtocolMessageCodec[Verack] {
   val command = "verack"
-  val clazz = classOf[Verack]
+  val clazz   = classOf[Verack]
 
-  val codec : Codec[Verack] = provide(Verack())
+  val codec: Codec[Verack] = provide(Verack())
 }
-
 
 /**
   * [Description]
@@ -109,10 +106,10 @@ object VerackCodec extends ProtocolMessageCodec[Verack] {
   */
 object AddrCodec extends ProtocolMessageCodec[Addr] {
   val command = "addr"
-  val clazz = classOf[Addr]
+  val clazz   = classOf[Addr]
 
-  val codec : Codec[Addr] = {
-    ( "addresses" | VarList.varList(NetworkAddressWithTimestampCodec.codec) )
+  val codec: Codec[Addr] = {
+    ("addresses" | VarList.varList(NetworkAddressWithTimestampCodec.codec))
   }.as[Addr]
 }
 
@@ -142,25 +139,26 @@ object AddrCodec extends ProtocolMessageCodec[Addr] {
   */
 object InvCodec extends ProtocolMessageCodec[Inv] {
   val command = "inv"
-  val clazz = classOf[Inv]
+  val clazz   = classOf[Inv]
 
   import io.scalechain.blockchain.proto.InvType.InvType
 
-  val invTypeCodec : Codec[InvType] = {
-    mappedEnum(uint32L,
-        InvType.ERROR -> 0L,
-        InvType.MSG_TX -> 1L,
-        InvType.MSG_BLOCK -> 2L,
-        InvType.MSG_FILTERED_BLOCK -> 3L )
-  }.as[InvType]
+  val invTypeCodec: Codec[InvType] =
+    mappedEnum(
+      uint32L,
+      (InvType.ERROR, 0L),
+      (InvType.MSG_TX, 1L),
+      (InvType.MSG_BLOCK, 2L),
+      (InvType.MSG_FILTERED_BLOCK, 3L)
+    )
 
-  val invVectorCodec : Codec[InvVector] = {
+  val invVectorCodec: Codec[InvVector] = {
     ("inventory_type" | invTypeCodec) ::
     ("hash" | HashCodec.codec)
   }.as[InvVector]
 
-  val codec : Codec[Inv] = {
-    ( "inventories" | VarList.varList(invVectorCodec) )
+  val codec: Codec[Inv] = {
+    ("inventories" | VarList.varList(invVectorCodec))
   }.as[Inv]
 }
 
@@ -198,10 +196,10 @@ object InvCodec extends ProtocolMessageCodec[Inv] {
   */
 object GetDataCodec extends ProtocolMessageCodec[GetData] {
   val command = "getdata"
-  val clazz = classOf[GetData]
+  val clazz   = classOf[GetData]
 
-  val codec : Codec[GetData] = {
-    ( "inventories" | VarList.varList(InvCodec.invVectorCodec) )
+  val codec: Codec[GetData] = {
+    ("inventories" | VarList.varList(InvCodec.invVectorCodec))
   }.as[GetData]
 }
 
@@ -234,14 +232,13 @@ object GetDataCodec extends ProtocolMessageCodec[GetData] {
   */
 object NotFoundCodec extends ProtocolMessageCodec[NotFound] {
   val command = "notfound"
-  val clazz = classOf[NotFound]
+  val clazz   = classOf[NotFound]
 
-  val codec : Codec[NotFound] = {
-    ( "inventories" | VarList.varList(InvCodec.invVectorCodec) )
+  val codec: Codec[NotFound] = {
+    ("inventories" | VarList.varList(InvCodec.invVectorCodec))
   }.as[NotFound]
 
 }
-
 
 /**
   * [Description]
@@ -268,12 +265,12 @@ object NotFoundCodec extends ProtocolMessageCodec[NotFound] {
   */
 object GetBlocksCodec extends ProtocolMessageCodec[GetBlocks] {
   val command = "getblocks"
-  val clazz = classOf[GetBlocks]
+  val clazz   = classOf[GetBlocks]
 
-  val codec : Codec[GetBlocks] = {
-    ("version"              | uint32L                         ) ::
+  val codec: Codec[GetBlocks] = {
+    ("version" | uint32L) ::
     ("block_locator_hashes" | VarList.varList(HashCodec.codec)) ::
-    ("hash_stop"            | HashCodec.codec                 )
+    ("hash_stop" | HashCodec.codec)
   }.as[GetBlocks]
 }
 
@@ -302,11 +299,11 @@ object GetBlocksCodec extends ProtocolMessageCodec[GetBlocks] {
   */
 object BlockCodec extends ProtocolMessageCodec[Block] {
   val command = "block"
-  val clazz = classOf[Block]
+  val clazz   = classOf[Block]
 
-  val codec : Codec[Block] = {
-    ("blockcheader"          | BlockHeaderCodec.codec                 ) ::
-    ("transactions"          | VarList.varList(TransactionCodec.codec))
+  val codec: Codec[Block] = {
+    ("blockcheader" | BlockHeaderCodec.codec) ::
+    ("transactions" | VarList.varList(TransactionCodec.codec))
   }.as[Block]
 }
 
@@ -345,16 +342,14 @@ object BlockCodec extends ProtocolMessageCodec[Block] {
   */
 object GetHeadersCodec extends ProtocolMessageCodec[GetHeaders] {
   val command = "getheaders"
-  val clazz = classOf[GetHeaders]
+  val clazz   = classOf[GetHeaders]
 
-  val codec : Codec[GetHeaders] = {
-    ("version"              | uint32L                         ) ::
+  val codec: Codec[GetHeaders] = {
+    ("version" | uint32L) ::
     ("block_locator_hashes" | VarList.varList(HashCodec.codec)) ::
-    ("hash_stop"            | HashCodec.codec                 )
+    ("hash_stop" | HashCodec.codec)
   }.as[GetHeaders]
 }
-
-
 
 /**
   * [Description]
@@ -398,17 +393,16 @@ object GetHeadersCodec extends ProtocolMessageCodec[GetHeaders] {
   *  | | ac ..................................... OP_CHECKSIG
   *
   *  00000000 ................................... locktime: 0 (a block height)
-  *
   */
 object TransactionCodec extends ProtocolMessageCodec[Transaction] {
   val command = "tx"
-  val clazz = classOf[Transaction]
+  val clazz   = classOf[Transaction]
 
-  val codec : Codec[Transaction] = {
-    ("version"             | int32L                                        ) ::
-    ("inputs"  | VarList.varList(TransactionInputCodec.codec ) ) ::
-    ("outputs" | VarList.varList(TransactionOutputCodec.codec) ) ::
-    ("lock_time"           | uint32L                                       )
+  val codec: Codec[Transaction] = {
+    ("version" | int32L) ::
+    ("inputs" | VarList.varList(TransactionInputCodec.codec)) ::
+    ("outputs" | VarList.varList(TransactionOutputCodec.codec)) ::
+    ("lock_time" | uint32L)
   }.as[Transaction]
 }
 
@@ -440,24 +434,23 @@ object TransactionCodec extends ProtocolMessageCodec[Transaction] {
   */
 object HeadersCodec extends ProtocolMessageCodec[Headers] {
   val command = "headers"
-  val clazz = classOf[Headers]
+  val clazz   = classOf[Headers]
 
   val ZERO = Array[Byte](0)
 
-  case class BlockHeaderWithDummy (
-     header : BlockHeader,
-     dummy : Unit )
+  case class BlockHeaderWithDummy(header: BlockHeader, dummy: Unit)
 
-  private val BlockHeaderWithDummyCodec : Codec[BlockHeaderWithDummy] = {
+  private val BlockHeaderWithDummyCodec: Codec[BlockHeaderWithDummy] = {
     ("block_header" | BlockHeaderCodec.codec) ::
     ("transaction_count" | constant(ByteVector.view(ZERO)))
   }.as[BlockHeaderWithDummy]
 
-  val blockHeaderCoodec : Codec[BlockHeader] = BlockHeaderWithDummyCodec.xmap(
-    _.header, BlockHeaderWithDummy(_:BlockHeader, ())
+  val blockHeaderCoodec: Codec[BlockHeader] = BlockHeaderWithDummyCodec.xmap(
+    _.header,
+    BlockHeaderWithDummy(_: BlockHeader, ())
   )
 
-  val codec : Codec[Headers] = {
+  val codec: Codec[Headers] = {
     ("headers" | VarList.varList(blockHeaderCoodec))
   }.as[Headers]
 }
@@ -479,9 +472,9 @@ object HeadersCodec extends ProtocolMessageCodec[Headers] {
   */
 object GetAddrCodec extends ProtocolMessageCodec[GetAddr] {
   val command = "getaddr"
-  val clazz = classOf[GetAddr]
+  val clazz   = classOf[GetAddr]
 
-  val codec : Codec[GetAddr] = provide(GetAddr())
+  val codec: Codec[GetAddr] = provide(GetAddr())
 }
 
 /**
@@ -514,11 +507,10 @@ object GetAddrCodec extends ProtocolMessageCodec[GetAddr] {
   */
 object MempoolCodec extends ProtocolMessageCodec[Mempool] {
   val command = "mempool"
-  val clazz = classOf[Mempool]
+  val clazz   = classOf[Mempool]
 
-  val codec : Codec[Mempool] = provide(Mempool())
+  val codec: Codec[Mempool] = provide(Mempool())
 }
-
 
 /**
   * [Description]
@@ -539,10 +531,10 @@ object MempoolCodec extends ProtocolMessageCodec[Mempool] {
   */
 object PingCodec extends ProtocolMessageCodec[Ping] {
   val command = "ping"
-  val clazz = classOf[Ping]
+  val clazz   = classOf[Ping]
 
-  val codec : Codec[Ping] = {
-    ( "nonce" | BigIntForLongCodec.codec )
+  val codec: Codec[Ping] = {
+    ("nonce" | BigIntForLongCodec.codec)
   }.as[Ping]
 }
 
@@ -567,10 +559,10 @@ object PingCodec extends ProtocolMessageCodec[Ping] {
   */
 object PongCodec extends ProtocolMessageCodec[Pong] {
   val command = "pong"
-  val clazz = classOf[Pong]
+  val clazz   = classOf[Pong]
 
-  val codec : Codec[Pong] = {
-    ( "nonce" | BigIntForLongCodec.codec )
+  val codec: Codec[Pong] = {
+    ("nonce" | BigIntForLongCodec.codec)
   }.as[Pong]
 }
 
@@ -596,27 +588,27 @@ object PongCodec extends ProtocolMessageCodec[Pong] {
   */
 object RejectCodec extends ProtocolMessageCodec[Reject] {
   val command = "reject"
-  val clazz = classOf[Reject]
+  val clazz   = classOf[Reject]
 
   import io.scalechain.blockchain.proto.RejectType.RejectType
 
-  val rejectTypeCodec : Codec[RejectType] = {
-    mappedEnum(uint8,
-      RejectType.REJECT_MALFORMED -> 0x01,
-      RejectType.REJECT_INVALID -> 0x10,
-      RejectType.REJECT_OBSOLETE -> 0x11,
-      RejectType.REJECT_DUPLICATE -> 0x12,
-      RejectType.REJECT_NONSTANDARD -> 0x40,
-      RejectType.REJECT_DUST -> 0x41,
+  val rejectTypeCodec: Codec[RejectType] =
+    mappedEnum(
+      uint8,
+      RejectType.REJECT_MALFORMED       -> 0x01,
+      RejectType.REJECT_INVALID         -> 0x10,
+      RejectType.REJECT_OBSOLETE        -> 0x11,
+      RejectType.REJECT_DUPLICATE       -> 0x12,
+      RejectType.REJECT_NONSTANDARD     -> 0x40,
+      RejectType.REJECT_DUST            -> 0x41,
       RejectType.REJECT_INSUFFICIENTFEE -> 0x42,
-      RejectType.REJECT_CHECKPOINT -> 0x43
+      RejectType.REJECT_CHECKPOINT      -> 0x43
     )
-  }.as[RejectType]
 
-  val codec : Codec[Reject] = {
-    ("message" | VarStr.codec ) ::
+  val codec: Codec[Reject] = {
+    ("message" | VarStr.codec) ::
     ("rejectType" | rejectTypeCodec) ::
-    ("reason" | VarStr.codec ) ::
+    ("reason" | VarStr.codec) ::
     ("data" | FixedByteArray.codec())
   }.as[Reject]
 }
@@ -644,10 +636,10 @@ object RejectCodec extends ProtocolMessageCodec[Reject] {
   */
 object FilterLoadCodec extends ProtocolMessageCodec[FilterLoad] {
   val command = "filterload"
-  val clazz = classOf[FilterLoad]
+  val clazz   = classOf[FilterLoad]
 
   // TODO : Implement
-  val codec : Codec[FilterLoad] = null
+  val codec: Codec[FilterLoad] = null
 }
 
 /**
@@ -668,14 +660,13 @@ object FilterLoadCodec extends ProtocolMessageCodec[FilterLoad] {
   *  20 ................................. Element bytes: 32
   *  fdacf9b3eb077412e7a968d2e4f11b9a
   *  9dee312d666187ed77ee7d26af16cb0b ... Element (A TXID)
-  *
   */
 object FilterAddCodec extends ProtocolMessageCodec[FilterAdd] {
   val command = "filteradd"
-  val clazz = classOf[FilterAdd]
+  val clazz   = classOf[FilterAdd]
 
   // TODO : Implement
-  val codec : Codec[FilterAdd] = null
+  val codec: Codec[FilterAdd] = null
 }
 
 /**
@@ -694,9 +685,9 @@ object FilterAddCodec extends ProtocolMessageCodec[FilterAdd] {
   */
 object FilterClearCodec extends ProtocolMessageCodec[FilterClear] {
   val command = "filterclear"
-  val clazz = classOf[FilterClear]
+  val clazz   = classOf[FilterClear]
 
-  val codec : Codec[FilterClear] = provide(FilterClear())
+  val codec: Codec[FilterClear] = provide(FilterClear())
 }
 
 /**
@@ -746,14 +737,13 @@ object FilterClearCodec extends ProtocolMessageCodec[FilterClear] {
   *
   *  01 ................................. Flag bytes: 1
   *  1d ................................. Flags: 1 0 1 1 1 0 0 0
-  *
   */
 object MerkleBlockCodec extends ProtocolMessageCodec[MerkleBlock] {
   val command = "merkleblock"
-  val clazz = classOf[MerkleBlock]
+  val clazz   = classOf[MerkleBlock]
 
   // TODO : Implement
-  val codec : Codec[MerkleBlock] = null
+  val codec: Codec[MerkleBlock] = null
 }
 
 /**
@@ -798,14 +788,13 @@ object MerkleBlockCodec extends ProtocolMessageCodec[MerkleBlock] {
   *  53b63b53eb022009ec65e1c1aaeec1fd
   *  334c6b684bde2b3f573060d5b70c3a46
   *  723326e4e8a4f1 ..................... Signature
-  *
   */
 object AlertCodec extends ProtocolMessageCodec[Alert] {
   val command = "alert"
-  val clazz = classOf[Alert]
+  val clazz   = classOf[Alert]
 
   // TODO : Implement
-  val codec : Codec[Alert] = null
+  val codec: Codec[Alert] = null
 }
 
 /**
@@ -821,8 +810,7 @@ object AlertCodec extends ProtocolMessageCodec[Alert] {
   */
 object SendHeadersCodec extends ProtocolMessageCodec[SendHeaders] {
   val command = "sendheaders"
-  val clazz = classOf[SendHeaders]
+  val clazz   = classOf[SendHeaders]
 
-  val codec : Codec[SendHeaders] = provide(SendHeaders())
+  val codec: Codec[SendHeaders] = provide(SendHeaders())
 }
-

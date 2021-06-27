@@ -31,7 +31,6 @@ object BigIntForLongCodec {
   // BUGBUG : Make sure using int64L for UInt64L is safe.
   val int64codec: Codec[UInt64] = int64L.xmap(UInt64.apply, _.value)
 
-  implicit val codec: Codec[BigInt] = int64codec.xmap(
-    n => (UInt64.longToBigInt(n.value)),
-    b => UInt64(UInt64.bigIntToLong(b)))
+  implicit val codec: Codec[BigInt] =
+    int64codec.xmap(n => (UInt64.longToBigInt(n.value)), b => UInt64(UInt64.bigIntToLong(b)))
 }

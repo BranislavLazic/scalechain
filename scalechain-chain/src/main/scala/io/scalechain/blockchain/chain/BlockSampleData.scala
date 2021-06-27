@@ -24,31 +24,30 @@ import io.scalechain.blockchain.script.HashSupported._
   *   Genesis → B01(4) → B02(4) → B03a(4) → B04a(4) → B05a(8) : The best chain. ( Block reorganization required)
   *                             ↘ B03b(4) → B04b(8)
   *
-  *
   * Transaction Dependency :
   * (Used by TransactionOrphangeSpec )
   *   TX02 → TX03
   *     ↘       ↘
   *       ↘ → → → → TX04
   */
-class BlockSampleData()(protected implicit val db : KeyValueDatabase) extends BlockBuildingTestTrait {
+class BlockSampleData()(protected implicit val db: KeyValueDatabase) extends BlockBuildingTestTrait {
 
   val Addr1 = generateAccountAddress("Address1") // address 1
   val Addr2 = generateAccountAddress("Address2") // address 2
   val Addr3 = generateAccountAddress("Address3") // address 3
 
   object Tx {
-    val GEN01 = generationTransaction( "GenTx.BLK01", CoinAmount(50), Addr1.address )
-    val GEN02 = generationTransaction( "GenTx.BLK02", CoinAmount(50), Addr1.address )
-    val GEN03a = generationTransaction( "GenTx.BLK03", CoinAmount(50), Addr1.address )
-    val GEN04a = generationTransaction( "GenTx.BLK04", CoinAmount(50), Addr1.address )
-    val GEN05a = generationTransaction( "GenTx.BLK05", CoinAmount(50), Addr1.address )
-    val GEN03b = generationTransaction( "GenTx.BLK03b", CoinAmount(50), Addr1.address )
-    val GEN04b = generationTransaction( "GenTx.BLK04b", CoinAmount(50), Addr1.address )
+    val GEN01  = generationTransaction("GenTx.BLK01", CoinAmount(50), Addr1.address)
+    val GEN02  = generationTransaction("GenTx.BLK02", CoinAmount(50), Addr1.address)
+    val GEN03a = generationTransaction("GenTx.BLK03", CoinAmount(50), Addr1.address)
+    val GEN04a = generationTransaction("GenTx.BLK04", CoinAmount(50), Addr1.address)
+    val GEN05a = generationTransaction("GenTx.BLK05", CoinAmount(50), Addr1.address)
+    val GEN03b = generationTransaction("GenTx.BLK03b", CoinAmount(50), Addr1.address)
+    val GEN04b = generationTransaction("GenTx.BLK04b", CoinAmount(50), Addr1.address)
 
     val TX02 = normalTransaction(
       "TX02",
-      spendingOutputs = List( getOutput(GEN01,0) ),
+      spendingOutputs = List(getOutput(GEN01, 0)),
       newOutputs = List(
         NewOutput(CoinAmount(10), Addr2.address),
         NewOutput(CoinAmount(18), Addr1.address),
@@ -61,7 +60,7 @@ class BlockSampleData()(protected implicit val db : KeyValueDatabase) extends Bl
 
     val TX03 = normalTransaction(
       "TX03",
-      spendingOutputs = List( getOutput(TX02,0) ),
+      spendingOutputs = List(getOutput(TX02, 0)),
       newOutputs = List(
         NewOutput(CoinAmount(9), Addr2.address)
         // We have very expensive fee, 1 SC
@@ -73,7 +72,7 @@ class BlockSampleData()(protected implicit val db : KeyValueDatabase) extends Bl
     // Case 1 : Two transactions TX03a, TX03b in different block spends the same output. (conflict)
     val TX03a = normalTransaction(
       "TX03a",
-      spendingOutputs = List( getOutput(TX02,1) ),
+      spendingOutputs = List(getOutput(TX02, 1)),
       newOutputs = List(
         NewOutput(CoinAmount(17), Addr2.address)
         // We have very expensive fee, 2 SC
@@ -83,7 +82,7 @@ class BlockSampleData()(protected implicit val db : KeyValueDatabase) extends Bl
     // UTXO : TX03 : 0
     val TX03b = normalTransaction(
       "TX03b",
-      spendingOutputs = List( getOutput(TX02,1) ),
+      spendingOutputs = List(getOutput(TX02, 1)),
       newOutputs = List(
         NewOutput(CoinAmount(15), Addr2.address)
         // We have very expensive fee, 4 SC
@@ -94,7 +93,7 @@ class BlockSampleData()(protected implicit val db : KeyValueDatabase) extends Bl
 
     val TX04 = normalTransaction(
       "TX04",
-      spendingOutputs = List( getOutput(TX03,0), getOutput(TX02,3) ),
+      spendingOutputs = List(getOutput(TX03, 0), getOutput(TX02, 3)),
       newOutputs = List(
         NewOutput(CoinAmount(8), Addr2.address)
         // We have very expensive fee, 12) SC
@@ -108,7 +107,7 @@ class BlockSampleData()(protected implicit val db : KeyValueDatabase) extends Bl
 
     val TX04a = normalTransaction(
       "TX04a",
-      spendingOutputs = List( getOutput(TX04,0) ),
+      spendingOutputs = List(getOutput(TX04, 0)),
       newOutputs = List(
         NewOutput(CoinAmount(6), Addr2.address)
         // We have very expensive fee, 2 SC
@@ -121,7 +120,7 @@ class BlockSampleData()(protected implicit val db : KeyValueDatabase) extends Bl
     // as it depends on the output GEN03b created on the branch b.
     val TX04b = normalTransaction(
       "TX04b",
-      spendingOutputs = List( getOutput(GEN03b,0) ),
+      spendingOutputs = List(getOutput(GEN03b, 0)),
       newOutputs = List(
         NewOutput(CoinAmount(4), Addr2.address)
         // We have very expensive fee, 4 SC
@@ -134,7 +133,7 @@ class BlockSampleData()(protected implicit val db : KeyValueDatabase) extends Bl
     // TX04b2 goes to the transaction pool, as it depends on the unpent output, (TX02,2)
     val TX04b2 = normalTransaction(
       "TX04b2",
-      spendingOutputs = List( getOutput(TX02,2) ),
+      spendingOutputs = List(getOutput(TX02, 2)),
       newOutputs = List(
         NewOutput(CoinAmount(9), Addr2.address)
         // We have very expensive fee, 1 SC
@@ -145,7 +144,7 @@ class BlockSampleData()(protected implicit val db : KeyValueDatabase) extends Bl
 
     val TX05a = normalTransaction(
       "TX05a",
-      spendingOutputs = List( getOutput(TX04a,0) ),
+      spendingOutputs = List(getOutput(TX04a, 0)),
       newOutputs = List(
         NewOutput(CoinAmount(5), Addr2.address)
         // We have very expensive fee, 1 SC
@@ -154,18 +153,17 @@ class BlockSampleData()(protected implicit val db : KeyValueDatabase) extends Bl
     // UTXO : TX02 : 2
     // UTXO : TX05a : 0
 
-
   }
 
   object Block {
-    val BLK01  = doMining( newBlock(env.GenesisBlockHash,  List(Tx.GEN01)), 4)
+    val BLK01 = doMining(newBlock(env.GenesisBlockHash, List(Tx.GEN01)), 4)
     // BUGBUG : Need to spend the outputs of GEN01 after the coinbase maturity (=two confirmations in the testnet) is met.
-    val BLK02  = doMining( newBlock(BLK01.header.hash,     List(Tx.GEN02, Tx.TX02)), 4)
-    val BLK03a = doMining( newBlock(BLK02.header.hash,     List(Tx.GEN03a, Tx.TX03, Tx.TX03a)), 4)
-    val BLK04a = doMining( newBlock(BLK03a.header.hash,    List(Tx.GEN04a, Tx.TX04, Tx.TX04a)), 4)
-    val BLK05a = doMining( newBlock(BLK04a.header.hash,    List(Tx.GEN05a, Tx.TX05a)), 8)
+    val BLK02  = doMining(newBlock(BLK01.header.hash, List(Tx.GEN02, Tx.TX02)), 4)
+    val BLK03a = doMining(newBlock(BLK02.header.hash, List(Tx.GEN03a, Tx.TX03, Tx.TX03a)), 4)
+    val BLK04a = doMining(newBlock(BLK03a.header.hash, List(Tx.GEN04a, Tx.TX04, Tx.TX04a)), 4)
+    val BLK05a = doMining(newBlock(BLK04a.header.hash, List(Tx.GEN05a, Tx.TX05a)), 8)
 
-    val BLK03b = doMining( newBlock(BLK02.header.hash,     List(Tx.GEN03b, Tx.TX03, Tx.TX03b)), 4)
-    val BLK04b = doMining( newBlock(BLK03b.header.hash,    List(Tx.GEN04b, Tx.TX04, Tx.TX04b, Tx.TX04b2)), 8)
+    val BLK03b = doMining(newBlock(BLK02.header.hash, List(Tx.GEN03b, Tx.TX03, Tx.TX03b)), 4)
+    val BLK04b = doMining(newBlock(BLK03b.header.hash, List(Tx.GEN04b, Tx.TX04, Tx.TX04b, Tx.TX04b2)), 8)
   }
 }

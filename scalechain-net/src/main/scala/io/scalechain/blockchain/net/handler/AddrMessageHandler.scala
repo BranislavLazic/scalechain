@@ -1,14 +1,14 @@
 package io.scalechain.blockchain.net.handler
 
 import com.typesafe.scalalogging.Logger
-import io.scalechain.blockchain.proto.{Addr, ProtocolMessage}
+import io.scalechain.blockchain.proto.{ Addr, ProtocolMessage }
 import org.slf4j.LoggerFactory
 
 /**
   * The message handler for Addr message.
   */
 object AddrMessageHandler {
-  private lazy val logger = Logger( LoggerFactory.getLogger(AddrMessageHandler.getClass) )
+  private lazy val logger = Logger(LoggerFactory.getLogger(AddrMessageHandler.getClass))
 
   /** Handle Addr message.
     *
@@ -16,7 +16,7 @@ object AddrMessageHandler {
     * @param addr The Addr message to handle.
     * @return Some(message) if we need to respond to the peer with the message.
     */
-  def handle( context : MessageHandlerContext, addr : Addr ) : Unit = {
+  def handle(context: MessageHandlerContext, addr: Addr): Unit = {
     // TODO : Implement
   }
 }

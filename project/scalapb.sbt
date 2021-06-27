@@ -1,3 +1,3 @@
-libraryDependencies ++= Seq(
-  "com.github.os72" % "protoc-jar" % "3.1.0.1"
-)
+addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.3")
+
+libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % "0.11.1"

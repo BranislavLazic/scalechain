@@ -1,11 +1,11 @@
 package io.scalechain.blockchain.net.handler
 
 import com.typesafe.scalalogging.Logger
-import io.scalechain.blockchain.net.{BlockGateway, TimeBasedCache}
+import io.scalechain.blockchain.net.{ BlockGateway, TimeBasedCache }
 import io.scalechain.blockchain.chain.Blockchain
 import io.scalechain.blockchain.chain.processor.BlockProcessor
 import io.scalechain.blockchain.net.BlockGateway
-import io.scalechain.blockchain.net.message.{InvFactory, GetBlocksFactory}
+import io.scalechain.blockchain.net.message.{ GetBlocksFactory, InvFactory }
 import io.scalechain.blockchain.proto._
 import io.scalechain.util.Config
 import org.slf4j.LoggerFactory
@@ -15,11 +15,10 @@ import io.scalechain.blockchain.script.HashSupported._
   * The message handler for Block message.
   */
 object BlockMessageHandler {
-  private lazy val logger = Logger( LoggerFactory.getLogger(BlockMessageHandler.getClass) )
+  private lazy val logger = Logger(LoggerFactory.getLogger(BlockMessageHandler.getClass))
 
   // More than half of the peers should sign the block.
   val RequiredSigningTransactions = Config.peerAddresses().length / 2 + 1
-
 
   /** Handle Block message.
     *
@@ -27,7 +26,7 @@ object BlockMessageHandler {
     * @param block The Block message to handle.
     * @return Some(message) if we need to respond to the peer with the message.
     */
-  def handle( context : MessageHandlerContext, block : Block ) : Unit = {
+  def handle(context: MessageHandlerContext, block: Block): Unit = {
 
     // TODO : BUGBUG : Need to think about RocksDB transactions.
 
@@ -37,7 +36,7 @@ object BlockMessageHandler {
 
     BlockGateway.putReceivedBlock(blockHash, block)
 
-/*
+    /*
     if (chain.getBestBlockHash() == )
 
       // TODO : Add the block as a known inventory of the node that sent it.
@@ -88,7 +87,7 @@ object BlockMessageHandler {
           logger.info(s"An orphan block was found. Block Hash : ${blockHash}, Previous Hash : ${block.header.hashPrevBlock}, Inventories requested : ${getBlocksMessage} ")
           logger.trace(s"Requesting inventories of parents of the orphan. Orphan root: ${orphanRootHash} ")
         }
-*/
+     */
       }
     }
 
@@ -98,6 +97,6 @@ object BlockMessageHandler {
         context.peer.clearRequestedBlock()
       }
     }
-*/
+     */
   }
 }

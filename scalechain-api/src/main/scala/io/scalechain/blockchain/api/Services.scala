@@ -16,7 +16,7 @@ import io.scalechain.blockchain.api.command.wallet.p3.GetTransaction
   * to the actual Service object (such as GetBlock)
   */
 object Services {
-  val all = Seq (
+  val all = Seq(
     GetBestBlockHash,
     GetBlock,
     GetBlockHash,
@@ -37,7 +37,7 @@ object Services {
 
     /*
         GetTransaction,
-    */
+     */
   )
 
   // The map from the command to the service object.
@@ -51,4 +51,3 @@ object Services {
   // dropRight(1)  => getbestblockhash
   val serviceByCommand = (all.map(_.getClass.getSimpleName.toLowerCase.dropRight(1)) zip all).toMap
 }
-
